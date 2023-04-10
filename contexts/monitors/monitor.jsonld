@@ -1,0 +1,17 @@
+{
+    "@context": [
+    {
+      "monitor": "http://example.com/monitor#",
+      "name": "monitor:name",
+      "point1": {
+        "@id": "monitor:point1",
+        "@type": "@id"
+      },
+      "point2": {
+        "@id": "monitor:point2",
+        "@type": "@id"
+      }
+    },
+    "../entities/point.jsonld"
+  ]
+}

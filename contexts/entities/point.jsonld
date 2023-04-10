@@ -1,0 +1,17 @@
+{
+    "@context": {
+        "point": "http://example.com/point#",
+        "x": {
+            "@id": "point:x",
+            "@type": "xsd:double"
+        },
+        "y": {
+            "@id": "point:y",
+            "@type": "xsd:double"
+        },
+        "z": {
+            "@id": "point:z",
+            "@type": "xsd:double"
+        }
+    }
+}
