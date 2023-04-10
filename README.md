@@ -30,9 +30,7 @@
 
 - `src/contexts/` - contains json-ld contexts for entities and monitors
 - `src/instances/` - contains json-ld instances for entities and monitors
-- `src/scripts/` - contains scripts for generating code from instances
 - `src/scripts/convert.py` - script to read json-ld instances and generate c++ code based on the template
-- `src/templates/` - contains templates for generating code from instances
 - `src/templates/src/distances.cpp.jinja2` - template code for calculating euclidean distances between 2 3D points
 - `src/ws/test#` - contains the generated code files
 
