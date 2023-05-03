@@ -1,0 +1,30 @@
+{
+    "@context": {
+        "coord-frame": "http://example.com/coordinate_frame#",
+        "frame": "../entities/frame.jsonld",
+        "orientation": "../entities/orientation.jsonld",
+
+        "of-frame": {
+            "@id": "coord-frame:of-frame",
+            "@type": "frame:Frame"
+        },
+        "origin": {
+            "@id": "coord-frame:origin",
+            "@container": "@list",
+            "@type": "xsd:double"
+        },
+        "wrt-frame": {
+            "@id": "coord-frame:wrt-frame",
+            "@type": "frame:Frame"
+        },
+        "wrt-origin": {
+            "@id": "coord-frame:wrt-origin",
+            "@container": "@list",
+            "@type": "xsd:double"
+        },
+        "wrt-orientation": {
+            "@id": "coord-frame:wrt-orientation",
+            "@type": "orientation:Orientation"
+        }
+    }
+}

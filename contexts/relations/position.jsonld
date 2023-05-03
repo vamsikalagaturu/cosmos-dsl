@@ -1,0 +1,36 @@
+{
+    "@context": {
+        "position": "http://example.com/position#",
+        "point": "../entities/point.jsonld",
+        "coord-frame": "coordinate_frame.jsonld",
+        
+        "of-position": {
+            "@id": "position:of-position",
+            "@type": "point:Point"
+        },
+        "in-frame": {
+            "@id": ":position:in-frame",
+            "@type": "coord-frame:CoordinateFrame"
+        },
+        "wrt-frame": {
+            "@id": "position:wrt-frame",
+            "@type": "coord-frame:CoordinateFrame"
+        },
+        "x": {
+            "@id": "position:x",
+            "@type": "xsd:float"
+        },
+        "y": {
+            "@id": "position:y",
+            "@type": "xsd:float"
+        },
+        "z": {
+            "@id": "position:z",
+            "@type": "xsd:float"
+        },
+        "unit": {
+            "@id": "position:units",
+            "@type": "xsd:string"
+        }
+    }
+}
