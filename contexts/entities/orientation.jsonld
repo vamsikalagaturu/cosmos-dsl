@@ -1,0 +1,60 @@
+{
+    "@context": {
+        "orientation": "http://example.com/orientation#",
+        
+        "@id": "orientation:Orientation",
+        "@type": "@id",
+
+        "rpy": {
+            "@id": "orientation:rpy",
+            "@type": "orientation:RPY",
+            "roll": {
+                "@id": "orientation:roll",
+                "@type": "xsd:float"
+            },
+            "pitch": {
+                "@id": "orientation:pitch",
+                "@type": "xsd:float"
+            },
+            "yaw": {
+                "@id": "orientation:yaw",
+                "@type": "xsd:float"
+            }
+        },
+
+        "quaternion": {
+            "@id": "orientation:quaternion",
+            "@type": "orientation:Quaternion",
+            "x": {
+                "@id": "orientation:x",
+                "@type": "xsd:float"
+            },
+            "y": {
+                "@id": "orientation:y",
+                "@type": "xsd:float"
+            },
+            "z": {
+                "@id": "orientation:z",
+                "@type": "xsd:float"
+            },
+            "w": {
+                "@id": "orientation:w",
+                "@type": "xsd:float"
+            }
+        },
+        
+        "euler": {
+            "@id": "orientation:euler",
+            "@type": "orientation:Euler",
+            "convention": {
+                "@id": "orientation:convention",
+                "@type": "xsd:string"
+            },
+            "data": {
+                "@id": "orientation:data",
+                "@container": "@list",
+                "@type": "xsd:double"
+            }
+        }
+    }
+}
