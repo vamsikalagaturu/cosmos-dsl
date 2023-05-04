@@ -1,22 +1,27 @@
 {
     "@context": [
-        "../contexts/relations/position.jsonld",
-        "../contexts/relations/coordinate_frame.jsonld",
+        "../contexts/entities/point.jsonld",
+        "../contexts/relations/spatial_relations.jsonld",
         {
-            "pos": "http://example.com/position#"
+            "rob": "http://example.com/rob#"
         }
     ],
-    "@id": "pos:p1-coord",
-    "@type": "position",
-    "of-position": "pos:p1",
-    "in-frame": {
-        "@id": "pos:f1-coord",
-        "@type": "coord-frame:CoordinateFrame",
-        "of-frame": "pos:f1",
-        "origin": [10, 20, 30]
-    },
-    "x": 1.0,
-    "y": 2.0,
-    "z": 3.0,
-    "unit": "m"
+    
+    "@id": "rob:pos_instance",
+
+    "@graph": [
+        {
+            "point": "rob:p1"
+        },
+        {
+            "point": "rob:p2"
+        },
+        {
+            "@id": "rob:pos1",
+            "@type": ["Position"],
+            "of": "rob:p1",
+            "wrt-point": "rob:p2",
+            "quantity": "length"
+        }
+    ]
 }

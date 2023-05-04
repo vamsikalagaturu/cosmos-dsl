@@ -1,0 +1,22 @@
+{
+    "@context": {
+        "spatrel": "http://example.com/spatial_relations#",
+        
+        "Position": "spatrel:Position",
+        "Orientation": "spatrel:Orientation",
+        "Pose": "spatrel:Pose",
+        
+        "of": {
+            "@id": "spatrel:of",
+            "@type": "point"
+        },
+        "wrt-point": {
+            "@id": "spatrel:wrt-point",
+            "@type": "point"
+        },
+        "quantity": {
+            "@id": "spatrel:quantity",
+            "@type": "xsd:string"
+        }
+    }
+}

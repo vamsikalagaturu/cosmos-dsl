@@ -1,0 +1,27 @@
+{
+    "@context": [
+        "../contexts/entities/frame.jsonld",
+        "../contexts/relations/coordinate.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:pc_instance",
+
+    "@graph": [
+        {
+            "frame": "rob:f1"
+        },
+        {
+            "@id": "rob:pc1",
+            "@type": ["PositionReference", "PositionCoordinate", "VectorXYZ"],
+            "of-position": "rob:pos1",
+            "as-seen-by": "rob:f1",
+            "unit": "m",
+            "x": 1.0, 
+            "y": 2.0, 
+            "z": 3.0
+        }
+    ]
+}
