@@ -1,0 +1,16 @@
+{
+    "@context": {
+        "distance": "http://example.com/distance#",
+
+        "CoordPositionToPosition": "distance:CoordPositionToPosition",
+
+        "from-position-coord": {
+            "@id": "distance:from-position-coord",
+            "@type": "@id"
+        },
+        "to-position-coord": {
+            "@id": "distance:to-position-coord",
+            "@type": "@id"
+        }
+    }
+}

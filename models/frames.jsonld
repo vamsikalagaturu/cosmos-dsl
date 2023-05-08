@@ -1,0 +1,17 @@
+{
+    "@context": [
+        "../metamodels/entities/frame.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:frame_instance",
+
+    "@graph": [
+        {
+            "@id": "rob:f1",
+            "@type": "Frame"
+        }
+    ]
+}

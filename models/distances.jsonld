@@ -1,0 +1,19 @@
+{
+    "@context": [
+        "../metamodels/relations/distance.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:distance_instance",
+
+    "@graph": [
+        {
+            "@id": "rob:dist-pos-p1-origin-coord-p2-origin-coord",
+            "@type": "CoordPositionToPosition",
+            "from-position-coord": "rob:pos-p1-origin-coord",
+            "to-position-coord": "rob:pos-p2-origin-coord"
+        }
+    ]
+}

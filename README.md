@@ -9,14 +9,24 @@
 ```bash
 ├── README.md
 └── src
-    ├── contexts
+    ├── metamodels
     │   ├── entities
-    │   │   └── point.jsonld
-    │   └── monitors
-    │       └── monitor.jsonld
-    ├── instances
-    │   ├── monitor_instance.jsonld
-    │   └── point_instance.jsonld
+    │   │   ├── point.jsonld
+    │   │   ├── frame.jsonld
+    │   │   └── orientation.jsonld
+    │   ├── monitors
+    │   │   └── monitor.jsonld
+    │   └── relations
+    │       ├── coordinate.jsonld
+    │       ├── distance.jsonld
+    │       └── spatial_relations.jsonld
+    ├── models
+    │   ├── distances.jsonld
+    │   ├── frames.jsonld
+    │   ├── monitors.jsonld
+    │   ├── points.jsonld
+    │   ├── position_coord.jsonld
+    │   └── position.jsonld
     ├── scripts
     │   └── convert.py
     ├── templates
@@ -28,8 +38,8 @@
 
 ### Folder structure details
 
-- `src/contexts/` - contains json-ld contexts for entities and monitors
-- `src/instances/` - contains json-ld instances for entities and monitors
+- `src/metamodels/` - contains json-ld metamodels for entities, relations and monitors
+- `src/models/` - contains json-ld models
 - `src/scripts/convert.py` - script to read json-ld instances and generate c++ code based on the template
 - `src/templates/src/distances.cpp.jinja2` - template code for calculating euclidean distances between 2 3D points
 - `src/ws/test#` - contains the generated code files

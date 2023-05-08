@@ -1,6 +1,6 @@
 {
     "@context": {
-        "coord": "http://example.com/coordinate_frame#",
+        "coord": "http://example.com/coordinate#",
         
         "PositionReference": "coord:PositionReference",
         "OrientationReference": "coord:OrientationReference",
@@ -16,22 +16,22 @@
 
         "of-position": {
             "@id": "coord:of-position",
-            "@type": "spatrel"
+            "@type": "@id"
         },
         
         "of-orientation": {
             "@id": "coord:of-orientation",
-            "@type": "spatrel"
+            "@type": "@id"
         },
 
         "of-pose": {
             "@id": "coord:of-pose",
-            "@type": "spatrel"
+            "@type": "@id"
         },
 
         "as-seen-by": {
             "@id": "coord:as-seen-by",
-            "@type": "frame"
+            "@type": "@id"
         },
 
         "unit": {

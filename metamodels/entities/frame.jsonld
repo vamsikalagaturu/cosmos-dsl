@@ -1,7 +1,6 @@
 {
     "@context": {
         "frame": "http://example.com/frame#",
-        "@id": "frame:Frame",
-        "@type": "@id"
+        "Frame": "frame:Frame"
     }
 }

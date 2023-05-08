@@ -1,0 +1,20 @@
+{
+    "@context": [
+        "../metamodels/monitors/monitor.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:distance_monitor",
+
+    "@graph": [
+        {
+            "@id": "rob:dist-pos-p1-origin-coord-p2-origin-coord-monitor",
+            "@type": "Monitor",
+            "distance": "rob:dist-pos-p1-origin-coord-p2-origin-coord",
+            "comparision_operator": "<",
+            "threshold": 0.001
+        }
+    ]
+}

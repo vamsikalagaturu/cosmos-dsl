@@ -1,0 +1,25 @@
+{
+    "@context": [
+        "../metamodels/entities/point.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:point_instance",
+
+    "@graph": [
+        {
+            "@id": "rob:origin",
+            "@type": "Point"
+        },
+        {
+            "@id": "rob:p1",
+            "@type": "Point"
+        },
+        {
+            "@id": "rob:p2",
+            "@type": "Point"
+        }
+    ]
+}

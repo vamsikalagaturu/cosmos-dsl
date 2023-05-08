@@ -8,15 +8,11 @@
         
         "of": {
             "@id": "spatrel:of",
-            "@type": "point"
+            "@type": "@id"
         },
-        "wrt-point": {
-            "@id": "spatrel:wrt-point",
-            "@type": "point"
-        },
-        "quantity": {
-            "@id": "spatrel:quantity",
-            "@type": "xsd:string"
+        "wrt": {
+            "@id": "spatrel:wrt",
+            "@type": "@id"
         }
     }
 }

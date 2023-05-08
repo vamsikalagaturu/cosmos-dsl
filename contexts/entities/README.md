@@ -1,1 +1,0 @@
-### folders for json-ld schemas for the entities
