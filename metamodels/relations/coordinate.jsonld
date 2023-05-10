@@ -1,0 +1,61 @@
+{
+    "@context": {
+        "coord": "http://example.com/coordinate#",
+        
+        "PositionReference": "coord:PositionReference",
+        "OrientationReference": "coord:OrientationReference",
+        "PoseReference": "coord:PoseReference",
+
+        "PositionCoordinate": "coord:PositionCoordinate",
+        "OrientationCoordinate": "coord:OrientationCoordinate",
+        "PoseCoordinate": "coord:PoseCoordinate",
+
+        "Orientation": "../entities/orientation.jsonld",
+
+        "VectorXYZ": "coord:VectorXYZ",
+
+        "of-position": {
+            "@id": "coord:of-position",
+            "@type": "@id"
+        },
+        
+        "of-orientation": {
+            "@id": "coord:of-orientation",
+            "@type": "@id"
+        },
+
+        "of-pose": {
+            "@id": "coord:of-pose",
+            "@type": "@id"
+        },
+
+        "as-seen-by": {
+            "@id": "coord:as-seen-by",
+            "@type": "@id"
+        },
+
+        "unit": {
+            "@id": "coord:unit",
+            "@type": "xsd:string"
+        },
+
+        "orientation": {
+            "@id": "coord:orientation",
+            "@type": "@id"
+        },
+
+        "x": {
+            "@id": "coord:x",
+            "@type": "xsd:double"
+        },
+        "y": {
+            "@id": "coord:y",
+            "@type": "xsd:double"
+        },
+        "z": {
+            "@id": "coord:z",
+            "@type": "xsd:double"
+        }
+        
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "@context": {
+        "monitor": "http://example.com/monitor#",
+
+        "Monitor": "monitor:Monitor",
+        "MonitorDistance": "monitor:MonitorDistance",
+
+        "threshold": {
+            "@id": "monitor:threshold",
+            "@type": "xsd:double"
+        },
+        "comparision_operator": {
+            "@id": "monitor:comparision_operator",
+            "@type": "xsd:string"
+        },
+        "distance": {
+            "@id": "monitor:distance",
+            "@type": "@id"
+        }
+    }
+}

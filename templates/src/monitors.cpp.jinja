@@ -1,0 +1,134 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+struct Point3D {
+    double x, y, z;
+};
+
+double distance3D(Point3D p1, Point3D p2) {
+    double dx = p1.x - p2.x;
+    double dy = p1.y - p2.y;
+    double dz = p1.z - p2.z;
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+int main() {
+
+{#- get monitors -#}
+{%- for monitor in g.subjects(RDF.type, MONITOR["Monitor"]) -%}
+  {#- if monitor is a distance monitor -#}
+  {%- if (monitor, RDF.type, MONITOR["MonitorDistance"]) in g -%}
+    {# get comparison operator #}
+    auto comp_op = "{{ g.value(monitor, MONITOR["comparision_operator"]) }}";
+    {# get threshold #}
+    auto threshold = {{ g.value(monitor, MONITOR["threshold"]) }};
+
+    {# get distance iri #}
+    {%- with distance_iri = g.value(monitor, MONITOR["distance"]) -%}
+
+        {# check if distance is a CoordPositionToPosition #}
+        {%- if (g.value(monitor, MONITOR["distance"]), RDF.type, DIST["CoordPositionToPosition"]) in g -%}
+            {%- with from_pos_coord = g.value(distance_iri, DIST["from-position-coord"]) -%}
+    auto from_pos_coord_f = "{{ g.value(from_pos_coord, COORD["as-seen-by"]) }}";
+    auto from_pos_coord_u = "{{ g.value(from_pos_coord, QUDT["unit"]) }}";
+            {%- endwith -%}
+
+            {% with to_pos_coord = g.value(distance_iri, DIST["to-position-coord"]) %}
+    auto to_pos_coord_f = "{{ g.value(to_pos_coord, COORD["as-seen-by"]) }}";
+    auto to_pos_coord_u = "{{ g.value(to_pos_coord, QUDT["unit"]) }}";
+            {% endwith %}
+
+    if (from_pos_coord_u != to_pos_coord_u)
+    {
+        // TODO: handle different units
+        cerr << "Units are not the same" << endl;
+        cerr << "Handler not implemented" << endl;
+        return 1;
+    }
+
+    if (from_pos_coord_f != to_pos_coord_f)
+    {
+        // TODO: transform into same frame
+        cerr << "Frames are not the same" << endl;
+        cerr << "Handler not implemented" << endl;
+        return 1;
+    }
+            
+            {# get coordinates #}
+    Point3D from_pos_coord;
+    Point3D to_pos_coord;
+            
+            {% with from_pos_coord = g.value(distance_iri, DIST["from-position-coord"]) %}
+    from_pos_coord.x = {{ g.value(from_pos_coord, COORD["x"]) }};
+    from_pos_coord.y = {{ g.value(from_pos_coord, COORD["y"]) }};
+    from_pos_coord.z = {{ g.value(from_pos_coord, COORD["z"]) }};
+            {% endwith %}
+
+            {% with to_pos_coord = g.value(distance_iri, DIST["to-position-coord"]) %}
+    to_pos_coord.x = {{ g.value(to_pos_coord, COORD["x"]) }};
+    to_pos_coord.y = {{ g.value(to_pos_coord, COORD["y"]) }};
+    to_pos_coord.z = {{ g.value(to_pos_coord, COORD["z"]) }};
+            {%- endwith -%}
+
+            {# calculate distance #}
+    double distance = distance3D(from_pos_coord, to_pos_coord);
+
+    cout << "Distance: " << distance << endl;
+
+            {# compare distance #}
+    if (comp_op == "<")
+    {
+        if (distance < threshold)
+        {
+            cout << "Distance is less than threshold" << endl;
+        }
+        else
+        {
+            cout << "Distance is greater than threshold" << endl;
+        }
+    } else if (comp_op == ">")
+    {
+        if (distance > threshold)
+        {
+            cout << "Distance is greater than threshold" << endl;
+        }
+        else
+        {
+            cout << "Distance is less than threshold" << endl;
+        }
+    } else if (comp_op == "==")
+    {
+        if (fabs(distance - threshold) < 0.0001)
+        {
+            cout << "Distance is equal to threshold" << endl;
+        }
+        else
+        {
+            cout << "Distance is not equal to threshold" << endl;
+        }
+    } else
+    {
+        cerr << "Unknown comparison operator" << endl;
+        cerr << "Handler not implemented" << endl;
+        return 1;
+    }
+
+        {%- else -%}
+    cerr << "Distance monitor is not a CoordPositionToPosition" << endl;
+    cerr << "Handler not implemented" << endl;
+    return 1;
+        {%- endif -%}
+    {%- endwith -%}
+        
+    {%- else -%}
+    cerr << "Distance monitor is not a CoordPositionToPosition" << endl;
+    cerr << "Handler not implemented" << endl;
+    return 1;
+    {%- endif -%}
+
+{% endfor %}
+
+    return 0;
+}
