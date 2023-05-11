@@ -10,9 +10,9 @@
 
     "@graph": [
         {
-            "@id": "rob:dist-pos-p1-origin-coord-p2-origin-coord-monitor",
+            "@id": "rob:dist-p1-p2-monitor",
             "@type": ["Monitor", "MonitorDistance"],
-            "distance": "rob:dist-pos-p1-origin-coord-p2-origin-coord",
+            "distance": "rob:dist-p1-p2",
             "comparision_operator": "<",
             "threshold": 0.001
         }

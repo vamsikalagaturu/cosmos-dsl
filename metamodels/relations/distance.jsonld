@@ -2,14 +2,14 @@
     "@context": {
         "distance": "http://example.com/distance#",
 
-        "CoordPositionToPosition": "distance:CoordPositionToPosition",
+        "CoordPointToPoint": "distance:CoordPointToPoint",
 
-        "from-position-coord": {
-            "@id": "distance:from-position-coord",
+        "from-point": {
+            "@id": "distance:from-point",
             "@type": "@id"
         },
-        "to-position-coord": {
-            "@id": "distance:to-position-coord",
+        "to-point": {
+            "@id": "distance:to-point",
             "@type": "@id"
         }
     }
