@@ -47,21 +47,15 @@ class Convert:
 
         template = self.templates_env.get_template('src/monitors.cpp.jinja')
 
+        mons = self.get_mons()
+
         result = template.render({
-            "g": g,
-            "RDF": RDF,
-            'POINT': POINT,
-            'FRAME': FRAME,
-            'SPATREL': SPATREL,
-            'COORD': COORD,
-            'DIST': DIST,
-            'MONITOR': MONITOR,
-            'QUDT': QUDT,
+            "monitors": mons,
         })
 
         self.utils.write_to_file(result, template.name)
 
-    def test(self):
+    def get_mons(self) -> dict:
         g = self.parse_models(convert.model_names)
 
         # print the graph
@@ -78,58 +72,114 @@ class Convert:
 
         print("-"*20)
 
+        mons = []
+
         # get monitors
         for monitor in g.subjects(RDF.type, MONITOR["Monitor"]):
+            mon = {}
             # if monitor is a distance monitor
             if (monitor, RDF.type, MONITOR["MonitorDistance"]) in g:
                 # get comparison operator
-                comp_op = g.value(monitor, MONITOR["comparision_operator"])
+                comp_op = str(g.value(monitor, MONITOR["comparision_operator"]))
                 # get threshold
-                threshold = g.value(monitor, MONITOR["threshold"])
-                print(threshold)
+                threshold = float(g.value(monitor, MONITOR["threshold"]))
+
+                mon['comp_op'] = comp_op
+                mon['threshold'] = threshold
+                mon['type'] = 'MonitorDistance'
+                mon['distance'] = {}
+
                 # get distance IRI
                 distance_iri = g.value(monitor, MONITOR["distance"])
-                
-                if (distance_iri, RDF.type, DIST["CoordPositionToPosition"]) in g:
-                    from_pos_coord = g.value(distance_iri, DIST["from-position-coord"])
-                    to_pos_coord = g.value(distance_iri, DIST["to-position-coord"])
 
-                    # get ref-frames
-                    from_pos_coord_f = g.value(from_pos_coord, COORD["as-seen-by"])
-                    to_pos_coord_f = g.value(to_pos_coord, COORD["as-seen-by"])
-
-                    # get units
-                    from_pos_coord_u = g.value(from_pos_coord, QUDT["unit"]).split("/")[-1]
+                if (distance_iri, RDF.type, DIST["CoordPointToPoint"]) in g:
                     
-                    # TODO: get the value of the unit
+                    mon['distance']['type'] = 'CoordPointToPoint'
 
-                    to_pos_coord_u = g.value(to_pos_coord, QUDT["unit"]).split("/")[-1]
+                    from_point = g.value(distance_iri, DIST["from-point"])
+                    to_point= g.value(distance_iri, DIST["to-point"])
 
-                    if not from_pos_coord_u == to_pos_coord_u:
-                        # convert to same units
-                        raise NotImplementedError
+                    # get spatrel:Position relations for both the points
+                    query = f"""
+                        SELECT ?spatrel
+                        WHERE {{
+                            {{
+                                ?spatrel rdf:type spatrel:Position .
+                                ?spatrel ?p rob:{rdflib.URIRef(from_point).fragment} .
+                            }}
+                            UNION
+                            {{
+                                ?spatrel rdf:type spatrel:Position .
+                                ?spatrel ?p rob:{rdflib.URIRef(to_point).fragment} .
+                            }}
+                        }}
+                    """
 
-                    if not from_pos_coord_f == to_pos_coord_f:
-                        # transform into same frame
-                        raise NotImplementedError
-                    
-                    # get coordinates
-                    from_pos_coord_x = g.value(from_pos_coord, COORD["x"])
-                    from_pos_coord_y = g.value(from_pos_coord, COORD["y"])
-                    from_pos_coord_z = g.value(from_pos_coord, COORD["z"])
+                    r = g.query(query)
 
-                    to_pos_coord_x = g.value(to_pos_coord, COORD["x"])
-                    to_pos_coord_y = g.value(to_pos_coord, COORD["y"])
-                    to_pos_coord_z = g.value(to_pos_coord, COORD["z"])
+                    # get the spatrel's
+                    spatrels = [rdflib.URIRef(i[0]) for i in r]
 
+                    # if r does not have 2 results, print warning
+                    if len(r) == 2:
+
+                        # check if the coord has x, y, z values
+                        query = f"""
+                            SELECT ?x ?y ?z
+                            WHERE {{
+                                ?coord rdf:type coord:PositionCoordinate .
+                                ?coord ?c rob:{spatrels[0].fragment}  .
+                                ?coord coord:x ?x .
+                                ?coord coord:y ?y .
+                                ?coord coord:z ?z .
+                            }}
+                        """
+
+                        rc1 = g.query(query)
+
+                        if not rc1:
+                            print(f'Warning: The spatrel {spatrels[0]} does not have a coord')
+                            raise NotImplementedError('Handler for runtime data fetching not implemented yet')
+                        
+                        query = f"""
+                            SELECT ?x ?y ?z
+                            WHERE {{
+                                ?coord rdf:type coord:PositionCoordinate .
+                                ?coord ?c rob:{spatrels[1].fragment}  .
+                                ?coord coord:x ?x .
+                                ?coord coord:y ?y .
+                                ?coord coord:z ?z .
+                            }}
+                        """
+
+                        rc2 = g.query(query)
+
+                        if not rc2:
+                            print(f'Warning: The spatrel {spatrels[1]} does not have a coord')
+                            raise NotImplementedError('Handler for runtime data fetching not implemented yet')
+
+                        # get the coordinates
+                        coord1 = [i for i in rc1][0]
+                        coord2 = [i for i in rc2][0]
+
+                        # get the x, y, z values
+                        xyz1 = [float(i) for i in coord1]
+                        xyz2 = [float(i) for i in coord2]
+
+                        mon['distance']['xyz1'] = xyz1
+                        mon['distance']['xyz2'] = xyz2
+
+                    else:
+                        print(f'Warning: The points does not have spatrel:Position relations')
                 else:
-                    raise NotImplementedError
-                
+                    raise NotImplementedError('Distance monitor not implemented yet')
             else:
-                raise NotImplementedError
-                
+                raise NotImplementedError('Monitor not implemented yet')
+            
+            mons.append(mon)
+        
+        return mons
 
 if __name__ == '__main__':
     convert = Convert()
     convert.main()
-    # convert.test()

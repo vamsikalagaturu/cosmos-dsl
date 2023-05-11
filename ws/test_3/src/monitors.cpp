@@ -19,27 +19,18 @@ double distancePointToPoint(std::vector<double> xyz1, std::vector<double> xyz2) 
 }
 
 int main() {
-
-{#- get monitors -#}
-{%- for monitor in monitors -%}
-  {#- distance monitor -#}
-  {%- if (monitor["type"] == "MonitorDistance") -%}
-    {# get comparison operator #}
-    auto comp_op = "{{ monitor["comp_op"] }}";
-    {# get threshold #}
-    auto threshold = {{ monitor["threshold"] }};
-
-    {# check if distance is a CoordPositionToPosition #}
-    {%- if monitor["distance"]["type"] == "CoordPointToPoint" -%}
+    auto comp_op = "<";
+    
+    auto threshold = 0.001;
 
     double distance = distancePointToPoint(
-        {{ '{' + monitor["distance"]["xyz1"] | join(", ") + '}' }},
-        {{ '{' + monitor["distance"]["xyz2"] | join(", ") + '}' }}
+        {0.1, 0.2, 0.1},
+        {0.1, 0.3, 0.1}
     );
 
     cout << "Distance: " << distance << endl;
 
-    {# compare distance #}
+    
     if (comp_op == "<")
     {
         if (distance < threshold)
@@ -76,11 +67,6 @@ int main() {
         cerr << "Handler not implemented" << endl;
         return 1;
     }
-
-    {%- endif -%}
-    {%- endif -%}
-
-{% endfor %}
 
     return 0;
 }
