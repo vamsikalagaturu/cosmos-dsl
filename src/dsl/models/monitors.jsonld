@@ -11,9 +11,9 @@
     "@graph": [
         {
             "@id": "rob:dist-p1-p2-monitor",
-            "@type": ["Monitor", "MonitorDistance"],
+            "@type": ["Monitor", "DistanceMonitor"],
             "distance": "rob:dist-p1-p2",
-            "comparision_operator": "<",
+            "comparision_operator": "lt",
             "threshold": 0.001
         }
     ]

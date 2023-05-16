@@ -3,7 +3,7 @@
         "monitor": "http://example.com/monitor#",
 
         "Monitor": "monitor:Monitor",
-        "MonitorDistance": "monitor:MonitorDistance",
+        "DistanceMonitor": "monitor:DistanceMonitor",
 
         "threshold": {
             "@id": "monitor:threshold",

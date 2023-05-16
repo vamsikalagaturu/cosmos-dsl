@@ -30,6 +30,16 @@
             "x": 0.1, 
             "y": 0.3, 
             "z": 0.1
+        },
+        {
+            "@id": "rob:pos-p3-origin-coord",
+            "@type": ["PositionReference", "PositionCoordinate", "VectorXYZ"],
+            "of-position": "rob:pos-p3-origin",
+            "as-seen-by": "rob:f1",
+            "unit": "M",
+            "x": 0.1, 
+            "y": 0.4, 
+            "z": 0.1
         }
     ]
 }

@@ -20,6 +20,10 @@
         {
             "@id": "rob:p2",
             "@type": "Point"
+        },
+        {
+            "@id": "rob:p3",
+            "@type": "Point"
         }
     ]
 }

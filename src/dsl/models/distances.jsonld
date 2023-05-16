@@ -11,9 +11,8 @@
     "@graph": [
         {
             "@id": "rob:dist-p1-p2",
-            "@type": "CoordPointToPoint",
-            "from-point": "rob:p1",
-            "to-point": "rob:p2"
+            "@type": ["EuclideanDistance","PointToPointDistance"],
+            "between-entities": ["rob:p1","rob:p2"]
         }
     ]
 }

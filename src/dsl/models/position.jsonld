@@ -25,6 +25,13 @@
             "of": "rob:p2",
             "wrt": "rob:origin",
             "quantity-kind": "Length"
+        },
+        {
+            "@id": "rob:pos-p3-origin",
+            "@type": "Position",
+            "of": "rob:p3",
+            "wrt": "rob:origin",
+            "quantity-kind": "Length"
         }
     ]
 }
