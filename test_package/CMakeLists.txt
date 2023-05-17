@@ -4,11 +4,11 @@ project(test)
 
 find_package(orocos_kdl REQUIRED)
 
-# INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src)
-
 INCLUDE_DIRECTORIES(
   ${orocos_kdl_INCLUDE_DIRS}  
 )
 
-add_executable(geometry geometry.cpp )
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_NAME}/)
+
+add_executable(geometry geometry.cpp)
 TARGET_LINK_LIBRARIES(geometry orocos-kdl)
