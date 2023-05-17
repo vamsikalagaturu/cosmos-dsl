@@ -11,4 +11,8 @@ add_subdirectory(orocos_kinematics_dynamics/orocos_kdl)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/orocos_kinematics_dynamics/orocos_kdl/src/)
 
-add_subdirectory(test_package)
+add_subdirectory(kdl_parser/kdl_parser)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/kdl_parser/kdl_parser/include/)
+
+add_subdirectory(arm_actions)

@@ -12,3 +12,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_
 
 add_executable(geometry src/geometry.cpp)
 TARGET_LINK_LIBRARIES(geometry orocos-kdl)
+
+add_executable(fk src/fk.cpp)
+TARGET_LINK_LIBRARIES(fk orocos-kdl kdl_parser)
