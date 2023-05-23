@@ -1,9 +1,35 @@
 #include <kdl/chain.hpp>
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl_parser/kdl_parser.hpp>
 #include <kdl/frames_io.hpp>
+#include <kdl_parser/kdl_parser.hpp>
 #include <filesystem>
+
+void printLinkNames(KDL::Tree& tree)
+{
+    std::vector<std::string> link_names;
+
+    // get all segments
+    KDL::SegmentMap segments = tree.getSegments();
+
+    // iterate through all segments
+    for (auto segment : segments)
+    {
+        // get the name of the segment
+        std::string name = segment.first;
+
+        // add the name to the vector
+        link_names.push_back(name);
+    }
+
+    // print the link names
+    std::cout << "Link names: " << std::endl;
+    for (int i = 0; i < link_names.size(); i++)
+    {
+        std::cout << link_names[i] << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 void printJointNames(KDL::Chain& chain)
 {
@@ -18,6 +44,7 @@ void printJointNames(KDL::Chain& chain)
     {
         std::cout << joint_names[i] << std::endl;
     }
+    std::cout << std::endl;
 }
 
 void computeFK(KDL::ChainFkSolverPos_recursive fk_solver, KDL::JntArray& q, KDL::Frame& tool_tip_frame)
@@ -29,8 +56,6 @@ void computeFK(KDL::ChainFkSolverPos_recursive fk_solver, KDL::JntArray& q, KDL:
     double x = tool_tip_frame.p.x();
     double y = tool_tip_frame.p.y();
     double z = tool_tip_frame.p.z();
-
-    std::cout << std::endl;
 
     // Print the frame
     std::cout << "End-Effector frame\n";
@@ -83,9 +108,10 @@ int main()
     KDL::Tree my_tree;
     KDL::Chain my_chain;
 
-    std::filesystem::path srcPath = std::filesystem::current_path()  / "src";
+    // get current file path
+    std::filesystem::path path = __FILE__;
 
-    std::string robot_urdf = (srcPath / "arm_actions/urdf/gen3_robotiq_2f_85.urdf").string();
+    std::string robot_urdf = (path.parent_path().parent_path() / "urdf" / "gen3_robotiq_2f_85.urdf").string();
 
     // load the robot urdf into the kdl tree
     if (!kdl_parser::treeFromFile(robot_urdf, my_tree))
@@ -104,6 +130,9 @@ int main()
         std::cout << "Failed to get kdl chain" << std::endl;
         return -1;
     }
+
+    // print the link names
+    printLinkNames(my_tree);
 
     // print the joint names
     printJointNames(my_chain);
