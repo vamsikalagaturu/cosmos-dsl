@@ -1,0 +1,12 @@
+{
+    "@context": {
+        "thresh": "http://example.com/threshold#",
+
+        "Threshold": "thresh:Threshold",
+
+        "threshold-value": {
+            "@id": "thresh:threshold-value",
+            "@type": "xsd:double"
+        }
+    }
+}
