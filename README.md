@@ -1,79 +1,85 @@
-### Repository consisiting DSL for motion specifications using Vereshchagin solver
+## Repository consisiting DSL for motion specifications using Vereshchagin solver
 
-### Dependencies:
+## Dependencies:
 - rdflib
 - jinja2
+- kdl_parser
+- orocos_kinematics_dynamics
 
-### Folder structure
+## Setup
 
-```bash
-├── README.md
-└── src
-    ├── metamodels
-    │   ├── entities
-    │   │   ├── point.jsonld
-    │   │   ├── frame.jsonld
-    │   │   └── orientation.jsonld
-    │   ├── monitors
-    │   │   └── monitor.jsonld
-    │   └── relations
-    │       ├── coordinate.jsonld
-    │       ├── distance.jsonld
-    │       └── spatial_relations.jsonld
-    ├── models
-    │   ├── distances.jsonld
-    │   ├── frames.jsonld
-    │   ├── monitors.jsonld
-    │   ├── points.jsonld
-    │   ├── position_coord.jsonld
-    │   └── position.jsonld
-    ├── scripts
-    │   └── convert.py
-    ├── templates
-    │   └── src
-    │       └── distances.cpp.jinja2
-    └── ws
-        └── test#
-```
+### Step 1
 
-### Folder structure details
+- clone the repository into a workspace 
 
-- `src/metamodels/` - contains json-ld metamodels for entities, relations and monitors
-- `src/models/` - contains json-ld models
-- `src/scripts/convert.py` - script to read json-ld instances and generate c++ code based on the template
-- `src/templates/src/distances.cpp.jinja2` - template code for calculating euclidean distances between 2 3D points
-- `src/ws/test#` - contains the generated code files
-
-### How to use
-
-- Step 1
-
-    - clone the repository into a workspace
     ```bash
     mkdir -p ~/workspace/src && cd ~/workspace/src
 
-    git clone https://github.com/vamsikalagaturu/ms-vs-dsl.git .
+    git clone --recurse-submodules -j8 https://github.com/vamsikalagaturu/ms-vs-dsl.git .
     ```
 
-- Step 2
+### Step 2
+    
+- It is recommended to use a virtual environment or you can skip to step 3
+- You can install miniconda from [here](https://docs.conda.io/en/latest/miniconda.html).
+- Create a virtual environment from the `rnd_env.yml` file.
+    
+    ```bash
+    cd ~/workspace/src
 
-    - generate code from instances
+    conda env create -f rnd_env.yml -n rnd_env
+    ```
+- Activate the environment
+
+    ```bash
+    conda activate rnd_env
+    ```
+
+
+## How to use
+
+### Step 1
+
+- Run the `convert_and_build.sh` script
+
     ```bash
     cd ~/workspace/src/
 
-    python3 convert.py
+    ./convert_and_build.sh
     ```
-    - this will generate code in `src/ws/test#/` folder
+- The script will convert the DSL to C++ code and build the respecive packages in the workspace.
+- The output executables are written to `~/workspace/outputs/` directory.
 
-- Step 3
+### Step 2
     
-    - compile the generated code
+- Run the executables from the `~/workspace/outputs/` directory.
+
     ```bash
-    cd ~/workspace
-    mkdir build
+    cd ~/workspace/outputs/
 
+    ./arm_actions/<executable_name>
+    ```
 
-    cd ~/workspace/src/ws/test_#/path/to/generated/code
+## Running separately
 
-    g++ -o ~/workspace/build/file_out_name file_name.cpp
+### Step 1
+
+- Convert the DSL to C++ code
+
+    ```bash
+    cd ~/workspace/src/
+
+    python3 -m dsl/scripts/convert.py -d
+    ```
+- The converted C++ code is written to `~/workspace/src/arm_actions/src/` directory.
+- The `-d` flag is used to print the debug information.
+
+### Step 2
+
+- Make and build the packages
+  
+    ```bash
+    cd ~/workspace/src/
+
+    ./build.sh
     ```

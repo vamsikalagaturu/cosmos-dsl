@@ -14,10 +14,12 @@ parent_dir=$(dirname "$script_dir")
 
 # Create build and install directories if they don't exist
 if [ ! -d "$parent_dir/build" ]; then
+  echo "Creating build directory..."
   mkdir "$parent_dir/build"
 fi
 
 if [ ! -d "$parent_dir/install" ]; then
+  echo "Creating install directory..."
   mkdir "$parent_dir/install"
 fi
 
@@ -25,10 +27,16 @@ fi
 cd "$parent_dir/build"
 
 # Run CMake
+echo "Running CMake..."
 cmake ../src/
 
 # Build the project
+echo "Building the project..."
 cmake --build .
 
+echo "Build complete."
+
+echo "Output executables are in the outputs/ directory."
+
 # Install the project
-cmake --install ../build --prefix ../install
+# cmake --install ../build --prefix ../install
