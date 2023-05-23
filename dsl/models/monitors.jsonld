@@ -1,6 +1,8 @@
 {
     "@context": [
+        "../metamodels/monitors/threshold.jsonld",
         "../metamodels/monitors/monitor.jsonld",
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
         }
@@ -10,11 +12,21 @@
 
     "@graph": [
         {
+            "@id": "rob:lt",
+            "@type": "LessThan"
+        },
+        {
+            "@id": "rob:dist-p1-p2-threshold",
+            "@type": "Threshold",
+            "threshold-value": 0.01,
+            "unit": "M"
+        },
+        {
             "@id": "rob:dist-p1-p2-monitor",
             "@type": ["Monitor", "DistanceMonitor"],
-            "distance": "rob:dist-p1-p2",
-            "comparision_operator": "lt",
-            "threshold": 0.001
+            "distance": "rob:dist-p1-p2-coord",
+            "threshold": "rob:dist-p1-p2-threshold",
+            "constraint": "rob:lt"
         }
     ]
 }

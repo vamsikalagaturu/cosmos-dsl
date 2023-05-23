@@ -1,6 +1,7 @@
 {
     "@context": [
         "../metamodels/relations/distance.jsonld",
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
         }
@@ -12,7 +13,8 @@
         {
             "@id": "rob:dist-p1-p2",
             "@type": ["EuclideanDistance","PointToPointDistance"],
-            "between-entities": ["rob:p1","rob:p2"]
+            "between-entities": ["rob:p1","rob:p2"],
+            "quantity-kind": "Length"
         }
     ]
 }

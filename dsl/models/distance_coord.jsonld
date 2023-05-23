@@ -1,0 +1,20 @@
+{
+    "@context": [
+        "../metamodels/relations/distance_coordinate.jsonld",
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:distance_coordinate_instance",
+
+    "@graph": [
+        {
+            "@id": "rob:dist-p1-p2-coord",
+            "@type": "DistanceCoordinate",
+            "of": "rob:dist-p1-p2",
+            "unit": "M"
+        }
+    ]
+}
