@@ -10,8 +10,12 @@ INCLUDE_DIRECTORIES(
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_NAME}/)
 
-add_executable(geometry src/geometry.cpp)
-TARGET_LINK_LIBRARIES(geometry orocos-kdl)
+# add all cpp files in src folder
+file(GLOB SOURCES "src/*.cpp")
 
-add_executable(fk src/fk.cpp)
-TARGET_LINK_LIBRARIES(fk orocos-kdl kdl_parser)
+# make all cpp files in src folder as executable
+foreach(source ${SOURCES})
+    get_filename_component(name ${source} NAME_WE)
+    add_executable(${name} ${source})
+    TARGET_LINK_LIBRARIES(${name} orocos-kdl kdl_parser)
+endforeach(source ${SOURCES})
