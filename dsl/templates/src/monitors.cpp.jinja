@@ -20,14 +20,16 @@ double distancePointToPoint(std::vector<double> xyz1, std::vector<double> xyz2) 
 
 int main() {
 
+    string ns = "{{ ns }}";
+
 {#- get monitors -#}
 {%- for monitor in monitors -%}
   {#- distance monitor -#}
   {%- if (monitor["type"] == "DistanceMonitor") -%}
     {# get comparison operator #}
-    auto comp_op = "{{ monitor["comp_op"] }}";
+    string comp_op = "{{ monitor["comp_op"] }}";
     {# get threshold #}
-    auto threshold = {{ monitor["threshold"] }};
+    double threshold = {{ monitor["threshold_value"] }};
 
     {# check if distance is a CoordPositionToPosition #}
     {%- if monitor["distance"]["type"] == "PointToPointDistance" -%}
@@ -40,7 +42,7 @@ int main() {
     cout << "Distance: " << distance << endl;
 
     {# compare distance #}
-    if (comp_op == "lt")
+    if (comp_op == ns+"lt")
     {
         if (distance < threshold)
         {
@@ -50,7 +52,7 @@ int main() {
         {
             cout << "Distance is greater than threshold" << endl;
         }
-    } else if (comp_op == "gt")
+    } else if (comp_op == ns+"gt")
     {
         if (distance > threshold)
         {
@@ -60,7 +62,7 @@ int main() {
         {
             cout << "Distance is less than threshold" << endl;
         }
-    } else if (comp_op == "eq")
+    } else if (comp_op == ns+"eq")
     {
         if (fabs(distance - threshold) < 0.0001)
         {
