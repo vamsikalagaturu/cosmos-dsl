@@ -3,27 +3,10 @@
         "monitor": "http://example.com/monitor#",
 
         "Monitor": "monitor:Monitor",
-        "DistanceMonitor": "monitor:DistanceMonitor",
 
-        "LessThan": "monitor:LessThan",
-        "LessThanOrEqual": "monitor:LessThanOrEqual",
-        "Equal": "monitor:Equal",
-        "GreaterThanOrEqual": "monitor:GreaterThanOrEqual",
-        "GreaterThan": "monitor:GreaterThan",
-        "NotEqual": "monitor:NotEqual",
-        "InInterval": "monitor:InInterval",
-
-        "threshold": {
-            "@id": "monitor:threshold",
-            "@type": "@id"
-        },
         "constraint": {
             "@id": "monitor:constraint",
             "@type": "@id"
-        },
-        "distance": {
-            "@id": "monitor:distance",
-            "@type": "@id"
         }
     }
-}
+} 
