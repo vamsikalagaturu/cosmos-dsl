@@ -272,9 +272,9 @@ int main()
 
     // beta - accel energy for EE
     KDL::JntArray beta_energy(n_constraints);
-    beta_energy(0) = 0.0;
-    beta_energy(1) = 1.0;
-    beta_energy(2) = 9.81 + 1.0;
+    beta_energy(0) = 1.0;
+    beta_energy(1) = 0.0;
+    beta_energy(2) = 9.81;
     beta_energy(3) = 0.0;
     beta_energy(4) = 0.0;
     beta_energy(5) = 0.0;
@@ -300,10 +300,17 @@ int main()
     // time step
     double dt = 0.01;
 
-    // p gain for cartesian position control
-    double kp = 1.15;
+    // PID gains
+    double kp = 63.2;
+    double ki = 15.2;
+    double kd = 4.2;
 
-    auto [dx_c, dy_c, dz_c] = calc_dist(current_position, target_position);
+    auto [prev_error_x, prev_error_y, prev_error_z] = calc_dist(current_position, target_position);
+
+    // variables for tracking integral and previous error
+    double integral_x = 0.0;
+    double integral_y = 0.0;
+    double integral_z = 0.0;
 
     double current_control_vel_x = 0.0;
     double current_control_vel_y = 0.0;
@@ -311,7 +318,7 @@ int main()
 
     int i = 0;
 
-    double eps = 0.01;
+    double eps = 0.001;
 
     // store all the current positions
     std::vector<std::array<double, 3>> positions;
@@ -319,7 +326,7 @@ int main()
     // Current position: 
     // -0.3144, -0.0249, 0.5996
 
-    while(abs(dx_c) > eps || abs(dy_c) > eps || abs(dz_c) > eps)
+    while(abs(prev_error_x) > eps || abs(prev_error_y) > eps || abs(prev_error_z) > eps)
     {
         // compute the inverse dynamics
         int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext, ff_tau, constraint_tau);
@@ -371,58 +378,73 @@ int main()
         std::cout << "Target position: " << std::endl;
         std::cout << target_position[0] << ", " << target_position[1] << ", " << target_position[2] << std::endl;
 
-        auto [dx, dy, dz] = calc_dist(current_position, target_position);
+        auto [error_x, error_y, error_z] = calc_dist(current_position, target_position);
         
-        printf("error: [%f, %f, %f]\n", dx, dy, dz);
+        printf("error: [%f, %f, %f]\n", error_x, error_y, error_z);
+
+        // update the integral terms
+        integral_x += error_x * dt;
+        integral_y += error_y * dt;
+        integral_z += error_z * dt;
+
+        // compute the derivative terms
+        double derivative_x = (error_x - prev_error_x) / dt;
+        double derivative_y = (error_y - prev_error_y) / dt;
+        double derivative_z = (error_z - prev_error_z) / dt;
 
         // differentiate the control signal to get the velocity
-        double control_vel_x = (dx - dx_c) / dt;
-        double control_vel_y = (dy - dy_c) / dt;
-        double control_vel_z = (dz - dz_c) / dt;
+        double control_vel_x = (error_x - prev_error_x) / dt;
+        double control_vel_y = (error_y - prev_error_y) / dt;
+        double control_vel_z = (error_z - prev_error_z) / dt;
 
         // differentiate the control velocity to get the acceleration
         double control_acc_x = (control_vel_x - current_control_vel_x) / dt;
         double control_acc_y = (control_vel_y - current_control_vel_y) / dt;
         double control_acc_z = (control_vel_z - current_control_vel_z) / dt;
 
-        double control_signal_x = kp * control_acc_x;
-        double control_signal_y = kp * control_acc_y;
-        double control_signal_z = kp * control_acc_z;
+        // double control_signal_x = kp * control_acc_x;
+        // double control_signal_y = kp * control_acc_y;
+        // double control_signal_z = kp * control_acc_z;
 
-        if (dx > 0){
+        // calculate the control signals
+        double control_signal_x = kp * error_x + ki * integral_x + kd * derivative_x;
+        double control_signal_y = kp * error_y + ki * integral_y + kd * derivative_y;
+        double control_signal_z = kp * error_z + ki * integral_z + kd * derivative_z;
+
+        if (error_x > 0){
             control_signal_x = -abs(control_signal_x);
         } else {
             control_signal_x = abs(control_signal_x);
         }
 
-        if (dy > 0){
+        if (error_y > 0){
             control_signal_y = -abs(control_signal_y);
         } else {
             control_signal_y = abs(control_signal_y);
         }
 
-        if (dz > 0){
+        if (error_z > 0){
             control_signal_z = -abs(control_signal_z);
         } else {
             control_signal_z = abs(control_signal_z);
         }
 
         // update each beta energy based on the error
-        if (abs(dx) > eps)
+        if (abs(error_x) > eps)
         {
             beta_energy(0) = control_signal_x;
         } else {
             beta_energy(0) = 0.0;
         }
 
-        if (abs(dy) > eps)
+        if (abs(error_y) > eps)
         {
             beta_energy(1) = control_signal_y;
         } else {
             beta_energy(1) = 0.0;
         }
 
-        if (abs(dz) > eps)
+        if (abs(error_z) > eps)
         {
             beta_energy(2) = 9.81 + control_signal_z;
         } else {
@@ -431,15 +453,14 @@ int main()
 
         printf("Control signal: [%f, %f, %f]\n", beta_energy(0), beta_energy(1), beta_energy(2));
 
+        prev_error_x = error_x;
+        prev_error_y = error_y;
+        prev_error_z = error_z;
+
         // update the current control velocity
         current_control_vel_x = control_vel_x;
         current_control_vel_y = control_vel_y;
         current_control_vel_z = control_vel_z;
-
-        // update the current position
-        dx_c = dx;
-        dy_c = dy;
-        dz_c = dz;
 
         std::cout << std::endl;
 
