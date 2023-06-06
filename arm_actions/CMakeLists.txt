@@ -17,7 +17,7 @@ file(GLOB SOURCES "src/*.cpp")
 foreach(source ${SOURCES})
     get_filename_component(name ${source} NAME_WE)
     add_executable(${name} ${source})
-    TARGET_LINK_LIBRARIES(${name} orocos-kdl kdl_parser)
+    TARGET_LINK_LIBRARIES(${name} orocos-kdl kdl_parser boost_filesystem boost_system boost_iostreams)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder

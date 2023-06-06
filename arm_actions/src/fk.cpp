@@ -6,6 +6,7 @@
 #include "kdl_parser/kdl_parser.hpp"
 #include "chainhdsolver_vereshchagin.hpp"
 #include <filesystem>
+#include <gnuplot-iostream.h>
 
 void printLinkNames(KDL::Tree& tree)
 {
@@ -104,12 +105,87 @@ std::tuple<std::array<double, 3>, std::array<double, 3>> computeFK(KDL::ChainFkS
     return std::make_tuple(position, rpy);
 };
 
-double calc_dist(std::array<double, 3> p1, std::array<double, 3> p2)
+void populateAlphaUnitForces(const std::vector<double>& alpha_lin, const std::vector<double>& alpha_ang, KDL::Jacobian* alpha_unit_forces)
+{
+    if (alpha_lin.size() != 3 || alpha_ang.size() != 3)
+    {
+        // Invalid input size, handle the error accordingly
+        return;
+    }
+
+    KDL::Twist unit_force_x_l(
+        KDL::Vector(alpha_lin[0], 0.0, 0.0),
+        KDL::Vector(0.0, 0.0, 0.0)
+    );
+    alpha_unit_forces->setColumn(0, unit_force_x_l);
+
+    KDL::Twist unit_force_y_l(
+        KDL::Vector(0.0, alpha_lin[1], 0.0),
+        KDL::Vector(0.0, 0.0, 0.0)
+    );
+    alpha_unit_forces->setColumn(1, unit_force_y_l);
+
+    KDL::Twist unit_force_z_l(
+        KDL::Vector(0.0, 0.0, alpha_lin[2]),
+        KDL::Vector(0.0, 0.0, 0.0)
+    );
+    alpha_unit_forces->setColumn(2, unit_force_z_l);
+
+    KDL::Twist unit_force_x_a(
+        KDL::Vector(0.0, 0.0, 0.0),
+        KDL::Vector(alpha_ang[0], 0.0, 0.0)
+    );
+    alpha_unit_forces->setColumn(3, unit_force_x_a);
+
+    KDL::Twist unit_force_y_a(
+        KDL::Vector(0.0, 0.0, 0.0),
+        KDL::Vector(0.0, alpha_ang[1], 0.0)
+    );
+    alpha_unit_forces->setColumn(4, unit_force_y_a);
+
+    KDL::Twist unit_force_z_a(
+        KDL::Vector(0.0, 0.0, 0.0),
+        KDL::Vector(0.0, 0.0, alpha_ang[2])
+    );
+    alpha_unit_forces->setColumn(5, unit_force_z_a);
+}
+
+std::tuple<double, double, double> calc_dist(std::array<double, 3> p1, std::array<double, 3> p2)
 {
     double dx = p1[0] - p2[0];
     double dy = p1[1] - p2[1];
     double dz = p1[2] - p2[2];
-    return dx;
+    return std::make_tuple(dx, dy, dz);
+}
+
+// print a vector
+template <typename T>
+void printVec(const T& vec)
+{
+    std::cout << "[";
+    for (int i = 0; i < vec.size(); ++i)
+    {
+        std::cout << vec[i] << ", ";
+        if (i != vec.size() - 1) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << std::endl;
+}
+
+// print a kdl jnt array
+template <typename T>
+void printJntArr(const T& jntArr)
+{
+    std::cout << "[";
+    for (int i = 0; i < jntArr.rows(); ++i)
+    {
+        std::cout << jntArr(i);
+        if (i != jntArr.rows() - 1) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]" << std::endl;
 }
 
 int main()
@@ -149,23 +225,14 @@ int main()
     // number of joints
     int n_joints = my_chain.getNrOfJoints();
 
-    std::cout << "Number of joints: " << n_joints << std::endl;
-
     // number of segments
     // chain has 9 segments, but only 7 joints
     int n_segments = my_chain.getNrOfSegments();
 
-    std::cout << "Number of segments: " << n_segments << std::endl;
-
     // set the initial joint positions
     KDL::JntArray q(n_joints);
-    q(0) = 0.0; // joint_1
-    q(1) = M_PI_4; // joint_2
-    q(2) = 0.0; // joint_3
     q(3) = -M_PI_2; // joint_4
-    q(4) = 0.0; // joint_5
-    q(5) = M_PI_4; // joint_6
-    q(6) = 0.0; // joint_7
+    q(5) = -M_PI_2; // joint_6
 
     // create the forward kinematics solver
     KDL::ChainFkSolverPos_recursive fk_solver(my_chain);
@@ -182,7 +249,9 @@ int main()
     std::cout << current_position[0] << ", " << current_position[1] << ", " << current_position[2] << std::endl;
 
     // target position with z+0.1
-    std::array<double, 3> target_position = {current_position[0] + 0.1, current_position[1], current_position[2]};
+    std::array<double, 3> target_position = {current_position[0] + 0.025, current_position[1] + 0.025, current_position[2] - 0.02};
+    std::cout << "Target position: " << std::endl;
+    std::cout << target_position[0] << ", " << target_position[1] << ", " << target_position[2] << std::endl;
 
     std::cout << std::endl;
 
@@ -196,48 +265,16 @@ int main()
     // define unit constraint forces for EE
     KDL::Jacobian alpha_unit_forces(n_constraints);
 
-    // set the unit forces for each direction
-    KDL::Twist unit_force_x_l(
-        KDL::Vector(1.0, 0.0, 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces.setColumn(0, unit_force_x_l);
+    std::vector<double> alpha_lin = {1.0, 1.0, 1.0};
+    std::vector<double> alpha_ang = {1.0, 1.0, 1.0};
 
-    KDL::Twist unit_force_y_l(
-        KDL::Vector(0.0, 1.0, 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces.setColumn(1, unit_force_y_l);
-
-    KDL::Twist unit_force_z_l(
-        KDL::Vector(0.0, 0.0, 1.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces.setColumn(2, unit_force_z_l);
-
-    KDL::Twist unit_force_x_a(
-        KDL::Vector(0.0, 0.0, 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces.setColumn(3, unit_force_x_a);
-
-    KDL::Twist unit_force_y_a(
-        KDL::Vector(0.0, 0.0, 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces.setColumn(4, unit_force_y_a);
-
-    KDL::Twist unit_force_z_a(
-        KDL::Vector(0.0, 0.0, 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces.setColumn(5, unit_force_z_a);
+    populateAlphaUnitForces(alpha_lin, alpha_ang, &alpha_unit_forces);
 
     // beta - accel energy for EE
     KDL::JntArray beta_energy(n_constraints);
-    beta_energy(0) = 1.0;
-    beta_energy(1) = 0.0;
-    beta_energy(2) = 0.0;
+    beta_energy(0) = 0.0;
+    beta_energy(1) = 1.0;
+    beta_energy(2) = 9.81 + 1.0;
     beta_energy(3) = 0.0;
     beta_energy(4) = 0.0;
     beta_energy(5) = 0.0;
@@ -256,18 +293,6 @@ int main()
     KDL::Wrench f_tool(f, n);
     KDL::Wrenches f_ext(n_segments);
     f_ext[n_segments - 1] = f_tool; // input external forces at EE
-
-    // set the initial joint velocities to zero
-    for (int i = 0; i < n_joints; i++)
-    {
-        qd(i) = 0.0;
-    }
-
-    // set the feedforward torques to zero
-    for (int i = 0; i < n_joints; i++)
-    {
-        ff_tau(i) = 0.0;
-    }
     
     // compute the inverse dynamics
     std::cout<<"starting solver..."<<std::endl;
@@ -276,27 +301,35 @@ int main()
     double dt = 0.01;
 
     // p gain for cartesian position control
-    double kp = 1;
+    double kp = 1.15;
 
-    double current_error = calc_dist(current_position, target_position);
-    std::cout << "Current error: " << current_error << std::endl;
+    auto [dx_c, dy_c, dz_c] = calc_dist(current_position, target_position);
 
-    double current_control_vel = 0.0;
-    double current_control_acc;
+    double current_control_vel_x = 0.0;
+    double current_control_vel_y = 0.0;
+    double current_control_vel_z = 0.0;
 
     int i = 0;
 
-    while(abs(current_error) > 0.01)
+    double eps = 0.01;
+
+    // store all the current positions
+    std::vector<std::array<double, 3>> positions;
+
+    // Current position: 
+    // -0.3144, -0.0249, 0.5996
+
+    while(abs(dx_c) > eps || abs(dy_c) > eps || abs(dz_c) > eps)
     {
         // compute the inverse dynamics
         int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext, ff_tau, constraint_tau);
         if (sr < 0) std::cout << "KDL: Vereshchagin solver ERROR: " << sr << std::endl;
 
         // set the constraint torques to feedforward torques
-        for (int j = 0; j < n_joints; j++)
-        {
-            ff_tau(j) = constraint_tau(j);
-        }
+        // for (int j = 0; j < n_joints; j++)
+        // {
+        //     ff_tau(j) = constraint_tau(j);
+        // }
 
         // update the joint positions and velocities by integrating the accelerations
         for (int j = 0; j < n_joints; j++)
@@ -305,37 +338,20 @@ int main()
             qd(j) = qd(j) + qdd(j) * dt;
         }
 
-        std::cout << std::endl;
-        std::cout << "Time step: " << i << std::endl;
+        printf("Iteration: %d\n", i);
 
         // print the joint positions, velocities, aceelerations and constraint torques
         std::cout << "Joint accelerations: " << std::endl;
-        for (int j = 0; j < n_joints; j++)
-        {
-            std::cout << qdd(j) << " ";
-        }
-        std::cout << std::endl;
+        printJntArr(qdd);
 
         std::cout << "Constraint torques: " << std::endl;
-        for (int j = 0; j < n_joints; j++)
-        {
-            std::cout << constraint_tau(j) << " ";
-        }
-        std::cout << std::endl;
+        printJntArr(constraint_tau);
 
         std::cout << "Joint positions: " << std::endl;
-        for (int j = 0; j < n_joints; j++)
-        {
-            std::cout << q(j) << " ";
-        }
-        std::cout << std::endl;
+        printJntArr(q);
 
         std::cout << "Joint velocities: " << std::endl;
-        for (int j = 0; j < n_joints; j++)
-        {
-            std::cout << qd(j) << " ";
-        }
-        std::cout << std::endl;
+        printJntArr(qd);
 
         // create the frame that will contain the results
         KDL::Frame tool_tip_frame;
@@ -347,33 +363,136 @@ int main()
 
         std::cout << "Current position: " << std::endl;
         std::cout << current_position[0] << " " << current_position[1] << " " << current_position[2] << std::endl;
+        positions.push_back(current_position);
 
-        double new_error = calc_dist(current_position, target_position);
-        std::cout << "Position error: " << new_error << std::endl;
+        // std::vector<KDL::Frame> frames;
+        // vereshchagin_solver.getLinkCartesianPose(frames); TODO: check this
+
+        std::cout << "Target position: " << std::endl;
+        std::cout << target_position[0] << ", " << target_position[1] << ", " << target_position[2] << std::endl;
+
+        auto [dx, dy, dz] = calc_dist(current_position, target_position);
+        
+        printf("error: [%f, %f, %f]\n", dx, dy, dz);
 
         // differentiate the control signal to get the velocity
-        double control_vel = (new_error - current_error) / dt;
+        double control_vel_x = (dx - dx_c) / dt;
+        double control_vel_y = (dy - dy_c) / dt;
+        double control_vel_z = (dz - dz_c) / dt;
 
         // differentiate the control velocity to get the acceleration
-        double control_acc = (control_vel - current_control_vel) / dt;
+        double control_acc_x = (control_vel_x - current_control_vel_x) / dt;
+        double control_acc_y = (control_vel_y - current_control_vel_y) / dt;
+        double control_acc_z = (control_vel_z - current_control_vel_z) / dt;
 
-        double control_signal = kp * control_acc;
+        double control_signal_x = kp * control_acc_x;
+        double control_signal_y = kp * control_acc_y;
+        double control_signal_z = kp * control_acc_z;
 
-        std::cout << "Control signal: " << control_signal << std::endl;
+        if (dx > 0){
+            control_signal_x = -abs(control_signal_x);
+        } else {
+            control_signal_x = abs(control_signal_x);
+        }
 
-        // update the beta energy
-        beta_energy(0) = control_signal;
-        // beta_energy(1) = control_signal;
-        // beta_energy(2) = control_signal;
+        if (dy > 0){
+            control_signal_y = -abs(control_signal_y);
+        } else {
+            control_signal_y = abs(control_signal_y);
+        }
 
-        current_error = new_error;
-        current_control_vel = control_vel;
-        current_control_acc = control_acc;
+        if (dz > 0){
+            control_signal_z = -abs(control_signal_z);
+        } else {
+            control_signal_z = abs(control_signal_z);
+        }
+
+        // update each beta energy based on the error
+        if (abs(dx) > eps)
+        {
+            beta_energy(0) = control_signal_x;
+        } else {
+            beta_energy(0) = 0.0;
+        }
+
+        if (abs(dy) > eps)
+        {
+            beta_energy(1) = control_signal_y;
+        } else {
+            beta_energy(1) = 0.0;
+        }
+
+        if (abs(dz) > eps)
+        {
+            beta_energy(2) = 9.81 + control_signal_z;
+        } else {
+            beta_energy(2) = 9.81;
+        }
+
+        printf("Control signal: [%f, %f, %f]\n", beta_energy(0), beta_energy(1), beta_energy(2));
+
+        // update the current control velocity
+        current_control_vel_x = control_vel_x;
+        current_control_vel_y = control_vel_y;
+        current_control_vel_z = control_vel_z;
+
+        // update the current position
+        dx_c = dx;
+        dy_c = dy;
+        dz_c = dz;
+
+        std::cout << std::endl;
 
         i++;
 
-        if (i > 50) break;
+        if (i > 100) break;
     }
+
+    Gnuplot gp;
+
+    // plot 3 graphs: x, y, z with target position and current position
+    std::vector<std::pair<double, double>> x;
+    std::vector<std::pair<double, double>> y;
+    std::vector<std::pair<double, double>> z;
+
+    for (int i = 0; i < positions.size(); i++)
+    {
+        x.push_back(std::make_pair(i, positions[i][0]));
+        y.push_back(std::make_pair(i, positions[i][1]));
+        z.push_back(std::make_pair(i, positions[i][2]));
+    }
+
+    gp << "set multiplot layout 3,1 title 'Position'\n";
+
+    gp << "set ylabel 'x'\n";
+    // Set the size of the graph
+    gp << "set size 1, 0.4\n";
+    gp << "set origin 0, 0.66\n";
+    gp << "plot '-' with lines title 'position', '-' with lines title 'target position' lc rgb 'red'\n";
+    gp.send1d(x);
+    gp.send1d(std::vector<double>(positions.size(), target_position[0]));
+
+    gp << "set ylabel 'y'\n";
+    // Set the size of the graph
+    gp << "set size 1, 0.4\n";
+    gp << "set origin 0, 0.33\n";
+    gp << "plot '-' with lines title 'position', '-' with lines title 'target position' lc rgb 'red'\n";
+    gp.send1d(y);
+    gp.send1d(std::vector<double>(positions.size(), target_position[1]));
+
+    gp << "set xlabel 'time'\n";
+    gp << "set ylabel 'z'\n";
+    // Set the size of the graph
+    gp << "set size 1, 0.4\n";
+    gp << "set origin 0, 0.0\n";
+    gp << "plot '-' with lines title 'position', '-' with lines title 'target position' lc rgb 'red'\n";
+    gp.send1d(z);
+    gp.send1d(std::vector<double>(positions.size(), target_position[2]));
+
+    // Adjust the overall size and margins of the multiplot
+    gp << "set size 1, 1\n";
+    gp << "set origin 0, 0\n";
+    gp << "unset multiplot\n";
 
     return 0;
 }
