@@ -150,7 +150,7 @@ void populateAlphaUnitForces(const std::vector<double>& alpha_lin, const std::ve
     alpha_unit_forces->setColumn(5, unit_force_z_a);
 }
 
-std::tuple<double, double, double> calc_dist(std::array<double, 3> p1, std::array<double, 3> p2)
+std::tuple<double, double, double> calc_error(std::array<double, 3> p1, std::array<double, 3> p2)
 {
     double dx = p1[0] - p2[0];
     double dy = p1[1] - p2[1];
@@ -187,6 +187,56 @@ void printJntArr(const T& jntArr)
     }
     std::cout << "]" << std::endl;
 }
+
+// position controller
+class PIDController {
+    public:
+        PIDController(double Kp, double Ki, double Kd) :
+            Kp(Kp), Ki(Ki), Kd(Kd), error_sum_x(0), error_sum_y(0), error_sum_z(0),
+            last_error_x(0), last_error_y(0), last_error_z(0) {}
+
+        std::tuple<double, double, double> computeControlSignal(const std::array<double, 3>& current_value, 
+                                                                const std::array<double, 3>& target_value, 
+                                                                double dt) {
+            auto [error_x, error_y, error_z] = calc_error(current_value, target_value);
+
+            // Proportional terms
+            std::tuple<double, double, double> proportional_term = std::make_tuple(Kp * error_x, Kp * error_y, Kp * error_z);
+
+            // Integral terms
+            error_sum_x += error_x * dt;
+            error_sum_y += error_y * dt;
+            error_sum_z += error_z * dt;
+            std::tuple<double, double, double> integral_term = std::make_tuple(Ki * error_sum_x, Ki * error_sum_y, Ki * error_sum_z);
+
+            // Derivative terms
+            std::tuple<double, double, double> derivative_term = std::make_tuple(0, 0, 0);
+            derivative_term = std::make_tuple(Kd * (error_x - last_error_x) / dt, Kd * (error_y - last_error_y) / dt, Kd * (error_z - last_error_z) / dt);
+
+            last_error_x = error_x;
+            last_error_y = error_y;
+            last_error_z = error_z;
+
+            std::tuple<double, double, double> control_signal = std::make_tuple(
+                std::get<0>(proportional_term) + std::get<0>(integral_term) + std::get<0>(derivative_term),
+                std::get<1>(proportional_term) + std::get<1>(integral_term) + std::get<1>(derivative_term),
+                std::get<2>(proportional_term) + std::get<2>(integral_term) + std::get<2>(derivative_term)
+            );
+
+            return control_signal;
+        }
+
+    private:
+        double Kp;
+        double Ki;
+        double Kd;
+        double error_sum_x;
+        double error_sum_y;
+        double error_sum_z;
+        double last_error_x;
+        double last_error_y;
+        double last_error_z;
+};
 
 int main()
 {
@@ -249,7 +299,7 @@ int main()
     std::cout << current_position[0] << ", " << current_position[1] << ", " << current_position[2] << std::endl;
 
     // target position with z+0.1
-    std::array<double, 3> target_position = {current_position[0] + 0.025, current_position[1] + 0.025, current_position[2] - 0.02};
+    std::array<double, 3> target_position = {current_position[0], current_position[1], current_position[2] - 0.1};
     std::cout << "Target position: " << std::endl;
     std::cout << target_position[0] << ", " << target_position[1] << ", " << target_position[2] << std::endl;
 
@@ -297,46 +347,32 @@ int main()
     // compute the inverse dynamics
     std::cout<<"starting solver..."<<std::endl;
 
+    // initialize the PID position controller
+    PIDController pos_controller(0.5, 0.1, 0.2);
+    PIDController vel_controller(0.5, 0.1, 0.2);
+
     // time step
     double dt = 0.01;
 
-    // PID gains
-    double kp = 63.2;
-    double ki = 15.2;
-    double kd = 4.2;
-
-    auto [prev_error_x, prev_error_y, prev_error_z] = calc_dist(current_position, target_position);
-
-    // variables for tracking integral and previous error
-    double integral_x = 0.0;
-    double integral_y = 0.0;
-    double integral_z = 0.0;
-
-    double current_control_vel_x = 0.0;
-    double current_control_vel_y = 0.0;
-    double current_control_vel_z = 0.0;
+    // auto [prev_error_x, prev_error_y, prev_error_z] = calc_error(current_position, target_position);
 
     int i = 0;
-
-    double eps = 0.001;
 
     // store all the current positions
     std::vector<std::array<double, 3>> positions;
 
+    double control_vel_x, control_vel_y, control_vel_z = 0.0;
+    double control_acc_x, control_acc_y, control_acc_z = 0.0;
+
     // Current position: 
     // -0.3144, -0.0249, 0.5996
 
-    while(abs(prev_error_x) > eps || abs(prev_error_y) > eps || abs(prev_error_z) > eps)
+    // run the system at 1KHz
+    while(true)
     {
         // compute the inverse dynamics
         int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext, ff_tau, constraint_tau);
         if (sr < 0) std::cout << "KDL: Vereshchagin solver ERROR: " << sr << std::endl;
-
-        // set the constraint torques to feedforward torques
-        // for (int j = 0; j < n_joints; j++)
-        // {
-        //     ff_tau(j) = constraint_tau(j);
-        // }
 
         // update the joint positions and velocities by integrating the accelerations
         for (int j = 0; j < n_joints; j++)
@@ -347,126 +383,58 @@ int main()
 
         printf("Iteration: %d\n", i);
 
-        // print the joint positions, velocities, aceelerations and constraint torques
+        std::vector<KDL::Frame> frames(n_segments);
+        vereshchagin_solver.getLinkCartesianPose(frames);
+
+        // get the current position
+        std::array<double, 3> current_position = {frames[n_segments - 1].p.x(), frames[n_segments - 1].p.y(), frames[n_segments - 1].p.z()};
+
+        std::vector<KDL::Twist> twists(n_segments);
+        vereshchagin_solver.getLinkCartesianVelocity(twists);
+
+        // get the current velocity
+        std::array<double, 3> current_velocity = {twists[n_segments - 1].vel.x(), twists[n_segments - 1].vel.y(), twists[n_segments - 1].vel.z()};
+
+        // // print the joint positions, velocities, aceelerations and constraint torques
         std::cout << "Joint accelerations: " << std::endl;
         printJntArr(qdd);
 
         std::cout << "Constraint torques: " << std::endl;
         printJntArr(constraint_tau);
 
-        std::cout << "Joint positions: " << std::endl;
-        printJntArr(q);
-
         std::cout << "Joint velocities: " << std::endl;
         printJntArr(qd);
 
-        // create the frame that will contain the results
-        KDL::Frame tool_tip_frame;
-
-        // compute the forward kinematics
-        std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result = computeFK(fk_solver, q, tool_tip_frame);
-
-        current_position = std::get<0>(fk_result);
-
         std::cout << "Current position: " << std::endl;
-        std::cout << current_position[0] << " " << current_position[1] << " " << current_position[2] << std::endl;
+        printVec(current_position);
         positions.push_back(current_position);
 
-        // std::vector<KDL::Frame> frames;
-        // vereshchagin_solver.getLinkCartesianPose(frames); TODO: check this
-
         std::cout << "Target position: " << std::endl;
-        std::cout << target_position[0] << ", " << target_position[1] << ", " << target_position[2] << std::endl;
+        printVec(target_position);
 
-        auto [error_x, error_y, error_z] = calc_dist(current_position, target_position);
-        
-        printf("error: [%f, %f, %f]\n", error_x, error_y, error_z);
-
-        // update the integral terms
-        integral_x += error_x * dt;
-        integral_y += error_y * dt;
-        integral_z += error_z * dt;
-
-        // compute the derivative terms
-        double derivative_x = (error_x - prev_error_x) / dt;
-        double derivative_y = (error_y - prev_error_y) / dt;
-        double derivative_z = (error_z - prev_error_z) / dt;
-
-        // differentiate the control signal to get the velocity
-        double control_vel_x = (error_x - prev_error_x) / dt;
-        double control_vel_y = (error_y - prev_error_y) / dt;
-        double control_vel_z = (error_z - prev_error_z) / dt;
-
-        // differentiate the control velocity to get the acceleration
-        double control_acc_x = (control_vel_x - current_control_vel_x) / dt;
-        double control_acc_y = (control_vel_y - current_control_vel_y) / dt;
-        double control_acc_z = (control_vel_z - current_control_vel_z) / dt;
-
-        // double control_signal_x = kp * control_acc_x;
-        // double control_signal_y = kp * control_acc_y;
-        // double control_signal_z = kp * control_acc_z;
-
-        // calculate the control signals
-        double control_signal_x = kp * error_x + ki * integral_x + kd * derivative_x;
-        double control_signal_y = kp * error_y + ki * integral_y + kd * derivative_y;
-        double control_signal_z = kp * error_z + ki * integral_z + kd * derivative_z;
-
-        if (error_x > 0){
-            control_signal_x = -abs(control_signal_x);
-        } else {
-            control_signal_x = abs(control_signal_x);
+        // call the position controller at frequency of 10hz
+        if (i % 10 == 0){
+            std::tie(control_vel_x, control_vel_y, control_vel_z) = pos_controller.computeControlSignal(current_position, target_position, 0.1);
         }
 
-        if (error_y > 0){
-            control_signal_y = -abs(control_signal_y);
-        } else {
-            control_signal_y = abs(control_signal_y);
+        // call the velocity controller at frequency of 100hz
+        if (i % 100 == 0){
+            std::tie(control_acc_x, control_acc_y, control_acc_z) = vel_controller.computeControlSignal(
+                current_velocity,
+                std::array<double, 3>{control_vel_x, control_vel_y, control_vel_z},
+                0.01);
         }
 
-        if (error_z > 0){
-            control_signal_z = -abs(control_signal_z);
-        } else {
-            control_signal_z = abs(control_signal_z);
-        }
-
-        // update each beta energy based on the error
-        if (abs(error_x) > eps)
-        {
-            beta_energy(0) = control_signal_x;
-        } else {
-            beta_energy(0) = 0.0;
-        }
-
-        if (abs(error_y) > eps)
-        {
-            beta_energy(1) = control_signal_y;
-        } else {
-            beta_energy(1) = 0.0;
-        }
-
-        if (abs(error_z) > eps)
-        {
-            beta_energy(2) = 9.81 + control_signal_z;
-        } else {
-            beta_energy(2) = 9.81;
-        }
-
-        printf("Control signal: [%f, %f, %f]\n", beta_energy(0), beta_energy(1), beta_energy(2));
-
-        prev_error_x = error_x;
-        prev_error_y = error_y;
-        prev_error_z = error_z;
-
-        // update the current control velocity
-        current_control_vel_x = control_vel_x;
-        current_control_vel_y = control_vel_y;
-        current_control_vel_z = control_vel_z;
+        // update the beta energy
+        beta_energy(1) = control_acc_x;
+        beta_energy(2) = control_acc_y;
+        beta_energy(3) = 9.81 + control_acc_z;
 
         std::cout << std::endl;
 
         i++;
 
-        if (i > 100) break;
+        if (i > 150) break;
     }
 
     Gnuplot gp;
