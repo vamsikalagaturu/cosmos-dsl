@@ -14,6 +14,7 @@
 #include <memory>
 #include <stdexcept>
 #include <variant>
+#include <filesystem>
 
 class Logger {
 public:
@@ -23,7 +24,7 @@ public:
         ERROR
     };
 
-    Logger(bool log_to_terminal, bool log_to_file, bool show_date = false, const std::string& file_path = "log.txt");
+    Logger(bool log_to_terminal, bool log_to_file, std::string logs_dir, bool show_date = false);
 
     ~Logger();
 
@@ -107,6 +108,7 @@ private:
     bool log_to_terminal_;
     bool log_to_file_;
     bool show_date_;
+    std::string logs_dir_;
     std::ofstream log_file_;
 
     std::string currentTimestamp();

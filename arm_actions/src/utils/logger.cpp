@@ -40,9 +40,30 @@ namespace LoggerUtil {
 }
 
 
-Logger::Logger(bool log_to_terminal, bool log_to_file, bool show_date, const std::string& file_path)
-    : log_to_terminal_(log_to_terminal), log_to_file_(log_to_file), show_date_(show_date) {
+Logger::Logger(bool log_to_terminal, bool log_to_file, std::string logs_dir, bool show_date)
+    : log_to_terminal_(log_to_terminal), log_to_file_(log_to_file), show_date_(show_date), logs_dir_(logs_dir) {
+
+    // Create logs directory if it doesn't exist
+    if (!std::filesystem::exists(logs_dir_)) {
+        std::filesystem::create_directory(logs_dir_);
+    }
+
     if (log_to_file_) {
+        auto now = std::chrono::system_clock::now();
+        auto now_c = std::chrono::system_clock::to_time_t(now);
+
+        // convert to string
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&now_c), "%d_%m_%Y_%H_%M_%S");
+        std::string time_str = ss.str();
+
+        // create filename
+        std::string file_path = logs_dir_ + "/" + time_str + ".log";
+        // create file if it doesn't exist
+        std::cout << "Creating log file: " << file_path << std::endl;
+        std::ofstream file(file_path);
+        file.close();
+
         log_file_.open(file_path, std::ios_base::out | std::ios_base::app);
     }
 }
