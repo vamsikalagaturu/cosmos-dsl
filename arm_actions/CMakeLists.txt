@@ -10,6 +10,9 @@ INCLUDE_DIRECTORIES(
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_NAME}/)
 
+# create logs folder in outputs folder if not exists
+file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/logs)
+
 # include all hpp files in include folder
 include_directories(include)
 
@@ -22,7 +25,8 @@ target_link_libraries(logger ${orocos_kdl_LIBRARIES})
 add_library(utils src/utils/utils.cpp)
 target_link_libraries(utils ${orocos_kdl_LIBRARIES})
 
-# add_library(gnu_plotter src/utils/gnu_plotter.cpp)
+add_library(gnu_plotter src/utils/gnu_plotter.cpp)
+target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams ${orocos_kdl_LIBRARIES})
 
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
@@ -32,7 +36,7 @@ file(GLOB SOURCES "src/*.cpp")
 foreach(source ${SOURCES})
     get_filename_component(name ${source} NAME_WE)
     add_executable(${name} ${source})
-    TARGET_LINK_LIBRARIES(${name} orocos-kdl kdl_parser boost_filesystem boost_system boost_iostreams pid_controller logger utils)
+    TARGET_LINK_LIBRARIES(${name} orocos-kdl kdl_parser boost_filesystem boost_system boost_iostreams pid_controller logger utils gnu_plotter)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder

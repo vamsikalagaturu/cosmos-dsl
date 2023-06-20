@@ -7,16 +7,19 @@
 #include "chainhdsolver_vereshchagin.hpp"
 #include <filesystem>
 #include "arm_actions/logger.hpp"
-// #include "arm_actions/gnu_plotter.hpp"
+#include "arm_actions/gnu_plotter.hpp"
 #include "arm_actions/pid_controller.hpp"
 #include "arm_actions/utils.hpp"
 
 int main()
 {
     // initialize logger
-    Logger logger(true, false);
+    Logger logger(true, true, "../logs/runs/");
     logger.test();
-    // GNUPlotter plotter;
+
+    // initialize plotter
+    GNUPlotter plotter("../logs/data/", true);
+    // plotter.testPlot();
 
     // initialize utils
     Utils utils;
@@ -197,57 +200,10 @@ int main()
 
         i++;
 
-        if (i > 10) break;
+        if (i > 500) break;
     }
 
-    // plotter.plotXYZ(positions, target_position);
-
-    // // plot 3 graphs: x, y, z with target position and current position
-    // std::vector<std::pair<double, double>> x;
-    // std::vector<std::pair<double, double>> y;
-    // std::vector<std::pair<double, double>> z;
-
-    // for (int i = 0; i < positions.size(); i++)
-    // {
-    //     x.push_back(std::make_pair(i, positions[i][0]));
-    //     y.push_back(std::make_pair(i, positions[i][1]));
-    //     z.push_back(std::make_pair(i, positions[i][2]));
-    // }
-
-    // gp << "set multiplot layout 3,1 title 'Position'\n";
-
-    // gp << "set ylabel 'x'\n";
-    // // Set the size of the graph
-    // gp << "set size 1, 0.4\n";
-    // gp << "set origin 0, 0.66\n";
-    // // gp << "set yrange [-1:1]\n";
-    // gp << "plot '-' with lines title 'position', '-' with lines title 'target position' lc rgb 'red'\n";
-    // gp.send1d(x);
-    // gp.send1d(std::vector<double>(positions.size(), target_position[0]));
-
-    // gp << "set ylabel 'y'\n";
-    // // Set the size of the graph
-    // gp << "set size 1, 0.4\n";
-    // gp << "set origin 0, 0.33\n";
-    // // gp << "set yrange [-1:1]\n";
-    // gp << "plot '-' with lines title 'position', '-' with lines title 'target position' lc rgb 'red'\n";
-    // gp.send1d(y);
-    // gp.send1d(std::vector<double>(positions.size(), target_position[1]));
-
-    // gp << "set xlabel 'time'\n";
-    // gp << "set ylabel 'z'\n";
-    // // Set the size of the graph
-    // gp << "set size 1, 0.4\n";
-    // gp << "set origin 0, 0.0\n";
-    // // gp << "set yrange [-0.5:0.5]\n";
-    // gp << "plot '-' with lines title 'position', '-' with lines title 'target position' lc rgb 'red'\n";
-    // gp.send1d(z);
-    // gp.send1d(std::vector<double>(positions.size(), target_position[2]));
-
-    // // Adjust the overall size and margins of the multiplot
-    // gp << "set size 1, 1\n";
-    // gp << "set origin 0, 0\n";
-    // gp << "unset multiplot\n";
+    plotter.plotXYZ(positions, target_position);
 
     return 0;
 }
