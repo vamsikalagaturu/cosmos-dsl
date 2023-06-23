@@ -1,147 +1,121 @@
+#include <filesystem>
 #include "chain.hpp"
-#include "chainfksolver.hpp"
-#include "chainfksolverpos_recursive.hpp"
 #include "chainidsolver.hpp"
 #include "frames_io.hpp"
-#include "kdl_parser/kdl_parser.hpp"
 #include "chainhdsolver_vereshchagin.hpp"
-#include <filesystem>
 #include "arm_actions/logger.hpp"
 #include "arm_actions/gnu_plotter.hpp"
 #include "arm_actions/pid_controller.hpp"
 #include "arm_actions/utils.hpp"
+#include "arm_actions/solver_utils.hpp"
 
 int main()
 {
     // initialize logger
-    Logger logger(true, true, "../logs/runs/");
-    logger.test();
+    std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, false, "../logs/runs/");
 
     // initialize plotter
-    GNUPlotter plotter("../logs/data/", true);
-    // plotter.testPlot();
+    std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>("../logs/data/", false);
 
     // initialize utils
-    Utils utils;
+    std::shared_ptr<Utils> utils = std::make_shared<Utils>(logger);
 
-    KDL::Tree my_tree;
-    KDL::Chain my_chain;
+    // initialize solver utils
+    std::shared_ptr<SolverUtils> solver_utils = std::make_shared<SolverUtils>(logger);
 
     // get current file path
     std::filesystem::path path = __FILE__;
 
+    // get the robot urdf path
     std::string robot_urdf = (path.parent_path().parent_path() / "urdf" / "gen3_robotiq_2f_85.urdf").string();
 
-    // load the robot urdf into the kdl tree
-    if (!kdl_parser::treeFromFile(robot_urdf, my_tree))
-    {
-        logger.logError("Failed to construct kdl tree");
-        return -1;
-    }
-
-    // set the base and tool frames
+    // set the base and tool links
     std::string base_link = "base_link";
-    std::string tool_frame = "bracelet_link";
+    std::string tool_link = "bracelet_link";
 
-    // create the kdl chain
-    if (!my_tree.getChain(base_link, tool_frame, my_chain))
+    // define the robot chain
+    KDL::Chain robot_chain;
+
+    // define the initial joint angles
+    std::vector initial_joint_angles = {0.0, 0.0, 0.0, -M_PI_2, 0.0, -M_PI_2, 0.0};
+
+    // define the joint angles
+    KDL::JntArray q;
+
+    // initialize the robot
+    int r = utils->initialize_robot(robot_urdf, robot_chain, base_link, tool_link, initial_joint_angles, q);
+    if (r != 0)
     {
-        logger.logError("Failed to get kdl chain");
+        logger->logError("Failed to initialize robot");
         return -1;
     }
     
     // number of joints
-    int n_joints = my_chain.getNrOfJoints();
+    int n_joints = robot_chain.getNrOfJoints();
 
     // number of segments
-    int n_segments = my_chain.getNrOfSegments();
-
-    // set the initial joint positions
-    KDL::JntArray q(n_joints);
-    q(3) = -M_PI_2; // joint_4
-    q(5) = -M_PI_2; // joint_6
-
-    // create the forward kinematics solver
-    KDL::ChainFkSolverPos_recursive fk_solver(my_chain);
-
-    // create the frame that will contain the results
-    KDL::Frame tool_tip_frame;
+    int n_segments = robot_chain.getNrOfSegments();
 
     // compute the forward kinematics
-    std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result = utils.computeFK(fk_solver, q, tool_tip_frame);
+    std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result = solver_utils->computeFK(&robot_chain, q);
 
+    // current position
     std::array<double, 3> current_position = std::get<0>(fk_result);
 
     // target position
     std::array<double, 3> target_position = {current_position[0] + 0.01, current_position[1] + 0.01, current_position[2] + 0.1};
-
-    std::cout << std::endl;
-
-    // number of constraints
-    int n_constraints = 6;
-
-    // root acceleration - set gravity vector
-    // direction is specified opposite for the solver
-    KDL::Twist root_acc(KDL::Vector(0.0, 0.0, 9.81), KDL::Vector(0.0, 0.0, 0.0));
     
     // define unit constraint forces for EE
-    KDL::Jacobian alpha_unit_forces(n_constraints);
-
-    std::vector<double> alpha_lin = {1.0, 1.0, 1.0};
-    std::vector<double> alpha_ang = {1.0, 1.0, 1.0};
-
-    utils.populateAlphaUnitForces(alpha_lin, alpha_ang, &alpha_unit_forces);
+    KDL::Jacobian alpha_unit_forces;
 
     // beta - accel energy for EE
-    KDL::JntArray beta_energy(n_constraints);
-    beta_energy(0) = 0.0;
-    beta_energy(1) = 0.0;
-    beta_energy(2) = 9.81;
-    beta_energy(3) = 0.0;
-    beta_energy(4) = 0.0;
-    beta_energy(5) = 0.0;
+    KDL::JntArray beta_energy;
 
-    // use vereshchagin solver 
-    KDL::ChainHdSolver_Vereshchagin vereshchagin_solver(my_chain, root_acc, n_constraints);
+    // set the constraint weights
+    std::array<double, 6> constraint_weights = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     // set the solver parameters
-    KDL::JntArray qd(n_joints); // input joint velocities
-    KDL::JntArray qdd(n_joints); // output joint accelerations
-    KDL::JntArray ff_tau(n_joints); // input feedforward torques
-    KDL::JntArray constraint_tau(n_joints); // output constraint torques
+    KDL::JntArray qd; // input joint velocities
+    KDL::JntArray qdd; // output joint accelerations
+    KDL::JntArray ff_tau; // input feedforward torques
+    KDL::JntArray constraint_tau; // output constraint torques
+    KDL::Wrenches f_ext; // external forces at each segment
 
-    KDL::Vector f(0.0, 0.0, 0.0);
-    KDL::Vector n(0.0, 0.0, 0.0);
-    KDL::Wrench f_tool(f, n);
-    KDL::Wrenches f_ext(n_segments);
-    f_ext[n_segments - 1] = f_tool; // input external forces at EE
-    
-    // compute the inverse dynamics
-    logger.logInfo("Starting solver...");
+    // initialize vereshchagin solver 
+    KDL::ChainHdSolver_Vereshchagin vereshchagin_solver = solver_utils->initializeVereshchaginSolver(&robot_chain, 
+                                                                constraint_weights, 
+                                                                alpha_unit_forces, 
+                                                                beta_energy, 
+                                                                qd, qdd, ff_tau, 
+                                                                constraint_tau, f_ext);
 
-    // initialize the PID position controller
-    PIDController pos_controller(5, 0.9, 0);
-    PIDController vel_controller(30, 0.9, 0);
+    // initialize the PID controllers
+    PIDController pos_controller(5, 0.9, 0); // position controller
+    PIDController vel_controller(30, 0.9, 0); // velocity controller
 
     // time step
     double dt = 0.001;
 
-    int i = 0;
-
-    // store all the current positions
+    // store positions and velocities
     std::vector<std::array<double, 3>> positions;
     std::vector<std::array<double, 3>> velocities;
 
+    // control velocities and accelerations
     double control_vel_x, control_vel_y, control_vel_z = 0.0;
     double control_acc_x, control_acc_y, control_acc_z = 0.0;
+
+    // counter
+    int i = 0;
 
     // run the system at 1KHz
     while(true)
     {
+        logger->logInfo("Iteration: %d", i);
+
         // compute the inverse dynamics
         int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext, ff_tau, constraint_tau);
         if (sr < 0){
-            logger.logError("KDL: Vereshchagin solver ERROR: %d", sr);
+            logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
             return -1;
         }
 
@@ -152,29 +126,29 @@ int main()
             qd(j) = qd(j) + qdd(j) * dt;
         }
     
-        logger.logInfo("Iteration: %d", i);
-
+        // get the current link cartesian poses
         std::vector<KDL::Frame> frames(n_segments);
         vereshchagin_solver.getLinkCartesianPose(frames);
-
-        // get the current position
+        
+        // get the current tool cartesian pose
         std::array<double, 3> current_position = {frames[n_segments - 1].p.x(), frames[n_segments - 1].p.y(), frames[n_segments - 1].p.z()};
         positions.push_back(current_position);
 
+        // get the current link cartesian velocities
         std::vector<KDL::Twist> twists(n_segments);
         vereshchagin_solver.getLinkCartesianVelocity(twists);
 
-        // get the current velocity
+        // get the current tool cartesian velocity
         std::array<double, 3> current_velocity = {twists[n_segments - 1].vel.x(), twists[n_segments - 1].vel.y(), twists[n_segments - 1].vel.z()};
         velocities.push_back(current_velocity);
 
         // print the joint positions, velocities, aceelerations and constraint torques
-        logger.logInfo("Joint accelerations: %s", qdd);
-        logger.logInfo("Joint torques: %s", constraint_tau);
-        logger.logInfo("Joint velocities: %s", qd);
-        logger.logInfo("Joint positions: %s", q);
-        logger.logInfo("Target position: [%f, %f, %f]", target_position[0], target_position[1], target_position[2]);
-        logger.logInfo("Current position: [%f, %f, %f]", current_position[0], current_position[1], current_position[2]);
+        logger->logInfo("Joint accelerations: %s", qdd);
+        logger->logInfo("Joint torques: %s", constraint_tau);
+        logger->logInfo("Joint velocities: %s", qd);
+        logger->logInfo("Joint positions: %s", q);
+        logger->logInfo("Target position: [%f, %f, %f]", target_position[0], target_position[1], target_position[2]);
+        logger->logInfo("Current position: [%f, %f, %f]", current_position[0], current_position[1], current_position[2]);
 
         // call the position controller at frequency of 10hz
         if (i % 100 == 0){
@@ -190,11 +164,9 @@ int main()
         }
 
         // update the beta energy
-        beta_energy(0) = control_acc_x;
-        beta_energy(1) = control_acc_y;
-        beta_energy(2) = 9.81 + control_acc_z;
+        solver_utils->updateBetaEnergy(beta_energy, {control_acc_x, control_acc_y, control_acc_z, 0, 0, 0});
 
-        logger.logInfo("Control acc: [%f, %f, %f]", control_acc_x, control_acc_y, control_acc_z);
+        logger->logInfo("Control acc: [%f, %f, %f]", control_acc_x, control_acc_y, control_acc_z);
 
         std::cout << std::endl;
 
@@ -203,7 +175,7 @@ int main()
         if (i > 500) break;
     }
 
-    plotter.plotXYZ(positions, target_position);
+    plotter->plotXYZ(positions, target_position);
 
     return 0;
 }

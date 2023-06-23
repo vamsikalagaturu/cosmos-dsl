@@ -18,12 +18,18 @@ include_directories(include)
 
 # add pid_controller.cpp as a library
 add_library(pid_controller src/utils/pid_controller.cpp)
+
 # add logger.cpp as library
 add_library(logger src/utils/logger.cpp)
 target_link_libraries(logger ${orocos_kdl_LIBRARIES})
+
 # add utils.cpp as library
 add_library(utils src/utils/utils.cpp)
-target_link_libraries(utils ${orocos_kdl_LIBRARIES})
+target_link_libraries(utils ${orocos_kdl_LIBRARIES} kdl_parser logger)
+
+# add solver_utils.cpp as library
+add_library(solver_utils src/utils/solver_utils.cpp)
+target_link_libraries(solver_utils ${orocos_kdl_LIBRARIES} logger)
 
 add_library(gnu_plotter src/utils/gnu_plotter.cpp)
 target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams ${orocos_kdl_LIBRARIES})
@@ -36,7 +42,7 @@ file(GLOB SOURCES "src/*.cpp")
 foreach(source ${SOURCES})
     get_filename_component(name ${source} NAME_WE)
     add_executable(${name} ${source})
-    TARGET_LINK_LIBRARIES(${name} orocos-kdl kdl_parser boost_filesystem boost_system boost_iostreams pid_controller logger utils gnu_plotter)
+    TARGET_LINK_LIBRARIES(${name} orocos-kdl boost_filesystem boost_system boost_iostreams pid_controller logger utils solver_utils gnu_plotter)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder
