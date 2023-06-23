@@ -46,4 +46,4 @@ foreach(source ${SOURCES})
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder
-# file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/urdf DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/urdf DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

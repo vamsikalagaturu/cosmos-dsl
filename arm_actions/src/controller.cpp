@@ -24,12 +24,11 @@ int main()
   // initialize solver utils
   std::shared_ptr<SolverUtils> solver_utils = std::make_shared<SolverUtils>(logger);
 
-  // get current file path
-  std::filesystem::path path = __FILE__;
+  // get the current path of the executable
+  std::filesystem::path current_path = std::filesystem::current_path();
 
-  // get the robot urdf path
-  std::string robot_urdf =
-      (path.parent_path().parent_path() / "urdf" / "gen3_robotiq_2f_85.urdf").string();
+  // set the robot urdf
+  std::string robot_urdf = (current_path / "urdf" / "gen3_robotiq_2f_85.urdf").string();
 
   // set the base and tool links
   std::string base_link = "base_link";
@@ -184,7 +183,7 @@ int main()
 
     i++;
 
-    if (i > 500)
+    if (i > 1)
       break;
   }
 
