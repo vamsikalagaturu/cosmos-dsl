@@ -274,20 +274,43 @@ void Logger::logFormattedMessage(LogLevel level, const char* format, Args... arg
 
 void Logger::logMessage(LogLevel level, const std::string& msg) {
     std::string level_str;
-    switch (level) {
-        case INFO: level_str = "\033[0m[INFO]"; break;
-        case WARNING: level_str = "\033[33m[WARN]"; break;
-        case ERROR: level_str = "\033[31m[ERROR]"; break;
-    }
+    std::string level_clr;
+    
+    std::string info_color = "\033[0m";
+    std::string warning_color = "\033[33m";
+    std::string error_color = "\033[31m";
     std::string reset_color = "\033[0m";
 
+    switch (level) {
+        case INFO: {
+            level_str = "INFO";
+            level_clr = info_color;
+            break;
+        }
+        case WARNING: {
+            level_str = "WARNING";
+            level_clr = warning_color;
+            break;
+        }
+        case ERROR: {
+            level_str = "ERROR";
+            level_clr = error_color;
+            break;
+        }
+        default: {
+            level_str = "INFO";
+            level_clr = info_color;
+            break;
+        }
+    }
+
     if (log_to_terminal_) {
-        std::string log_entry = reset_color + currentTimestamp() + " " + level_str + ": " + msg + reset_color;
+        std::string log_entry = reset_color + currentTimestamp() + " " + level_clr + level_str + ": " + msg + reset_color;
         std::cout << log_entry << std::endl;
     }
 
     if (log_to_file_) {
-        std::string log_entry = currentTimestamp() + ": " + msg;
+        std::string log_entry = currentTimestamp() + " " + level_str + ": " + msg;
         log_file_ << log_entry << std::endl;
     }
 }
