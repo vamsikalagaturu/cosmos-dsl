@@ -1,5 +1,12 @@
 #include "arm_actions/utils.hpp"
 
+Utils::Utils(std::shared_ptr<Logger> logger) 
+{
+    _logger = logger;
+}
+
+Utils::~Utils() {}
+
 void Utils::printLinkNames(KDL::Tree& tree)
 {
     std::vector<std::string> link_names;
@@ -58,90 +65,6 @@ void Utils::printJointNames(KDL::Chain& chain)
     std::cout << std::endl;
 }
 
-std::tuple<std::array<double, 3>, std::array<double, 3>> Utils::computeFK(KDL::ChainFkSolverPos_recursive fk_solver, KDL::JntArray& q, KDL::Frame& tool_tip_frame)
-{
-    // calculate forward kinematics
-    int r = fk_solver.JntToCart(q, tool_tip_frame);
-    if (r < 0) {
-        std::cout << "Failed to compute forward kinematics with error: " << r << std::endl;
-        return std::make_tuple(std::array<double, 3>{0, 0, 0}, std::array<double, 3>{0, 0, 0});
-    }
-
-    // extract position from frame
-    double x = tool_tip_frame.p.x();
-    double y = tool_tip_frame.p.y();
-    double z = tool_tip_frame.p.z();
-
-    // round the position to 4 decimal places
-    x = round(x * 10000.0) / 10000.0;
-    y = round(y * 10000.0) / 10000.0;
-    z = round(z * 10000.0) / 10000.0;
-
-    // convert the orientation to roll, pitch, yaw
-    double roll, pitch, yaw;
-    tool_tip_frame.M.GetRPY(roll, pitch, yaw);
-
-    // convert the angles to degrees
-    roll = roll * 180.0 / M_PI;
-    pitch = pitch * 180.0 / M_PI;
-    yaw = yaw * 180.0 / M_PI;
-
-    // round the angles to 2 decimal places
-    roll = round(roll * 100.0) / 100.0;
-    pitch = round(pitch * 100.0) / 100.0;
-    yaw = round(yaw * 100.0) / 100.0;
-
-    // return the position and RPY values
-    std::array<double, 3> position = {x, y, z};
-    std::array<double, 3> rpy = {roll, pitch, yaw};
-    return std::make_tuple(position, rpy);
-}
-
-void Utils::populateAlphaUnitForces(const std::vector<double>& alpha_lin, const std::vector<double>& alpha_ang, KDL::Jacobian* alpha_unit_forces)
-{
-    if (alpha_lin.size() != 3 || alpha_ang.size() != 3)
-    {
-        // Invalid input size, handle the error accordingly
-        return;
-    }
-
-    KDL::Twist unit_force_x_l(
-        KDL::Vector(alpha_lin[0], 0.0, 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces->setColumn(0, unit_force_x_l);
-
-    KDL::Twist unit_force_y_l(
-        KDL::Vector(0.0, alpha_lin[1], 0.0),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces->setColumn(1, unit_force_y_l);
-
-    KDL::Twist unit_force_z_l(
-        KDL::Vector(0.0, 0.0, alpha_lin[2]),
-        KDL::Vector(0.0, 0.0, 0.0)
-    );
-    alpha_unit_forces->setColumn(2, unit_force_z_l);
-
-    KDL::Twist unit_force_x_a(
-        KDL::Vector(0.0, 0.0, 0.0),
-        KDL::Vector(alpha_ang[0], 0.0, 0.0)
-    );
-    alpha_unit_forces->setColumn(3, unit_force_x_a);
-
-    KDL::Twist unit_force_y_a(
-        KDL::Vector(0.0, 0.0, 0.0),
-        KDL::Vector(0.0, alpha_ang[1], 0.0)
-    );
-    alpha_unit_forces->setColumn(4, unit_force_y_a);
-
-    KDL::Twist unit_force_z_a(
-        KDL::Vector(0.0, 0.0, 0.0),
-        KDL::Vector(0.0, 0.0, alpha_ang[2])
-    );
-    alpha_unit_forces->setColumn(5, unit_force_z_a);
-}
-
 template <typename T>
 void Utils::printVec(const T& vec)
 {
@@ -168,4 +91,38 @@ void Utils::printJntArr(const T& jntArr)
         }
     }
     std::cout << "]" << std::endl;
+}
+
+int Utils::initialize_robot(const std::string& urdf_path,
+                     KDL::Chain& robot_chain,
+                     const std::string& base_link,
+                     const std::string& tool_link,
+                     const std::vector<double>& initial_joint_angles,
+                     KDL::JntArray& q)
+{
+    KDL::Tree robot_tree;
+
+    // load the robot URDF into the KDL tree
+    if (!kdl_parser::treeFromFile(urdf_path, robot_tree))
+    {
+        _logger->logError("Failed to construct KDL tree");
+        return -1;
+    }
+
+    // create the KDL chain
+    if (!robot_tree.getChain(base_link, tool_link, robot_chain))
+    {
+        _logger->logError("Failed to get KDL chain");
+        return -1;
+    }
+
+    // set the initial joint angles
+    q.resize(robot_chain.getNrOfJoints());
+    for (int i = 0; i < robot_chain.getNrOfJoints(); i++)
+    {
+        q(i) = initial_joint_angles[i];
+    }
+
+    _logger->logInfo("Successfully initialized robot");
+    return 0;
 }

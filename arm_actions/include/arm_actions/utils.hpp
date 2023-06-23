@@ -10,12 +10,15 @@
 #include "frames.hpp"
 #include "jntarray.hpp"
 #include "jacobian.hpp"
-#include "chainfksolver.hpp"
-#include "chainfksolverpos_recursive.hpp"
+#include "kdl_parser/kdl_parser.hpp"
+#include "logger.hpp"
 
 class Utils
 {
 public:
+    Utils(std::shared_ptr<Logger> logger);
+    ~Utils();
+
     /**
      * @brief Prints the names of all links in a KDL::Tree.
      * @param tree The KDL::Tree object representing the robot's kinematic tree.
@@ -35,27 +38,6 @@ public:
     static void printJointNames(KDL::Chain& chain);
 
     /**
-     * @brief Computes the forward kinematics (position and orientation) of a robot given joint positions.
-     * @param fk_solver The KDL::ChainFkSolverPos_recursive object for calculating forward kinematics.
-     * @param q The KDL::JntArray object representing the joint positions.
-     * @param tool_tip_frame The KDL::Frame object to store the computed tool tip frame.
-     * @return A tuple containing the position (x, y, z) and orientation (roll, pitch, yaw) of the tool tip.
-     */
-    static std::tuple<std::array<double, 3>, std::array<double, 3>> computeFK(KDL::ChainFkSolverPos_recursive fk_solver,
-                                                                               KDL::JntArray& q,
-                                                                               KDL::Frame& tool_tip_frame);
-
-    /**
-     * @brief Populates the columns of a Jacobian matrix with alpha unit forces.
-     * @param alpha_lin A vector containing the linear components of the alpha unit forces (size 3).
-     * @param alpha_ang A vector containing the angular components of the alpha unit forces (size 3).
-     * @param alpha_unit_forces The KDL::Jacobian object to store the alpha unit forces.
-     */
-    static void populateAlphaUnitForces(const std::vector<double>& alpha_lin,
-                                        const std::vector<double>& alpha_ang,
-                                        KDL::Jacobian* alpha_unit_forces);
-
-    /**
      * @brief Prints the elements of a vector.
      * @tparam T The type of the vector elements.
      * @param vec The vector to be printed.
@@ -70,6 +52,27 @@ public:
      */
     template <typename T>
     static void printJntArr(const T& jntArr);
+
+    /**
+     * @brief Initializes the robot using a URDF file and sets the initial joint angles.
+     *
+     * @param urdf_path The file path to the robot's URDF description.
+     * @param robot_chain [out] The KDL chain representing the robot.
+     * @param base_link The name of the robot's base link.
+     * @param tool_link The name of the robot's tool link.
+     * @param initial_joint_angles A vector containing the initial joint angles.
+     * @param q [out] The KDL joint array representing the robot's joint angles.
+     * @param logger A pointer to a logger for logging errors and information.
+     * @return 0 on success, -1 on failure.
+     */
+    int initialize_robot(const std::string& urdf_path,
+                        KDL::Chain& robot_chain,
+                        const std::string& base_link,
+                        const std::string& tool_link,
+                        const std::vector<double>& initial_joint_angles,
+                        KDL::JntArray& q);
+private:
+    std::shared_ptr<Logger> _logger;
 };
 
 #endif  // UTILS_HPP
