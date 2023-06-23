@@ -1,14 +1,4 @@
-#include <filesystem>
-
-#include "arm_actions/gnu_plotter.hpp"
-#include "arm_actions/logger.hpp"
-#include "arm_actions/pid_controller.hpp"
-#include "arm_actions/solver_utils.hpp"
-#include "arm_actions/utils.hpp"
-#include "chain.hpp"
-#include "chainhdsolver_vereshchagin.hpp"
-#include "chainidsolver.hpp"
-#include "frames_io.hpp"
+#include "arm_actions/arm_actions.hpp"
 
 int main()
 {
@@ -20,10 +10,10 @@ int main()
   std::string data_path = path.parent_path().parent_path().parent_path().string() + "/logs/data/";
 
   // initialize logger
-  std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, true, log_path);
+  std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, false, log_path);
 
   // initialize plotter
-  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, true);
+  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, true, false);
 
   // initialize utils
   std::shared_ptr<Utils> utils = std::make_shared<Utils>(logger);
