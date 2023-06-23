@@ -1,0 +1,27 @@
+{
+    "@context": {
+        "debugConfig": "http://example.com/debug_config#",
+
+        "DebugConfig": "debugConfig:DebugConfig",
+
+        "log-terminal": {
+            "@id": "debugConfig:log-terminal",
+            "@type": "xsd:boolean"
+        },
+
+        "log-file": {
+            "@id": "debugConfig:log-file",
+            "@type": "xsd:boolean"
+        },
+
+        "plot-data": {
+            "@id": "debugConfig:plot-data",
+            "@type": "xsd:boolean"
+        },
+
+        "save-data": {
+            "@id": "debugConfig:save-data",
+            "@type": "xsd:boolean"
+        }
+    }
+}

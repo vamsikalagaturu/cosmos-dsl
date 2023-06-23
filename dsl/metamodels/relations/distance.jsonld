@@ -4,6 +4,7 @@
 
         "EuclideanDistance": "distance:EuclideanDistance",
         "PointToPointDistance": "distance:PointToPointDistance",
+        "FramePointToPointDistance": "distance:FramePointToPointDistance",
 
         "between-entities": {
             "@id": "distance:between-entities",

@@ -5,10 +5,12 @@
         "PositionReference": "coord:PositionReference",
         "OrientationReference": "coord:OrientationReference",
         "PoseReference": "coord:PoseReference",
+        "FrameReference": "coord:FrameReference",
 
         "PositionCoordinate": "coord:PositionCoordinate",
         "OrientationCoordinate": "coord:OrientationCoordinate",
         "PoseCoordinate": "coord:PoseCoordinate",
+        "FrameCoordinate": "coord:FrameCoordinate",
 
         "Orientation": "../entities/orientation.jsonld",
 
@@ -26,6 +28,11 @@
 
         "of-pose": {
             "@id": "coord:of-pose",
+            "@type": "@id"
+        },
+
+        "of-frame": {
+            "@id": "coord:of-frame",
             "@type": "@id"
         },
 

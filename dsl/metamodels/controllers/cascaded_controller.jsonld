@@ -1,0 +1,17 @@
+{
+    "@context": {
+        "cascadedController": "http://example.com/cascaded_controller#",
+
+        "CascadedController": "cascadedController:CascadedController",
+
+        "position-controller": {
+            "@id": "cascadedController:position-controller",
+            "@type": "@id"
+        },
+
+        "velocity-controller": {
+            "@id": "cascadedController:velocity-controller",
+            "@type": "@id"
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "@context": {
+        "baseTask": "http://example.com/baseTask#",
+
+        "BaseTask": "baseTask:BaseTask",
+
+        "debug-config": {
+            "@id": "baseTask:debug-config",
+            "@type": "@id"
+        },
+
+        "robot-config": {
+            "@id": "baseTask:robot-config",
+            "@type": "@id"
+        },
+
+        "motion-specifications": {
+            "@id": "baseTask:motion-specifications",
+            "@type": "@id",
+            "@container": "@set"
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "@context": {
+        "robotConfig": "http://example.com/robot_config#",
+
+        "RobotConfig": "robotConfig:RobotConfig",
+
+        "urdf-name": {
+            "@id": "robotConfig:urdf-path",
+            "@type": "xsd:string"
+        },
+
+        "initial-state": {
+            "@id": "robotConfig:initial-state",
+            "@container": "@list"
+        },
+
+        "base_frame": {
+            "@id": "robotConfig:base_frame",
+            "@type": "@type"
+        },
+
+        "tool_frame": {
+            "@id": "robotConfig:tool_frame",
+            "@type": "@type"
+        }
+    }
+}

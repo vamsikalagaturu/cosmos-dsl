@@ -1,0 +1,19 @@
+{
+    "@context": [
+        "../metamodels/controlelrs/cascaded_controller.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:cascaded_controllers",
+
+    "@graph": [
+        {
+            "@id": "rob:cascaded_controllers",
+            "@type": "CascadedController",
+            "position-controller": "rob:pid_position_controller",
+            "velocity-controller": "rob:pid_velocity_controller"
+        }
+    ]
+}

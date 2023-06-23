@@ -1,0 +1,17 @@
+{
+    "@context": {
+        "vereshchaginSolver": "http://example.com/vereshchagin_solver#",
+
+        "VereshchaginSolver": "vereshchaginSolver:VereshchaginSolver",
+
+        "alpha-constraints": {
+            "@id": "vereshchaginSolver:alpha-constraints",
+            "@container": "@list"
+        },
+
+        "beta-constraints": {
+            "@id": "vereshchaginSolver:beta-constraints",
+            "@container": "@list"
+        }
+    }
+}
