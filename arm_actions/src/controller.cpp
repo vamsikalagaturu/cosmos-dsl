@@ -12,11 +12,18 @@
 
 int main()
 {
+  // get current file path
+  std::filesystem::path path = __FILE__;
+
+  std::string log_path = path.parent_path().parent_path().parent_path().string() + "/logs/runs/";
+
+  std::string data_path = path.parent_path().parent_path().parent_path().string() + "/logs/data/";
+
   // initialize logger
-  std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, false, "../logs/runs/");
+  std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, true, log_path);
 
   // initialize plotter
-  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>("../logs/data/", false);
+  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, true);
 
   // initialize utils
   std::shared_ptr<Utils> utils = std::make_shared<Utils>(logger);
@@ -24,11 +31,9 @@ int main()
   // initialize solver utils
   std::shared_ptr<SolverUtils> solver_utils = std::make_shared<SolverUtils>(logger);
 
-  // get the current path of the executable
-  std::filesystem::path current_path = std::filesystem::current_path();
-
-  // set the robot urdf
-  std::string robot_urdf = (current_path / "urdf" / "gen3_robotiq_2f_85.urdf").string();
+  // get the robot urdf path
+  std::string robot_urdf =
+      (path.parent_path().parent_path() / "urdf" / "gen3_robotiq_2f_85.urdf").string();
 
   // set the base and tool links
   std::string base_link = "base_link";
@@ -182,8 +187,8 @@ int main()
     std::cout << std::endl;
 
     i++;
-
-    if (i > 1)
+    
+    if (i == 500)
       break;
   }
 
