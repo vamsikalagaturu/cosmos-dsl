@@ -1,0 +1,20 @@
+{
+    "@context": [
+        "../metamodels/tasks/basic_task.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:task_specifications",
+
+    "@graph": [
+        {
+            "@id": "rob:move_arm_xyz_task",
+            "@type": "BaseTask",
+            "debug-config": "rob:debug_config_all",
+            "robot-config": "rob:kinova_config",
+            "motion-specifications": ["rob:move_arm_xyz"]
+        }
+    ]
+}

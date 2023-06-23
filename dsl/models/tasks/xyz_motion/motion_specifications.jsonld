@@ -1,0 +1,24 @@
+{
+    "@context": [
+        "../metamodels/motion_specifications/move_arm_xyz.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:motion_specifications",
+
+    "@graph": [
+        {
+            "@id": "rob:move_arm_xyz",
+            "@type": "MoveArmXYZ",
+            "control-frame-coord": "rob:bracelet_link_coord",
+            "target-frame-coord": "rob:target_link_coord",
+            "time-step": 0.001,
+            "controller": "rob:cascaded_controller",
+            "solver": "rob:vereshchagin_solver",
+            "iterations": 500,
+            "monitors": ["rob:dist-bracelet_link-target_link-monitor"]
+        }
+    ]
+}

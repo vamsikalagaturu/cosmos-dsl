@@ -1,0 +1,19 @@
+{
+    "@context": [
+        "../metamodels/configs/robot_config.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:robot_configs",
+
+    "@graph": [
+        {
+            "@id": "rob:kinova_config",
+            "@type": "RobotConfig",
+            "urdf-name": "gen3_robotiq_2f_85.urdf",
+            "initial-state": [0.0, 0.0, 0.0, -1.57, 0.0, -1.57, 0.0]
+        }
+    ]
+}

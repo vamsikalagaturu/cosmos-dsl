@@ -1,0 +1,27 @@
+{
+    "@context": [
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:pc_instances",
+
+    "@graph": [
+        {
+            "@id": "rob:bracelet_link_coord",
+            "@type": ["FrameReference", "FrameCoordinate"],
+            "of-frame": "rob:bracelet_link"
+        },
+        {
+            "@id": "rob:target_link_coord",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link",
+            "unit": "M",
+            "x": -0.30440,
+            "y": -0.01490,
+            "z": 0.69960
+        }
+    ]
+}

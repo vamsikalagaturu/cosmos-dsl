@@ -1,0 +1,117 @@
+{
+    "@context": [
+        "../metamodels/configs/debug_config.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:debug_configs",
+
+    "@graph": [
+        {
+            "@id": "rob:debug_config_all",
+            "@type": "DebugConfig",
+            "log-terminal": true,
+            "log-file": true,
+            "plot-data": true,
+            "save-data": true
+        },
+        {
+            "@id": "rob:debug_config_none",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": false,
+            "plot-data": false,
+            "save-data": false
+        },
+        {
+            "@id": "rob:debug_config_log_terminal",
+            "@type": "DebugConfig",
+            "log-terminal": true,
+            "log-file": false,
+            "plot-data": false,
+            "save-data": false
+        },
+        {
+            "@id": "rob:debug_config_log_file",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": true,
+            "plot-data": false,
+            "save-data": false
+        },
+        {
+            "@id": "rob:debug_config_plot_data",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": false,
+            "plot-data": true,
+            "save-data": false
+        },
+        {
+            "@id": "rob:debug_config_save_data",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": false,
+            "plot-data": false,
+            "save-data": true
+        },
+        {
+            "@id": "rob:debug_config_log_terminal_plot_data",
+            "@type": "DebugConfig",
+            "log-terminal": true,
+            "log-file": false,
+            "plot-data": true,
+            "save-data": false
+        },
+        {
+            "@id": "rob:debug_config_log_terminal_save_data",
+            "@type": "DebugConfig",
+            "log-terminal": true,
+            "log-file": false,
+            "plot-data": false,
+            "save-data": true
+        },
+        {
+            "@id": "rob:debug_config_log_file_plot_data",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": true,
+            "plot-data": true,
+            "save-data": false
+        },
+        {
+            "@id": "rob:debug_config_log_file_save_data",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": true,
+            "plot-data": false,
+            "save-data": true
+        },
+        {
+            "@id": "rob:debug_config_plot_data_save_data",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": false,
+            "plot-data": true,
+            "save-data": true
+        },
+        {
+            "@id": "rob:debug_config_log_terminal_plot_data_save_data",
+            "@type": "DebugConfig",
+            "log-terminal": true,
+            "log-file": false,
+            "plot-data": true,
+            "save-data": true
+        },
+        {
+            "@id": "rob:debug_config_log_file_plot_data_save_data",
+            "@type": "DebugConfig",
+            "log-terminal": false,
+            "log-file": true,
+            "plot-data": true,
+            "save-data": true
+        }
+    ]
+}
