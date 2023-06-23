@@ -1,7 +1,7 @@
 #include "arm_actions/gnu_plotter.hpp"
 
-GNUPlotter::GNUPlotter(std::string logs_dir, bool save_data)
-    : logs_dir_(logs_dir), save_data_(save_data)
+GNUPlotter::GNUPlotter(std::string logs_dir, bool plot_data, bool save_data)
+    : logs_dir_(logs_dir), plot_data_(plot_data), save_data_(save_data)
 {
   // create the logs directory if it doesn't exist
   if (!std::filesystem::exists(logs_dir))
@@ -98,6 +98,11 @@ void GNUPlotter::plotXYZ(const std::vector<std::array<double, 3>>& positions,
   if (save_data_)
   {
     saveDataToCSV(positions, target_pos);
+  }
+
+  if (!plot_data_)
+  {
+    return;
   }
 
   Gnuplot gp;

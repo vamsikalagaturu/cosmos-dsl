@@ -17,15 +17,9 @@ class GNUPlotter
 {
 public:
   // take logs dir as input to constructor
-  GNUPlotter(std::string logs_dir, bool save_data);
+  GNUPlotter(std::string logs_dir, bool plot_data, bool save_data);
 
   ~GNUPlotter();
-
-  // logs dir
-  std::string logs_dir_;
-
-  // save data to csv
-  bool save_data_;
 
   // input: positions - std::vector<std::array<double, 3>>
   // input: target_pos = std::array<double, 3>
@@ -40,6 +34,12 @@ public:
                      const std::array<double, 3>& target_pos);
 
 private:
+  // plot data
+  bool plot_data_;
+  // save data
+  bool save_data_;
+  // logs dir
+  std::string logs_dir_;
 };
 
 #endif  // GNU_PLOTTER_HPP
