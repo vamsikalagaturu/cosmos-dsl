@@ -58,7 +58,7 @@ Logger::Logger(bool log_to_terminal, bool log_to_file, std::string logs_dir, boo
   // Create logs directory if it doesn't exist
   if (!std::filesystem::exists(logs_dir_))
   {
-    std::filesystem::create_directory(logs_dir_);
+    std::filesystem::create_directories(logs_dir_);
   }
 
   if (log_to_file_)
@@ -72,7 +72,7 @@ Logger::Logger(bool log_to_terminal, bool log_to_file, std::string logs_dir, boo
     std::string time_str = ss.str();
 
     // create filename
-    std::string file_path = logs_dir_ + "/" + time_str + ".log";
+    std::string file_path = logs_dir_ + time_str + ".log";
     // create file if it doesn't exist
     std::cout << "Creating log file: " << file_path << std::endl;
     std::ofstream file(file_path);

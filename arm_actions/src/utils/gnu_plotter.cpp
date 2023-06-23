@@ -6,21 +6,32 @@ GNUPlotter::GNUPlotter(std::string logs_dir, bool save_data)
   // create the logs directory if it doesn't exist
   if (!std::filesystem::exists(logs_dir))
   {
-    std::filesystem::create_directory(logs_dir);
+    std::filesystem::create_directories(logs_dir);
   }
 
   // get the number of subdirectories
-  int n_subdirs = std::distance(std::filesystem::directory_iterator(logs_dir),
-                                std::filesystem::directory_iterator{});
+  if (save_data_)
+  {
+    int n_subdirs = std::distance(std::filesystem::directory_iterator(logs_dir),
+                                  std::filesystem::directory_iterator{});
 
-  // create the new subdirectory: 0 if no subdirectories exist, else n_subdirs + 1
-  std::string subdir = logs_dir + "/" + std::to_string(n_subdirs ? n_subdirs : 0);
+    // get current time
+    auto now = std::chrono::system_clock::now();
+    auto now_c = std::chrono::system_clock::to_time_t(now);
 
-  // create the subdirectory
-  std::filesystem::create_directory(subdir);
+    // convert to string
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now_c), "%d_%m_%Y_%H_%M_%S");
+    std::string time_str = ss.str();
 
-  // set the logs dir to the new subdirectory
-  logs_dir_ = subdir;
+    std::string subdir = logs_dir + "/" + time_str;
+
+    // create the subdirectory
+    std::filesystem::create_directory(subdir);
+
+    // set the logs dir to the new subdirectory
+    logs_dir_ = subdir;
+  }
 }
 
 GNUPlotter::~GNUPlotter() {}
