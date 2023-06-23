@@ -125,3 +125,13 @@ int Utils::initialize_robot(const std::string& urdf_path, KDL::Chain& robot_chai
   _logger->logInfo("Successfully initialized robot");
   return 0;
 }
+
+double Utils::computeEuclideanDistance(const std::array<double, 3>& current,
+                                       const std::array<double, 3>& target)
+{
+  double x_diff = target[0] - current[0];
+  double y_diff = target[1] - current[1];
+  double z_diff = target[2] - current[2];
+
+  return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2));
+}

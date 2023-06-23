@@ -70,6 +70,15 @@ public:
                        const std::string& base_link, const std::string& tool_link,
                        const std::vector<double>& initial_joint_angles, KDL::JntArray& q);
 
+  /**
+   * @brief Computes the euclidean distance between two 3d points.
+   * @param p1 The first point of type std::array<double, 3>.
+   * @param p2 The second point of type std::array<double, 3>.
+   * @return The euclidean distance between the two points.
+   */
+  static double computeEuclideanDistance(const std::array<double, 3>& current,
+                                         const std::array<double, 3>& target);
+
 private:
   std::shared_ptr<Logger> _logger;
 };
