@@ -1,15 +1,14 @@
 {
     "@context": [
-        "../metamodels/monitors/threshold.jsonld",
-        "../metamodels/monitors/monitor.jsonld",
+        "../../../metamodels/relations/constraint.jsonld",
+        "../../../metamodels/monitors/threshold.jsonld",
+        "../../../metamodels/monitors/monitor.jsonld",
         "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:distance_monitor",
-
     "@graph": [
         {
             "@id": "rob:lt",
@@ -22,11 +21,16 @@
             "unit": "M"
         },
         {
-            "@id": "rob:dist-bracelet_link-target_link-monitor",
-            "@type": ["Monitor", "DistanceMonitor"],
-            "distance": "rob:dist-bracelet_link-target_link-coord",
+            "@id": "rob:bracelet_link-target_link-constraint",
+            "@type": "Constraint",
             "threshold": "rob:dist-bracelet_link-target_link-threshold",
-            "constraint": "rob:lt"
+            "operator": "rob:lt",
+            "distance-coord": "rob:dist-bracelet_link-target_link-coord"
+        },
+        {
+            "@id": "rob:dist-bracelet_link-target_link-monitor",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link-target_link-constraint"
         }
     ]
-} 
+}

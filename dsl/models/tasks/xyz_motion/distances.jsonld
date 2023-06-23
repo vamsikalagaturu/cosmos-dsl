@@ -1,20 +1,24 @@
 {
     "@context": [
-        "../metamodels/relations/distance.jsonld",
+        "../../../metamodels/relations/distance.jsonld",
         "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:distance_instance",
-
     "@graph": [
         {
             "@id": "rob:dist-bracelet_link-target_link",
-            "@type": ["EuclideanDistance","FramePointToPointDistance"],
-            "between-entities": ["rob:bracelet_link","rob:target_link"],
+            "@type": [
+                "EuclideanDistance",
+                "FramePointToPointDistance"
+            ],
+            "between-entities": [
+                "rob:bracelet_link",
+                "rob:target_link"
+            ],
             "quantity-kind": "Length"
         }
     ]
-} 
+}

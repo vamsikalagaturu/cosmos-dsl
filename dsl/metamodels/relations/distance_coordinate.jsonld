@@ -1,6 +1,6 @@
 {
     "@context": {
-        "distCoord": "http://example.com/distCoord#",
+        "distCoord": "http://example.com/dist_coord#",
 
         "DistanceCoordinate": "distCoord:DistanceCoordinate",
         

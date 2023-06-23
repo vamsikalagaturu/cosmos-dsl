@@ -1,13 +1,11 @@
 {
     "@context": [
-        "../metamodels/solvers/vereshchagin_solver.jsonld",
+        "../../../metamodels/solvers/vereshchagin_solver.jsonld",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:solvers",
-
     "@graph": [
         {
             "@id": "rob:vereshchagin_solver",

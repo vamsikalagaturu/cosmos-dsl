@@ -1,14 +1,12 @@
 {
     "@context": [
-        "../metamodels/relations/distance_coordinate.jsonld",
+        "../../../metamodels/relations/distance_coordinate.jsonld",
         "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:distance_coordinate_instance",
-
     "@graph": [
         {
             "@id": "rob:dist-bracelet_link-target_link-coord",
@@ -17,4 +15,4 @@
             "unit": "M"
         }
     ]
-} 
+}

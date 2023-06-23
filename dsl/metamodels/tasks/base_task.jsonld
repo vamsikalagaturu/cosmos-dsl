@@ -1,6 +1,6 @@
 {
     "@context": {
-        "baseTask": "http://example.com/baseTask#",
+        "baseTask": "http://example.com/base_task#",
 
         "BaseTask": "baseTask:BaseTask",
 

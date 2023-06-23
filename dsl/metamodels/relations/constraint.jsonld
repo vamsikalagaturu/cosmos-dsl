@@ -1,0 +1,28 @@
+{
+    "@context": {
+        "constraint-ns": "http://example.com/constraint#",
+
+        "Constraint": "constraint-ns:Constraint",
+
+        "LessThan": "constraint-ns:LessThan",
+        "LessThanOrEqual": "constraint-ns:LessThanOrEqual",
+        "Equal": "constraint-ns:Equal",
+        "GreaterThanOrEqual": "constraint-ns:GreaterThanOrEqual",
+        "GreaterThan": "constraint-ns:GreaterThan",
+        "NotEqual": "constraint-ns:NotEqual",
+        "InInterval": "constraint-ns:InInterval",
+
+        "threshold": {
+            "@id": "constraint-ns:threshold",
+            "@type": "@id"
+        },
+        "operator": {
+            "@id": "constraint-ns:operator",
+            "@type": "@id"
+        },
+        "distance-coord": {
+            "@id": "constraint-ns:distance-coord",
+            "@type": "@id"
+        }
+    }
+} 

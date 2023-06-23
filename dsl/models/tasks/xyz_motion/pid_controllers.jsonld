@@ -1,13 +1,11 @@
 {
     "@context": [
-        "../metamodels/controlelrs/pid_controller.jsonld",
+        "../../../metamodels/controllers/pid_controller.jsonld",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:pid_controllers",
-
     "@graph": [
         {
             "@id": "rob:pid_position_controller",

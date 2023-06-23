@@ -1,13 +1,11 @@
 {
     "@context": [
-        "../metamodels/controlelrs/cascaded_controller.jsonld",
+        "../../../metamodels/controllers/cascaded_controller.jsonld",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:cascaded_controllers",
-
     "@graph": [
         {
             "@id": "rob:cascaded_controllers",

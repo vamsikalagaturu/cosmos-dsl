@@ -1,13 +1,11 @@
 {
     "@context": [
-        "../metamodels/entities/frame.jsonld",
+        "../../../metamodels/entities/frame.jsonld",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-
     "@id": "rob:frame_instances",
-
     "@graph": [
         {
             "@id": "rob:base_link",
