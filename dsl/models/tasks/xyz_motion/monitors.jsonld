@@ -22,7 +22,7 @@
         },
         {
             "@id": "rob:bracelet_link-target_link-constraint",
-            "@type": "Constraint",
+            "@type": ["Constraint", "DistanceConstraint"],
             "threshold": "rob:dist-bracelet_link-target_link-threshold",
             "operator": "rob:lt",
             "distance-coord": "rob:dist-bracelet_link-target_link-coord"

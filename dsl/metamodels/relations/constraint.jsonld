@@ -3,6 +3,7 @@
         "constraint-ns": "http://example.com/constraint#",
 
         "Constraint": "constraint-ns:Constraint",
+        "DistanceConstraint": "constraint-ns:DistanceConstraint",
 
         "LessThan": "constraint-ns:LessThan",
         "LessThanOrEqual": "constraint-ns:LessThanOrEqual",

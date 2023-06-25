@@ -3,6 +3,7 @@
         "cascadedController": "http://example.com/cascaded_controller#",
 
         "CascadedController": "cascadedController:CascadedController",
+        "PositionVelocityController": "cascadedController:PositionVelocityController",
 
         "position-controller": {
             "@id": "cascadedController:position-controller",

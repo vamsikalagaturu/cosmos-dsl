@@ -5,13 +5,14 @@
         "RobotConfig": "robotConfig:RobotConfig",
 
         "urdf-name": {
-            "@id": "robotConfig:urdf-path",
+            "@id": "robotConfig:urdf-name",
             "@type": "xsd:string"
         },
 
         "initial-state": {
             "@id": "robotConfig:initial-state",
-            "@container": "@list"
+            "@container": "@list",
+            "@type": "xsd:double"
         },
 
         "base_frame": {

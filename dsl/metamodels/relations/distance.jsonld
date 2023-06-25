@@ -8,6 +8,7 @@
 
         "between-entities": {
             "@id": "distance:between-entities",
+            "@container": "@set",
             "@type": "@id"
         }
     }

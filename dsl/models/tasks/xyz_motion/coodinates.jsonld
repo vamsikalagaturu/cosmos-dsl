@@ -12,8 +12,9 @@
     "@graph": [
         {
             "@id": "rob:bracelet_link_coord",
-            "@type": ["FrameReference", "FrameCoordinate"],
-            "of-frame": "rob:bracelet_link"
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:bracelet_link",
+            "unit": "M"
         },
         {
             "@id": "rob:target_link_coord",

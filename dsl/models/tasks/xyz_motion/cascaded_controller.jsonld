@@ -8,8 +8,8 @@
     "@id": "rob:cascaded_controllers",
     "@graph": [
         {
-            "@id": "rob:cascaded_controllers",
-            "@type": "CascadedController",
+            "@id": "rob:cascaded_controller",
+            "@type": ["CascadedController", "PositionVelocityController"],
             "position-controller": "rob:pid_position_controller",
             "velocity-controller": "rob:pid_velocity_controller"
         }
