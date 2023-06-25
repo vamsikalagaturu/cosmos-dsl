@@ -15,13 +15,13 @@
             "@type": "xsd:double"
         },
 
-        "base_frame": {
-            "@id": "robotConfig:base_frame",
+        "base-frame": {
+            "@id": "robotConfig:base-frame",
             "@type": "@type"
         },
 
-        "tool_frame": {
-            "@id": "robotConfig:tool_frame",
+        "tool-frame": {
+            "@id": "robotConfig:tool-frame",
             "@type": "@type"
         }
     }

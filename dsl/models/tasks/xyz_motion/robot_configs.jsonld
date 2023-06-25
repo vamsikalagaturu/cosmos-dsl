@@ -11,6 +11,8 @@
             "@id": "rob:kinova_config",
             "@type": "RobotConfig",
             "urdf-name": "gen3_robotiq_2f_85.urdf",
+            "base-link": "base_link",
+            "tool-link": "bracelet_link",
             "initial-state": [
                 0.0,
                 0.0,
