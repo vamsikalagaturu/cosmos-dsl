@@ -15,7 +15,6 @@ from utils import Utils
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-
 class Convert:
     def __init__(self, debug=True):
         self.debug = debug
@@ -65,10 +64,10 @@ class Convert:
         data = self.test()
 
         if self.debug:
-            print(data)
+            print(json.dumps(data, indent=4))
 
         # result = template.render({
-        #     "monitors": mons,
+        #     "data": data[0],
         #     "ns": ROB+"/rob#"
         # })
 
@@ -112,13 +111,13 @@ class Convert:
             # get debug config data
             debug_config = {}
             if (debug_config_iri, RDF.type, DEBUGCONFIG["DebugConfig"]) in g:
-                debug_config['log-terminal'] = g.value(
+                debug_config['log_to_terminal_'] = g.value(
                     debug_config_iri, DEBUGCONFIG["log-terminal"]).toPython()
-                debug_config['log-file'] = g.value(
+                debug_config['log_to_file_'] = g.value(
                     debug_config_iri, DEBUGCONFIG["log-file"]).toPython()
-                debug_config['plot-data'] = g.value(
+                debug_config['plot_data_'] = g.value(
                     debug_config_iri, DEBUGCONFIG["plot-data"]).toPython()
-                debug_config['save-data'] = g.value(
+                debug_config['save_data_'] = g.value(
                     debug_config_iri, DEBUGCONFIG["save-data"]).toPython()
 
             data['debug_config'] = debug_config
@@ -126,14 +125,17 @@ class Convert:
             # get robot config data
             robot_config = {}
             if (robot_config_iri, RDF.type, ROBOTCONFIG["RobotConfig"]) in g:
-                robot_config['urdf-name'] = str(
+                robot_config['robot_urdf_name_'] = str(
                     g.value(robot_config_iri, ROBOTCONFIG["urdf-name"]))
+                robot_config['base_link_name_'] = str(
+                    g.value(robot_config_iri, ROBOTCONFIG["base-link"]))
+                robot_config['tool_link_name_'] = str(
+                    g.value(robot_config_iri, ROBOTCONFIG["tool-link"]))
                 # get the inital-state node iri
                 initial_state = g.value(
                     robot_config_iri, ROBOTCONFIG["initial-state"])
                 # get the initial-state node data
-                # loop through the initial-state list node and get the data
-                robot_config['initial-state'] = [jv.toPython()
+                robot_config['initial_joint_angles_'] = [jv.toPython()
                                                  for jv in Collection(g, initial_state)]
 
             data['robot_config'] = robot_config
@@ -235,7 +237,7 @@ class Convert:
                     z = g.value(target_frame_coord, COORD["z"]).toPython()
 
                     if x is not None and y is not None and z is not None:
-                        target_frame_coord_data['position'] = [x, y, z]
+                        target_frame_coord_data['target_position_'] = [x, y, z]
 
                 # get monitors data
                 monitors_data = []
@@ -277,16 +279,14 @@ class Convert:
                 
                 motion_spec['control-frame-coord'] = control_frame_coord_data
                 motion_spec['target-frame-coord'] = target_frame_coord_data
-                motion_spec['time-step'] = time_step.toPython()
-                motion_spec['iterations'] = iterations.toPython()
+                motion_spec['system_dt_'] = time_step.toPython()
+                motion_spec['break_iteration_'] = iterations.toPython()
                 motion_spec['monitors'] = monitors_data
 
                 motion_specs[motion_spec_iri] = motion_spec
 
             data['motion_specs'] = motion_specs
-
-            # print dictionary pretty
-            print(json.dumps(data, indent=4))
+            big_data.append(data)
 
         return big_data
 
