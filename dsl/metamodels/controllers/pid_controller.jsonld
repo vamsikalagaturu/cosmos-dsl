@@ -22,6 +22,11 @@
         "time-step": {
             "@id": "pidController:time-step",
             "@type": "xsd:float"
+        },
+
+        "constraint": {
+            "@id": "pidController:constraint",
+            "@type": "@id"
         }
     }
 }
