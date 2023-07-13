@@ -4,38 +4,25 @@
 
         "MoveArmXYZ": "moveArmXYZ:MoveArmXYZ",
 
-        "control-frame-coord": {
-            "@id": "moveArmXYZ:control-frame-coord",
+        "mappings": {
+            "@id": "moveArmXYZ:mappings",
             "@type": "@id"
         },
 
-        "target-frame-coord": {
-            "@id": "moveArmXYZ:target-frame-coord",
-            "@type": "@id"
+        "pre-conditions": {
+            "@id": "moveArmXYZ:pre-conditions",
+            "@type": "@id",
+            "@container": "@set"
         },
 
-        "time-step": {
-            "@id": "moveArmXYZ:time-step",
-            "@type": "xsd:integer"
+        "per-conditions": {
+            "@id": "moveArmXYZ:per-conditions",
+            "@type": "@id",
+            "@container": "@set"
         },
 
-        "controller": {
-            "@id": "moveArmXYZ:controller",
-            "@type": "@id"
-        },
-
-        "solver": {
-            "@id": "moveArmXYZ:solver",
-            "@type": "@id" 
-        },
-
-        "iterations": {
-            "@id": "moveArmXYZ:iterations",
-            "@type": "xsd:integer"
-        },
-
-        "monitors": {
-            "@id": "moveArmXYZ:monitors",
+        "post-conditions": {
+            "@id": "moveArmXYZ:post-conditions",
             "@type": "@id",
             "@container": "@set"
         }

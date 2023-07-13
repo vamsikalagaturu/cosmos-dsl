@@ -1,5 +1,6 @@
 {
     "@context": [
+        "../../../metamodels/motion_specifications/mappings.jsonld",
         "../../../metamodels/motion_specifications/move_arm_xyz.jsonld",
         {
             "rob": "http://example.com/rob#"
@@ -8,16 +9,27 @@
     "@id": "rob:motion_specifications",
     "@graph": [
         {
+            "@id": "rob:controller_solver_mappings",
+            "@type": "ControllerSolver",
+            "interface": "AccEnegery",
+            "solver": "rob:vereshchagin_solver",
+            "controller": "rob:cascaded_controller",
+            "controller-input": "rob:bracelet_link_coord",
+            "controller-input-dimension": ["lin_x", "lin_y", "lin_z"],
+            "controller-output-dimension": ["lin_x", "lin_y", "lin_z"]
+        },
+        {
             "@id": "rob:move_arm_xyz",
             "@type": "MoveArmXYZ",
-            "control-frame-coord": "rob:bracelet_link_coord",
-            "target-frame-coord": "rob:target_link_coord",
-            "time-step": 0.001,
-            "controller": "rob:cascaded_controller",
-            "solver": "rob:vereshchagin_solver",
-            "iterations": 500,
-            "monitors": [
-                "rob:dist-bracelet_link-target_link-monitor"
+            "mappings": "rob:controller_solver_mappings",
+            "pre-conditions": [
+                "rob:bracelet_link-target_link-constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link-target_link-constraint_vel"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link-target_link-constraint_post"
             ]
         }
     ]

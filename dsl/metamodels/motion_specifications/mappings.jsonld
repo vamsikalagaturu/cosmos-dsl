@@ -1,0 +1,43 @@
+{
+    "@context": {
+        "mappings": "http://example.com/mappings#",
+
+        "ControllerSolver": "mappings:ControllerSolver",
+        "AccEnegery": "mappings:AccEnegery",
+
+        "interface": {
+            "@id": "mappings:interface",
+            "@type": "@id"
+        },
+
+        "controller": {
+            "@id": "mappings:controller",
+            "@type": "@id"
+        },
+
+        "solver": {
+            "@id": "mappings:solver",
+            "@type": "@id"
+        },
+
+        "controller-input": {
+            "@id": "mappings:controller-input",
+            "@type": "@id"
+        },
+
+        "controller-input-dimension": {
+            "@id": "mappings:solver-input-dimension",
+            "@type": "@id"
+        },
+
+        "controller-output": {
+            "@id": "mappings:controller-output",
+            "@type": "@id"
+        },
+
+        "controller-output-dimension": {
+            "@id": "mappings:controller-output-dimension",
+            "@type": "@id"
+        }
+    }
+}
