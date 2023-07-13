@@ -27,7 +27,8 @@
 
         "controller-input-dimension": {
             "@id": "mappings:solver-input-dimension",
-            "@type": "@id"
+            "@type": "xsd:string",
+            "@container": "@set"
         },
 
         "controller-output": {
@@ -37,7 +38,8 @@
 
         "controller-output-dimension": {
             "@id": "mappings:controller-output-dimension",
-            "@type": "@id"
+            "@type": "xsd:string",
+            "@container": "@set"
         }
     }
 }

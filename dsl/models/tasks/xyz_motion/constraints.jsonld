@@ -31,7 +31,7 @@
             "@id": "rob:vel-bracelet_link-target_link-controller-threshold",
             "@type": "Threshold",
             "threshold-value": 0.01,
-            "unit": "M"
+            "unit": "M-PER-SEC"
         },
         {
             "@id": "rob:dist-bracelet_link-target_link-threshold_pre",
