@@ -12,6 +12,9 @@
         "PoseCoordinate": "coord:PoseCoordinate",
         "FrameCoordinate": "coord:FrameCoordinate",
 
+        "DistanceCoordinate": "coord:DistanceCoordinate",
+        "VelocityCoordinate": "coord:VelocityCoordinate",
+
         "Orientation": "../entities/orientation.jsonld",
 
         "VectorXYZ": "coord:VectorXYZ",
@@ -33,6 +36,16 @@
 
         "of-frame": {
             "@id": "coord:of-frame",
+            "@type": "@id"
+        },
+
+        "of-distance": {
+            "@id": "coord:of-distance",
+            "@type": "@id"
+        },
+
+        "of-velocity": {
+            "@id": "coord:of-velocity",
             "@type": "@id"
         },
 

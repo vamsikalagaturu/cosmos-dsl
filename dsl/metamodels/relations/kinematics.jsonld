@@ -1,0 +1,19 @@
+{
+    "@context": {
+        "kinematics": "http://example.com/kinematics#",
+
+        "EuclideanDistance": "kinematics:EuclideanDistance",
+        "PointToPointDistance": "kinematics:PointToPointDistance",
+        "FramePointToPointDistance": "kinematics:FramePointToPointDistance",
+
+        "CartesianVelocity": "kinematics:CartesianVelocity",
+        "LinearVelocity": "kinematics:LinearVelocity",
+        "AngularVelocity": "kinematics:AngularVelocity",
+
+        "between-entities": {
+            "@id": "kinematics:between-entities",
+            "@container": "@set",
+            "@type": "@id"
+        }
+    }
+}

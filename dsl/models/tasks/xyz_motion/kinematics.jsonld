@@ -1,6 +1,6 @@
 {
     "@context": [
-        "../../../metamodels/relations/distance.jsonld",
+        "../../../metamodels/relations/kinematics.jsonld",
         "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
@@ -19,6 +19,18 @@
                 "rob:target_link"
             ],
             "quantity-kind": "Length"
+        },
+        {
+            "@id": "rob:vel-bracelet_link-target_link",
+            "@type": [
+                "CartesianVelocity",
+                "LinearVelocity"
+            ],
+            "between-entities": [
+                "rob:bracelet_link",
+                "rob:target_link"
+            ],
+            "quantity-kind": "Velocity"
         }
     ]
 }

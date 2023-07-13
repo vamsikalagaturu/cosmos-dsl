@@ -7,7 +7,7 @@
         }
     ],
 
-    "@id": "rob:pc_instances",
+    "@id": "rob:coordinates",
 
     "@graph": [
         {
@@ -24,6 +24,18 @@
             "x": -0.30440,
             "y": -0.01490,
             "z": 0.69960
+        },
+        {
+            "@id": "rob:dist-bracelet_link-target_link-coord",
+            "@type": "DistanceCoordinate",
+            "of": "rob:dist-bracelet_link-target_link",
+            "unit": "M"
+        },
+        {
+            "@id": "rob:vel-bracelet_link-target_link-coord",
+            "@type": "VelocityCoordinate",
+            "of": "rob:vel-bracelet_link-target_link",
+            "unit": "M-PER-SEC"
         }
     ]
 }
