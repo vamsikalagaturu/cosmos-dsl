@@ -1,0 +1,77 @@
+{
+    "@context": [
+        "../../../metamodels/relations/constraint.jsonld",
+        "../../../metamodels/monitors/threshold.jsonld",
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+    "@id": "rob:constraints",
+    "@graph": [
+        {
+            "@id": "rob:lt",
+            "@type": "LessThan"
+        },
+        {
+            "@id": "rob:gt",
+            "@type": "GreaterThan"
+        },
+        {
+            "@id": "rob:eq",
+            "@type": "Equal"
+        },
+        {
+            "@id": "rob:dist-bracelet_link-target_link-controller-threshold",
+            "@type": "Threshold",
+            "threshold-value": 0.0,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:vel-bracelet_link-target_link-controller-threshold",
+            "@type": "Threshold",
+            "threshold-value": 0.01,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:dist-bracelet_link-target_link-threshold_pre",
+            "@type": "Threshold",
+            "threshold-value": 0.05,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:dist-bracelet_link-target_link-threshold_post",
+            "@type": "Threshold",
+            "threshold-value": 0.01,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:bracelet_link-target_link-constraint_dist",
+            "@type": ["Constraint", "DistanceConstraint"],
+            "threshold": "rob:dist-bracelet_link-target_link-controller-threshold",
+            "operator": "rob:eq",
+            "velocity-coord": "rob:dist-bracelet_link-target_link-coord"
+        },
+        {
+            "@id": "rob:bracelet_link-target_link-constraint_vel",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:vel-bracelet_link-target_link-controller-threshold",
+            "operator": "rob:eq",
+            "velocity-coord": "rob:vel-bracelet_link-target_link-coord"
+        },
+        {
+            "@id": "rob:bracelet_link-target_link-constraint_pre",
+            "@type": ["Constraint", "DistanceConstraint"],
+            "threshold": "rob:dist-bracelet_link-target_link-threshold_pre",
+            "operator": "rob:gt",
+            "distance-coord": "rob:dist-bracelet_link-target_link-coord"
+        },
+        {
+            "@id": "rob:bracelet_link-target_link-constraint_post",
+            "@type": ["Constraint", "DistanceConstraint"],
+            "threshold": "rob:dist-bracelet_link-target_link-threshold_post",
+            "operator": "rob:lt",
+            "distance-coord": "rob:dist-bracelet_link-target_link-coord"
+        }
+    ]
+}
