@@ -28,13 +28,13 @@
         {
             "@id": "rob:dist-bracelet_link-target_link-coord",
             "@type": "DistanceCoordinate",
-            "of": "rob:dist-bracelet_link-target_link",
+            "of-distance": "rob:dist-bracelet_link-target_link",
             "unit": "M"
         },
         {
             "@id": "rob:vel-bracelet_link-target_link-coord",
             "@type": "VelocityCoordinate",
-            "of": "rob:vel-bracelet_link-target_link",
+            "of-velocity": "rob:vel-bracelet_link-target_link",
             "unit": "M-PER-SEC"
         }
     ]

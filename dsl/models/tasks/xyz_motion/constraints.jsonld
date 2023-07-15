@@ -50,28 +50,28 @@
             "@type": ["Constraint", "DistanceConstraint"],
             "threshold": "rob:dist-bracelet_link-target_link-controller-threshold",
             "operator": "rob:eq",
-            "velocity-coord": "rob:dist-bracelet_link-target_link-coord"
+            "coord": "rob:dist-bracelet_link-target_link-coord"
         },
         {
             "@id": "rob:bracelet_link-target_link-constraint_vel",
             "@type": ["Constraint", "VelocityConstraint"],
             "threshold": "rob:vel-bracelet_link-target_link-controller-threshold",
             "operator": "rob:eq",
-            "velocity-coord": "rob:vel-bracelet_link-target_link-coord"
+            "coord": "rob:vel-bracelet_link-target_link-coord"
         },
         {
             "@id": "rob:bracelet_link-target_link-constraint_pre",
             "@type": ["Constraint", "DistanceConstraint"],
             "threshold": "rob:dist-bracelet_link-target_link-threshold_pre",
             "operator": "rob:gt",
-            "distance-coord": "rob:dist-bracelet_link-target_link-coord"
+            "coord": "rob:dist-bracelet_link-target_link-coord"
         },
         {
             "@id": "rob:bracelet_link-target_link-constraint_post",
             "@type": ["Constraint", "DistanceConstraint"],
             "threshold": "rob:dist-bracelet_link-target_link-threshold_post",
             "operator": "rob:lt",
-            "distance-coord": "rob:dist-bracelet_link-target_link-coord"
+            "coord": "rob:dist-bracelet_link-target_link-coord"
         }
     ]
 }

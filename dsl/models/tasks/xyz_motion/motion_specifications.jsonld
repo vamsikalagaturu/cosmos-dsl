@@ -11,7 +11,10 @@
         {
             "@id": "rob:controller_solver_mappings",
             "@type": "ControllerSolver",
-            "interface": "AccEnegery",
+            "interface": {
+                "@id": "rob:acc_energy",
+                "@type": "AccEnegery"
+            },
             "solver": "rob:vereshchagin_solver",
             "controller": "rob:cascaded_controller",
             "controller-input": "rob:bracelet_link_coord",

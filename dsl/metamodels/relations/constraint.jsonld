@@ -22,8 +22,8 @@
             "@id": "constraint-ns:operator",
             "@type": "@id"
         },
-        "distance-coord": {
-            "@id": "constraint-ns:distance-coord",
+        "coord": {
+            "@id": "constraint-ns:coord",
             "@type": "@id"
         }
     }

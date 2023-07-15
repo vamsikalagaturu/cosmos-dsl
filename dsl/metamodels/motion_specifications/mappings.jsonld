@@ -1,43 +1,43 @@
 {
     "@context": {
-        "mappings": "http://example.com/mappings#",
+        "mapping": "http://example.com/mappings#",
 
-        "ControllerSolver": "mappings:ControllerSolver",
-        "AccEnegery": "mappings:AccEnegery",
+        "ControllerSolver": "mapping:ControllerSolver",
+        "AccEnegery": "mapping:AccEnegery",
 
         "interface": {
-            "@id": "mappings:interface",
+            "@id": "mapping:interface",
             "@type": "@id"
         },
 
         "controller": {
-            "@id": "mappings:controller",
+            "@id": "mapping:controller",
             "@type": "@id"
         },
 
         "solver": {
-            "@id": "mappings:solver",
+            "@id": "mapping:solver",
             "@type": "@id"
         },
 
         "controller-input": {
-            "@id": "mappings:controller-input",
+            "@id": "mapping:controller-input",
             "@type": "@id"
         },
 
         "controller-input-dimension": {
-            "@id": "mappings:solver-input-dimension",
+            "@id": "mapping:controller-input-dimension",
             "@type": "xsd:string",
             "@container": "@set"
         },
 
         "controller-output": {
-            "@id": "mappings:controller-output",
+            "@id": "mapping:controller-output",
             "@type": "@id"
         },
 
         "controller-output-dimension": {
-            "@id": "mappings:controller-output-dimension",
+            "@id": "mapping:controller-output-dimension",
             "@type": "xsd:string",
             "@container": "@set"
         }
