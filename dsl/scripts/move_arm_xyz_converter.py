@@ -76,7 +76,7 @@ class Convert:
         # self.utils.write_to_file(result, template.name)
 
     def update_coords_data(self, cond, big_data):
-        coord = cond['data']['constraint']['coord']
+        coord = cond['constraint']['coord']
                         
         if coord not in big_data['coords']:
             coord_data = self.query_utils.get_coord_info(coord)

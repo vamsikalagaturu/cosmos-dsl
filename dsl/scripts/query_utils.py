@@ -33,9 +33,7 @@ class QueryUtils:
         for row in qres:
             ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
             pre_condition_info['monitor'] = row[0]
-            pre_condition_info['data'] = {
-                'constraint': ci
-            }
+            pre_condition_info['constraint'] = ci
 
         return pre_condition_info
     
@@ -61,9 +59,7 @@ class QueryUtils:
         for row in qres:
             ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
             per_condition_info['controller'] = row[0]
-            per_condition_info['data'] = {
-                'constraint': ci
-            }
+            per_condition_info['constraint'] = ci
 
         return per_condition_info
     
