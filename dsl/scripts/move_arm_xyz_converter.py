@@ -12,6 +12,7 @@ from rdflib.collection import Collection
 from jinja2 import Environment, FileSystemLoader
 
 from utils import Utils
+from query_utils import QueryUtils
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -63,8 +64,9 @@ class Convert:
 
         data = self.test()
 
-        if self.debug:
-            print(json.dumps(data, indent=4))
+        if True or self.debug:
+            print(json.dumps(data, indent=2))
+            # print(data)
 
         # result = template.render({
         #     "data": data[0],
@@ -72,6 +74,24 @@ class Convert:
         # })
 
         # self.utils.write_to_file(result, template.name)
+
+    def update_coords_data(self, cond, big_data):
+        coord = cond['data']['constraint']['coord']
+                        
+        if coord not in big_data['coords']:
+            coord_data = self.query_utils.get_coord_info(coord)
+            big_data['coords'][coord] = coord_data
+
+            if coord_data['type'] == 'DistanceCoordinate' or \
+                coord_data['type'] == 'VelocityCoordinate':
+                
+                f1_coord_data = self.query_utils.get_coord_info(coord_data['f1_coord'])
+                f2_coord_data = self.query_utils.get_coord_info(coord_data['f2_coord'])
+
+                big_data['coords'][coord_data['f1_coord']] = f1_coord_data
+                big_data['coords'][coord_data['f2_coord']] = f2_coord_data
+
+        return big_data
 
     def test(self):
         g = self.parse_models(convert.model_names)
@@ -84,209 +104,76 @@ class Convert:
         DIST = rdflib.Namespace(ROB + "/distance#")
         DISTCOORD = rdflib.Namespace(ROB + "/dist_coord#")
         MONITOR = rdflib.Namespace(ROB + "/monitor#")
-        CONSTRAINT = rdflib.Namespace(ROB + "/constraint#")
+        CONSTRAINT = rdflib.Namespace(ROB + "/constraint-ns#")
         THRESHOLD = rdflib.Namespace(ROB + "/threshold#")
         QUDT = rdflib.Namespace("http://qudt.org/schema/qudt/")
         BASETASK = rdflib.Namespace(ROB + "/base_task#")
         MoveArmXYZ = rdflib.Namespace(ROB + "/move_arm_xyz#")
-        DEBUGCONFIG = rdflib.Namespace(ROB + "/debug_config#")
-        ROBOTCONFIG = rdflib.Namespace(ROB + "/robot_config#")
         MOTIONSPEC = rdflib.Namespace(ROB + "/move_arm_xyz#")
         CASCADEDCONTRL = rdflib.Namespace(ROB + "/cascaded_controller#")
         PIDCONTROLLER = rdflib.Namespace(ROB + "/pid_controller#")
         VERESHSOLVER = rdflib.Namespace(ROB + "/vereshchagin_solver#")
+        KINEMATICS = rdflib.Namespace(ROB + "/kinematics#")
+        MAPPINGS = rdflib.Namespace(ROB + "/mappings#")
 
-        big_data = []
+        self.query_utils = QueryUtils(g)
+
+        big_data = {}
+        big_data['coords'] = {}
+        big_data['tasks'] = {}
 
         # get monitors
         for task_spec in g.subjects(RDF.type, BASETASK["BaseTask"]):
             data = {}
 
             # get task_spec data
-            debug_config_iri = g.value(task_spec, BASETASK["debug-config"])
-            robot_config_iri = g.value(task_spec, BASETASK["robot-config"])
             motion_specs_iris = g.objects(
                 task_spec, BASETASK["motion-specifications"])
-
-            # get debug config data
-            debug_config = {}
-            if (debug_config_iri, RDF.type, DEBUGCONFIG["DebugConfig"]) in g:
-                debug_config['log_to_terminal_'] = g.value(
-                    debug_config_iri, DEBUGCONFIG["log-terminal"]).toPython()
-                debug_config['log_to_file_'] = g.value(
-                    debug_config_iri, DEBUGCONFIG["log-file"]).toPython()
-                debug_config['plot_data_'] = g.value(
-                    debug_config_iri, DEBUGCONFIG["plot-data"]).toPython()
-                debug_config['save_data_'] = g.value(
-                    debug_config_iri, DEBUGCONFIG["save-data"]).toPython()
-
-            data['debug_config'] = debug_config
-
-            # get robot config data
-            robot_config = {}
-            if (robot_config_iri, RDF.type, ROBOTCONFIG["RobotConfig"]) in g:
-                robot_config['robot_urdf_name_'] = str(
-                    g.value(robot_config_iri, ROBOTCONFIG["urdf-name"]))
-                robot_config['base_link_name_'] = str(
-                    g.value(robot_config_iri, ROBOTCONFIG["base-link"]))
-                robot_config['tool_link_name_'] = str(
-                    g.value(robot_config_iri, ROBOTCONFIG["tool-link"]))
-                # get the inital-state node iri
-                initial_state = g.value(
-                    robot_config_iri, ROBOTCONFIG["initial-state"])
-                # get the initial-state node data
-                robot_config['initial_joint_angles_'] = [jv.toPython()
-                                                 for jv in Collection(g, initial_state)]
-
-            data['robot_config'] = robot_config
 
             # get motion specifications data
             motion_specs = {}
 
             for motion_spec_iri in motion_specs_iris:
-                motion_spec = {}
-                # get the motion-specification node
-                control_frame_coord = g.value(
-                    motion_spec_iri, MOTIONSPEC["control-frame-coord"])
-                target_frame_coord = g.value(
-                    motion_spec_iri, MOTIONSPEC["target-frame-coord"])
-                time_step = g.value(motion_spec_iri, MOTIONSPEC["time-step"])
-                controller = g.value(motion_spec_iri, MOTIONSPEC["controller"])
-                solver = g.value(motion_spec_iri, MOTIONSPEC["solver"])
-                iterations = g.value(motion_spec_iri, MOTIONSPEC["iterations"])
-                monitors = g.objects(motion_spec_iri, MOTIONSPEC["monitors"])
-
-                # get controller data
-                controller_data = {}
-                if (controller, RDF.type, CASCADEDCONTRL["CascadedController"]) in g:
-
-                    controller_data['type'] = ["CascadedController", "PositionVelocityController"]
-
-                    controller_data['data'] = {}
-
-                    # get position controller iri
-                    position_controller = g.value(
-                        controller, CASCADEDCONTRL["position-controller"])
-                    # get velocity controller iri
-                    velocity_controller = g.value(
-                        controller, CASCADEDCONTRL["velocity-controller"])
-
-                    for controller_iri in [position_controller, velocity_controller]:
-                        if (controller_iri, RDF.type, PIDCONTROLLER["PIDController"]) in g:
-                            d = {}
-                            d['name'] = controller_iri
-                            d['type'] = "PIDController"
-
-                            # get the proportional gain
-                            d['p-gain'] = g.value(
-                                controller_iri, PIDCONTROLLER["p-gain"]).toPython()
-                            # get the integral gain
-                            d['i-gain'] = g.value(
-                                controller_iri, PIDCONTROLLER["i-gain"]).toPython()
-                            # get the derivative gain
-                            d['d-gain'] = g.value(
-                                controller_iri, PIDCONTROLLER["d-gain"]).toPython()
-                            # time step
-                            d['time-step'] = g.value(
-                                controller_iri, PIDCONTROLLER["time-step"]).toPython()
-                            
-                            controller_data['data'][controller_iri] = d
-
-                motion_spec['controller'] = controller_data
-
-                # get solver data
-                solver_data = {}
-                if (solver, RDF.type, VERESHSOLVER["VereshchaginSolver"]) in g:
-                    solver_data['type'] = "VereshchaginSolver"
-                    solver_data['data'] = {}
-                    # get the alpha-constraints and beta-constraints if any
-                    alpha_constraints = g.value(
-                        solver, VERESHSOLVER["alpha-constraint"])
-                    beta_constraints = g.value(
-                        solver, VERESHSOLVER["beta-constraint"])
-                    
-                    if alpha_constraints is not None:
-                        solver_data['data']['alpha-constraint'] = [jv.toPython() for jv in Collection(g, alpha_constraints)]
-                    if beta_constraints is not None:
-                        solver_data['data']['beta-constraint'] = [jv.toPython() for jv in Collection(g, beta_constraints)]
-                    
-                motion_spec['solver'] = solver_data
-
-                # get control-frame-coord data
-                control_frame_coord_data = {}
-                if (control_frame_coord, RDF.type, COORD["FrameCoordinate"]) in g:
-                    control_frame_coord_data['type'] = "FrameCoordinate"
-                    control_frame_coord_data['of-frame'] = g.value(
-                        control_frame_coord, COORD["of-frame"])
-                    control_frame_coord_data['unit'] = g.value(
-                        control_frame_coord, QUDT["unit"])
-                    
-                # get target-frame-coord data
-                target_frame_coord_data = {}
-                if (target_frame_coord, RDF.type, COORD["FrameCoordinate"]) in g:
-                    target_frame_coord_data['type'] = "FrameCoordinate"
-                    target_frame_coord_data['of-frame'] = g.value(
-                        target_frame_coord, COORD["of-frame"])
-                    # TODO: check if of-frame is of type frame and available in g
-                    target_frame_coord_data['unit'] = g.value(
-                        target_frame_coord, QUDT["unit"])
-                    
-                    # get x, y, z values if any
-                    x = g.value(target_frame_coord, COORD["x"]).toPython()
-                    y = g.value(target_frame_coord, COORD["y"]).toPython()
-                    z = g.value(target_frame_coord, COORD["z"]).toPython()
-
-                    if x is not None and y is not None and z is not None:
-                        target_frame_coord_data['target_position_'] = [x, y, z]
-
-                # get monitors data
-                monitors_data = []
-                for monitor in monitors:
-                    if (monitor, RDF.type, MONITOR["Monitor"]) in g:
-                        constraint = g.value(monitor, MONITOR["constraint"])
-                        if (constraint, RDF.type, CONSTRAINT["Constraint"]) in g \
-                            and (constraint, RDF.type, CONSTRAINT["DistanceConstraint"]) in g:
-
-                            monitor_data = {}
-                            monitor_data['type'] = "DistanceConstraint"
-                            monitor_data['data'] = {}
-                            monitor_data['data']['operator'] = g.value(
-                                constraint, CONSTRAINT["operator"])
-                            threshold = g.value(
-                                constraint, CONSTRAINT["threshold"])
-                            if (threshold, RDF.type, THRESHOLD["Threshold"]) in g:
-                                monitor_data['data']['threshold_value'] = \
-                                    g.value(threshold, THRESHOLD["threshold-value"]).toPython()
-                            dist_coord = g.value(
-                                constraint, CONSTRAINT["distance-coord"])
-                            
-                            if (dist_coord, RDF.type, DISTCOORD["DistanceCoordinate"]) in g:
-                                dist_coord_data = {}
-                                dist_coord_data['type'] = "DistanceCoordinate"
-                                dist_coord_data['unit'] = g.value(
-                                    dist_coord, QUDT["unit"])
-                                dist_coord_of = g.value(
-                                    dist_coord, DISTCOORD["of"])
-                                if (dist_coord_of, RDF.type, DIST["EuclideanDistance"]) in g \
-                                    and (dist_coord_of, RDF.type, DIST["FramePointToPointDistance"]) in g:
-
-                                    dist_coord_data['between-entities'] = list(g.objects(
-                                        dist_coord_of, DIST["between-entities"]))
-                                
-                                monitor_data['data']['distance-coord'] = dist_coord_data
-                            
-                            monitors_data.append(monitor_data)
                 
-                motion_spec['control-frame-coord'] = control_frame_coord_data
-                motion_spec['target-frame-coord'] = target_frame_coord_data
-                motion_spec['system_dt_'] = time_step.toPython()
-                motion_spec['break_iteration_'] = iterations.toPython()
-                motion_spec['monitors'] = monitors_data
+                if (motion_spec_iri, RDF.type, MOTIONSPEC["MoveArmXYZ"]) in g:
 
-                motion_specs[motion_spec_iri] = motion_spec
+                    motion_spec = {}
+                    # get the motion-specification node
+                    mappings_iri = g.value(
+                        motion_spec_iri, MOTIONSPEC["mappings"])
+                    pre_conditions = g.objects(motion_spec_iri, MOTIONSPEC["pre-conditions"])
+                    per_conditions = g.objects(motion_spec_iri, MOTIONSPEC["per-conditions"])
+                    post_conditions = g.objects(motion_spec_iri, MOTIONSPEC["post-conditions"])
 
+                    for pre_condition in pre_conditions:
+
+                        pcr = self.query_utils.get_pre_post_condition_info(pre_condition, {'constraint': pre_condition})
+                        motion_spec['pre_condition'] = pcr
+
+                        big_data = self.update_coords_data(pcr, big_data)
+
+                    for post_condition in post_conditions:
+                        
+                        pcr = self.query_utils.get_pre_post_condition_info(post_condition, {'constraint': post_condition})
+                        motion_spec['post_condition'] = pcr
+
+                        big_data = self.update_coords_data(pcr, big_data)
+
+                    for per_condition in per_conditions:
+
+                        pcr = self.query_utils.get_per_condition_info(per_condition, {'constraint': per_condition})
+                        motion_spec['per_condition'] = pcr
+
+                        big_data = self.update_coords_data(pcr, big_data)
+
+                    # get the mappings data
+                    mapping_info = self.query_utils.get_mappings_info(mappings_iri)
+                    motion_spec['mappings'] = mapping_info
+
+                    motion_specs[motion_spec_iri] = motion_spec
+                    
             data['motion_specs'] = motion_specs
-            big_data.append(data)
+            big_data['tasks'][task_spec] = data
 
         return big_data
 
