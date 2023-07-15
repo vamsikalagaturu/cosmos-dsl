@@ -62,14 +62,15 @@ class Convert:
         # template = self.templates_env.get_template(
         #     'src/move_xyz_template.cpp.jinja')
 
-        data = self.test()
+        data = self.test(g)
 
         if True or self.debug:
             print(json.dumps(data, indent=2))
-            # print(data)
+        
+        ns = "http://example.com/rob#"
 
         # result = template.render({
-        #     "data": data[0],
+        #     "data": data,
         #     "ns": ROB+"/rob#"
         # })
 
@@ -93,8 +94,7 @@ class Convert:
 
         return big_data
 
-    def test(self):
-        g = self.parse_models(convert.model_names)
+    def test(self, g: rdflib.ConjunctiveGraph):
 
         ROB = "http://example.com"
         POINT = rdflib.Namespace(ROB + "/point#")
@@ -145,26 +145,32 @@ class Convert:
                     per_conditions = g.objects(motion_spec_iri, MOTIONSPEC["per-conditions"])
                     post_conditions = g.objects(motion_spec_iri, MOTIONSPEC["post-conditions"])
 
+                    pre_conditions_d = []
                     for pre_condition in pre_conditions:
 
                         pcr = self.query_utils.get_pre_post_condition_info(pre_condition, {'constraint': pre_condition})
-                        motion_spec['pre_condition'] = pcr
-
                         big_data = self.update_coords_data(pcr, big_data)
+                        pre_conditions_d.append(pcr)
 
+                    motion_spec['pre_conditions'] = pre_conditions_d
+
+                    post_conditions_d = []
                     for post_condition in post_conditions:
                         
                         pcr = self.query_utils.get_pre_post_condition_info(post_condition, {'constraint': post_condition})
-                        motion_spec['post_condition'] = pcr
-
+                        post_conditions_d.append(pcr)
                         big_data = self.update_coords_data(pcr, big_data)
 
+                    motion_spec['post_conditions'] = post_conditions_d
+
+                    per_conditions_d = []
                     for per_condition in per_conditions:
 
                         pcr = self.query_utils.get_per_condition_info(per_condition, {'constraint': per_condition})
-                        motion_spec['per_condition'] = pcr
-
+                        per_conditions_d.append(pcr)
                         big_data = self.update_coords_data(pcr, big_data)
+
+                    motion_spec['per_conditions'] = per_conditions_d
 
                     # get the mappings data
                     mapping_info = self.query_utils.get_mappings_info(mappings_iri)

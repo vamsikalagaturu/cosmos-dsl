@@ -85,7 +85,7 @@ class QueryUtils:
         qres = self.graph.query(query, initBindings=init_bindings)
 
         for row in qres:
-            constraint_info['constraint'] = row[0]
+            constraint_info['id'] = row[0]
             constraint_info['operator'] = row[1]
             constraint_info['thresh_val'] = row[2]
             constraint_info['thresh_unit'] = row[3]
