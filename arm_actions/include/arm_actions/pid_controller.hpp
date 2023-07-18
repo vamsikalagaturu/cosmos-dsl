@@ -3,6 +3,7 @@
 
 #include <array>
 #include <tuple>
+#include <vector>
 
 /**
  * @brief PID Controller class for computing control signals.
@@ -27,7 +28,7 @@ public:
    * @param dt The time step or time difference.
    * @return The computed control signal as a tuple (u_x, u_y, u_z).
    */
-  std::tuple<double, double, double> computeControlSignal(
+  std::vector<double>  computeControlSignal(
       const std::array<double, 3>& current_value, const std::array<double, 3>& target_value,
       double dt);
 

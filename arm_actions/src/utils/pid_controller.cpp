@@ -23,7 +23,7 @@ PIDController::PIDController(double Kp, double Ki, double Kd)
 {
 }
 
-std::tuple<double, double, double> PIDController::computeControlSignal(
+std::vector<double> PIDController::computeControlSignal(
     const std::array<double, 3>& current_value, const std::array<double, 3>& target_value,
     double dt)
 {
@@ -49,10 +49,10 @@ std::tuple<double, double, double> PIDController::computeControlSignal(
   last_error_y = error_y;
   last_error_z = error_z;
 
-  std::tuple<double, double, double> control_signal = std::make_tuple(
+  std::vector<double> control_signal = {
       std::get<0>(proportional_term) + std::get<0>(integral_term) + std::get<0>(derivative_term),
       std::get<1>(proportional_term) + std::get<1>(integral_term) + std::get<1>(derivative_term),
-      std::get<2>(proportional_term) + std::get<2>(integral_term) + std::get<2>(derivative_term));
+      std::get<2>(proportional_term) + std::get<2>(integral_term) + std::get<2>(derivative_term)};
 
   return control_signal;
 }
