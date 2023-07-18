@@ -3,7 +3,7 @@ import os
 class Utils:
     def __init__(self):
         cwd = os.getcwd()
-        self.ws = f'{cwd}/arm_actions/src/'
+        self.ws = f'{cwd}/src/arm_actions/src/'
     
     def get_unique_file_name(self, file_name, dest_path):
         file_base, file_ext = os.path.splitext(file_name)
