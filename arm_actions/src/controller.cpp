@@ -12,8 +12,10 @@ int main()
   // initialize logger
   std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, false, log_path);
 
+  logger->test();
+
   // initialize plotter
-  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, true, false);
+  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, false, false);
 
   // initialize utils
   std::shared_ptr<Utils> utils = std::make_shared<Utils>(logger);
@@ -60,10 +62,6 @@ int main()
   // current position
   std::array<double, 3> current_position = std::get<0>(fk_result);
 
-  // target position
-  std::array<double, 3> target_position = {current_position[0] + 0.01, current_position[1] + 0.01,
-                                           current_position[2] + 0.1};
-
   // define unit constraint forces for EE
   KDL::Jacobian alpha_unit_forces;
 
@@ -85,6 +83,12 @@ int main()
       &robot_chain, constraint_weights, alpha_unit_forces, beta_energy, qd, qdd, ff_tau,
       constraint_tau, f_ext);
 
+  // target position
+  std::array<double, 3> target_position = {current_position[0] + 0.01, current_position[1] + 0.01,
+                                           current_position[2] + 0.1};
+
+  int sn = utils->getLinkIdFromChain(robot_chain, tool_link);
+
   // initialize the PID controllers
   PIDController pos_controller(5, 0.9, 0);   // position controller
   PIDController vel_controller(30, 0.9, 0);  // velocity controller
@@ -97,14 +101,14 @@ int main()
   std::vector<std::array<double, 3>> velocities;
 
   // control velocities and accelerations
-  double control_vel_x, control_vel_y, control_vel_z = 0.0;
-  double control_acc_x, control_acc_y, control_acc_z = 0.0;
+  std::array<double, 6> control_velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> control_accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   // counter
   int i = 0;
 
   // run the system at 1KHz
-  while (true)
+  while (false)
   {
     logger->logInfo("Iteration: %d", i);
 
@@ -148,31 +152,38 @@ int main()
     logger->logInfo("Joint torques: %s", constraint_tau);
     logger->logInfo("Joint velocities: %s", qd);
     logger->logInfo("Joint positions: %s", q);
-    logger->logInfo("Target position: [%f, %f, %f]", target_position[0], target_position[1],
-                    target_position[2]);
-    logger->logInfo("Current position: [%f, %f, %f]", current_position[0], current_position[1],
-                    current_position[2]);
+    logger->logInfo("Target position: %s", target_position);
+    logger->logInfo("Current position: %s", current_position);
 
     // call the position controller at frequency of 10hz
     if (i % 100 == 0)
     {
-      std::tie(control_vel_x, control_vel_y, control_vel_z) =
-          pos_controller.computeControlSignal(current_position, target_position, 0.01);
+      auto con_vel = pos_controller.computeControlSignal(current_position, target_position, 0.01);
+      // update control velocities
+      for (int j=0; j<con_vel.size(); j++)
+      {
+        control_velocities[j] = con_vel[j];
+      }
     }
 
     // call the velocity controller at frequency of 100hz
     if (i % 10 == 0)
     {
-      std::tie(control_acc_x, control_acc_y, control_acc_z) = vel_controller.computeControlSignal(
-          current_velocity, std::array<double, 3>{control_vel_x, control_vel_y, control_vel_z},
+      auto con_acc = vel_controller.computeControlSignal(
+          current_velocity, std::array<double, 3>{control_velocities[0], control_velocities[1],
+                                                  control_velocities[2]},
           0.1);
+      // update control accelerations
+      for (int j=0; j<con_acc.size(); j++)
+      {
+        control_accelerations[j] = con_acc[j];
+      }
     }
 
     // update the beta energy
-    solver_utils->updateBetaEnergy(beta_energy,
-                                   {control_acc_x, control_acc_y, control_acc_z, 0, 0, 0});
+    solver_utils->updateBetaEnergy(beta_energy, control_accelerations);
 
-    logger->logInfo("Control acc: [%f, %f, %f]", control_acc_x, control_acc_y, control_acc_z);
+    logger->logInfo("Control acc: %s", control_accelerations);
 
     std::cout << std::endl;
 

@@ -158,6 +158,21 @@ void Logger::test()
   logError("testss");
   logError("Vector %d", 7);
   logError("Target position: [%f, %f, %f]", a, a, a);
+
+  std::vector<std::string> link_names_vec;
+  for (size_t i = 0; i < 3; i++)
+  {
+    link_names_vec.push_back("as");
+  }
+
+  logInfo("Link names: %s", link_names_vec);
+
+  std::array<double, 3> target_position = {0.0, 0.0, 0.0};
+  logInfo("Target position: %s", target_position);
+
+  std::array<double, 6> control_accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  logInfo("Control accelerations: %s", control_accelerations);
+
 }
 
 template <typename T, size_t N>

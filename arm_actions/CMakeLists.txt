@@ -31,8 +31,14 @@ target_link_libraries(utils ${orocos_kdl_LIBRARIES} kdl_parser logger)
 add_library(solver_utils src/utils/solver_utils.cpp)
 target_link_libraries(solver_utils ${orocos_kdl_LIBRARIES} logger)
 
+add_library(monitor src/utils/monitors.cpp)
+target_link_libraries(monitor ${orocos_kdl_LIBRARIES} logger utils)
+
 add_library(gnu_plotter src/utils/gnu_plotter.cpp)
 target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams ${orocos_kdl_LIBRARIES})
+
+# add_library(kinova_mediator src/utils/kinova_mediator.cpp)
+# target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} logger)
 
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
@@ -42,7 +48,10 @@ file(GLOB SOURCES "src/*.cpp")
 foreach(source ${SOURCES})
     get_filename_component(name ${source} NAME_WE)
     add_executable(${name} ${source})
-    TARGET_LINK_LIBRARIES(${name} orocos-kdl boost_filesystem boost_system boost_iostreams pid_controller logger utils solver_utils gnu_plotter)
+    TARGET_LINK_LIBRARIES(${name} 
+      orocos-kdl boost_filesystem boost_system boost_iostreams 
+      pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor
+      /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder
