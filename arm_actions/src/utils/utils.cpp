@@ -33,7 +33,7 @@ void Utils::printLinkNames(KDL::Tree& tree)
   std::cout << std::endl;
 }
 
-void Utils::printLinkNamesFromChain(KDL::Chain& chain)
+std::vector<std::string> Utils::getLinkNamesFromChain(KDL::Chain& chain)
 {
   std::vector<std::string> link_names;
   for (int i = 0; i < chain.getNrOfSegments(); i++)
@@ -41,12 +41,35 @@ void Utils::printLinkNamesFromChain(KDL::Chain& chain)
     link_names.push_back(chain.getSegment(i).getName());
   }
 
-  std::cout << "Link names: " << std::endl;
+  return link_names;
+}
+
+int Utils::getLinkIdFromChain(KDL::Chain& chain, const std::string& link_name)
+{
+  for (int i = 0; i < chain.getNrOfSegments(); i++)
+  {
+    if (chain.getSegment(i).getName() == link_name)
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+bool Utils::checkLinkInChain(KDL::Chain& chain, const std::string& link_name)
+{
+  std::vector<std::string> link_names = getLinkNamesFromChain(chain);
+
   for (int i = 0; i < link_names.size(); i++)
   {
-    std::cout << link_names[i] << std::endl;
+    if (link_names[i] == link_name)
+    {
+      return true;
+    }
   }
-  std::cout << std::endl;
+
+  return false;
 }
 
 void Utils::printJointNames(KDL::Chain& chain)
@@ -134,4 +157,14 @@ double Utils::computeEuclideanDistance(const std::array<double, 3>& current,
   double z_diff = target[2] - current[2];
 
   return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2));
+}
+
+std::vector<double> Utils::calc_error(const std::array<double, 3>& p1,
+                                                             const std::array<double, 3>& p2)
+{
+  double dx = p2[0] - p1[0];
+  double dy = p2[1] - p1[1];
+  double dz = p2[2] - p1[2];
+
+  return { dx, dy, dz };
 }

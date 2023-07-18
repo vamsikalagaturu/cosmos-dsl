@@ -27,10 +27,25 @@ public:
   static void printLinkNames(KDL::Tree& tree);
 
   /**
-   * @brief Prints the names of all links in a KDL::Chain.
+   * @brief Get the names of all links in a KDL::Chain.
+   * @param chain The KDL::Chain object representing a subset of the robot's kinematic chain.
+   * @return A vector containing the names of all links in the chain.
+   */
+  static std::vector<std::string> getLinkNamesFromChain(KDL::Chain& chain);
+
+  /**
+   * @brief Get the id of a link in a KDL::Chain.
+   * @param chain The KDL::Chain object representing a subset of the robot's kinematic chain.
+   * @param link_name The name of the link.
+   * @return The id of the link.
+  */
+  static int getLinkIdFromChain(KDL::Chain& chain, const std::string& link_name);
+
+  /**
+   * @brief Check if the given link name is in the KDL::Chain.
    * @param chain The KDL::Chain object representing a subset of the robot's kinematic chain.
    */
-  static void printLinkNamesFromChain(KDL::Chain& chain);
+  static bool checkLinkInChain(KDL::Chain& chain, const std::string& link_name);
 
   /**
    * @brief Prints the names of all joints in a KDL::Chain.
@@ -78,6 +93,16 @@ public:
    */
   static double computeEuclideanDistance(const std::array<double, 3>& current,
                                          const std::array<double, 3>& target);
+
+  /**
+   * @brief Calculates the error between two points.
+   *
+   * @param p1 The first point (x1, y1, z1).
+   * @param p2 The second point (x2, y2, z2).
+   * @return The error as a tuple (dx, dy, dz).
+   */
+  std::vector<double> calc_error(const std::array<double, 3>& p1,
+                                                const std::array<double, 3>& p2); 
 
 private:
   std::shared_ptr<Logger> _logger;
