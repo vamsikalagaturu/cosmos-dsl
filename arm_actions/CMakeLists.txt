@@ -37,8 +37,8 @@ target_link_libraries(monitor ${orocos_kdl_LIBRARIES} logger utils)
 add_library(gnu_plotter src/utils/gnu_plotter.cpp)
 target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams ${orocos_kdl_LIBRARIES})
 
-# add_library(kinova_mediator src/utils/kinova_mediator.cpp)
-# target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} logger)
+add_library(kinova_mediator src/utils/kinova_mediator.cpp)
+target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} logger)
 
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
