@@ -38,8 +38,8 @@
 
         "controller-output-dimension": {
             "@id": "mapping:controller-output-dimension",
-            "@type": "xsd:string",
-            "@container": "@set"
+            "@type": "xsd:int",
+            "@container": "@list"
         }
     }
 }
