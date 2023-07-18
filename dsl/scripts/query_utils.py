@@ -1,4 +1,5 @@
 from rdflib import RDF, Graph
+from rdflib.collection import Collection
 import rdflib
 
 
@@ -33,9 +34,9 @@ class QueryUtils:
         for row in qres:
             ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
             pre_condition_info['monitor'] = row[0]
-            pre_condition_info['constraint'] = ci
+            pre_condition_info['constraint'] = row[1]
 
-        return pre_condition_info
+        return pre_condition_info, ci
     
     def get_per_condition_info(self, per_condition, init_bindings=None):
         """
@@ -59,15 +60,14 @@ class QueryUtils:
         for row in qres:
             ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
             per_condition_info['controller'] = row[0]
-            per_condition_info['constraint'] = ci
+            per_condition_info['constraint'] = row[1]
 
-        return per_condition_info
+        return per_condition_info, ci
     
     def get_constraint_info(self, init_bindings=None):
         """
         Returns a dictionary of constraint information for a given set of bindings.
         """
-        constraint_info = {}
         
         query = f"""
             SELECT ?constraint ?operator ?tv ?tu ?coord
@@ -84,14 +84,18 @@ class QueryUtils:
         
         qres = self.graph.query(query, initBindings=init_bindings)
 
+        constraint = {}
+
         for row in qres:
-            constraint_info['id'] = row[0]
+            constraint_info = {}
             constraint_info['operator'] = row[1]
-            constraint_info['thresh_val'] = row[2]
-            constraint_info['thresh_unit'] = row[3]
+            constraint_info['thresh_val'] = float(row[2])
+            constraint_info['thresh_unit'] = str(row[3])
             constraint_info['coord'] = row[4]
+
+            constraint[row[0]] = constraint_info
         
-        return constraint_info
+        return constraint
     
     def get_coord_info(self, coord, init_bindings=None):
         """
@@ -131,7 +135,7 @@ class QueryUtils:
             for row in qres:
                 coord_info = {
                     'type' : 'DistanceCoordinate',
-                    'unit' : row[1],
+                    'unit' : str(row[1]),
                     'quant_kind' : row[2],
                     'f1_coord' : row[3],
                     'f2_coord' : row[4]
@@ -169,7 +173,7 @@ class QueryUtils:
             for row in qres:
                 coord_info = {
                     'type' : 'VelocityCoordinate',
-                    'unit' : row[1],
+                    'unit' : str(row[1]),
                     'quant_kind' : row[2],
                     'f1_coord' : row[3],
                     'f2_coord' : row[4]
@@ -202,13 +206,16 @@ class QueryUtils:
 
             for row in qres:
                 coord_info = {
-                    'type' : 'FrameCoordinate',
+                    'type' : ['FrameCoordinate'],
                     'f1' : row[1],
-                    'unit' : row[2],
-                    'x' : row[3],
-                    'y' : row[4],
-                    'z' : row[5],
+                    'unit' : str(row[2])
                 }
+
+                if row[3] is not None:
+                    coord_info['type'].append('VectorXYZ')
+                    coord_info['x'] = float(row[3])
+                    coord_info['y'] = float(row[4])
+                    coord_info['z'] = float(row[5])
 
         return coord_info
     
@@ -240,16 +247,19 @@ class QueryUtils:
         qres = self.graph.query(query, initBindings=init_bindings)
 
         for row in qres:
-            mappings_info['interface'] = row[0]
+            mappings_info['interface'] = str(row[0])
             mappings_info['solver'] = row[1]
             mappings_info['controller'] = self.get_controller_info(init_bindings={'controller': row[2]})
             mappings_info['controller-input'] = row[3]
 
         cip = self.graph.objects(mappings_iri, QueryUtils.MAPPINGS["controller-input-dimension"])
-        cop = self.graph.objects(mappings_iri, QueryUtils.MAPPINGS["controller-output-dimension"])
+        
+        # get controller output dimension collection
+        cop_node = self.graph.value(mappings_iri, QueryUtils.MAPPINGS["controller-output-dimension"])
+        cop = Collection(self.graph, cop_node)
 
-        mappings_info['controller-input-dimension'] = list(cip)
-        mappings_info['controller-output-dimension'] = list(cop)
+        mappings_info['controller-input-dimension'] = [str(d) for d in cip]
+        mappings_info['controller-output-dimension'] = [int(d) for d in cop]
         
         return mappings_info
 
@@ -276,8 +286,9 @@ class QueryUtils:
         for row in qres:
             controller_info['controller'] = row[0]
             controller_info['controller_type'] = 'CascadedController'
-            controller_info['pos-c'] = self.get_pid_controller_info(init_bindings={'controller': row[1]})
-            controller_info['vel-c'] = self.get_pid_controller_info(init_bindings={'controller': row[2]})
+            controller_info["data"] = {}
+            controller_info["data"]['pos_c'] = self.get_pid_controller_info(init_bindings={'controller': row[1]})
+            controller_info["data"]['vel_c'] = self.get_pid_controller_info(init_bindings={'controller': row[2]})
         
         return controller_info
     
@@ -303,10 +314,10 @@ class QueryUtils:
         qres = self.graph.query(query, initBindings=init_bindings)
 
         for row in qres:
-            pid_controller_info['kp'] = row[0]
-            pid_controller_info['ki'] = row[1]
-            pid_controller_info['kd'] = row[2]
-            pid_controller_info['dt'] = row[3]
+            pid_controller_info['kp'] = float(row[0])
+            pid_controller_info['ki'] = float(row[1])
+            pid_controller_info['kd'] = float(row[2])
+            pid_controller_info['dt'] = float(row[3])
             pid_controller_info['constraint'] = row[4]
         
         return pid_controller_info

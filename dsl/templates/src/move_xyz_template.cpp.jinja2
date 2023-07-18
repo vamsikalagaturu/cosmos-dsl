@@ -57,12 +57,6 @@ int main()
   std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result =
       solver_utils->computeFK(&robot_chain, q);
 
-  // current position
-  std::array<double, 3> current_position = std::get<0>(fk_result);
-
-  // target position
-  std::array<double, 3> target_position = {{target_position_}};
-
   // define unit constraint forces for EE
   KDL::Jacobian alpha_unit_forces;
 
@@ -70,7 +64,7 @@ int main()
   KDL::JntArray beta_energy;
 
   // set the constraint weights
-  std::array<double, 6> constraint_weights = {{constraint_weights_}};
+  std::array<double, 6> constraint_weights = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
   // set the solver parameters
   KDL::JntArray qd;              // input joint velocities
@@ -83,9 +77,64 @@ int main()
   KDL::ChainHdSolver_Vereshchagin vereshchagin_solver = solver_utils->initializeVereshchaginSolver(
       &robot_chain, constraint_weights, alpha_unit_forces, beta_energy, qd, qdd, ff_tau,
       constraint_tau, f_ext);
+  
+  {# coords -#}
+  // coords
+  {%- for coord in coords -%}
+  {%- if "FrameCoordinate" in coords[coord]["type"] and coords[coord]["unit"] == "http://qudt.org/vocab/unit/M" %}
+  std::string {{coords[coord]["f1"].split("#")[-1]}} = "{{coords[coord]["f1"].split("#")[-1]}}";
+  std::array<double, 3> {{coords[coord]["f1"].split("#")[-1]}}_coord_position;
+  {%- if "VectorXYZ" in coords[coord]["type"] +%}
+  {{coords[coord]["f1"].split("#")[-1]}}_coord_position = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
+  {%+ else %}
+  if (utils->checkLinkInChain(robot_chain, {{coords[coord]["f1"].split("#")[-1]}}))
+  {
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coord]["f1"].split("#")[-1]}});
+    std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result =
+      solver_utils->computeFK(&robot_chain, q, seg_n);
+    {{coords[coord]["f1"].split("#")[-1]}}_coord_position = std::get<0>(fk_result);
+  }
+  else
+  {
+    logger->logError("Not implemented");
+    return -1;
+  }
+  {%+ endif -%}
 
+  {%+ endif -%}
+  {% endfor -%}
+  
+  {#+ monitors +#}
+  // initialize the monitors
+  {% for pre_cond in data["pre_conditions"] -%}
+  {%- with constraint = constraints[pre_cond["constraint"]] -%}
+  Monitor pre_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}", 
+                          {{constraint["thresh_val"]}}, 
+                          "{{constraint["thresh_unit"]}}",
+                          &{{coords[constraint["coord"]]["f1_coord"].split("#")[-1]}}_position);
+  {% endwith %}
+  {%- endfor -%}
+
+  {# post conditions #}
+  {% for post_cond in data["post_conditions"] -%}
+  {%- with constraint = constraints[post_cond["constraint"]] -%}
+
+  Monitor post_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}",
+                          {{constraint["thresh_val"]}}, 
+                          "{{constraint["thresh_unit"]}}",
+                          &{{coords[constraint["coord"]]["f1_coord"].split("#")[-1]}}_position);
+  {% endwith %}
+  {%- endfor -%}
+
+  {#+ pid controllers #}
   // initialize the PID controllers
-  {{pid_controllers_}}
+  {%- if data["mappings"]["controller"]["controller_type"] == "CascadedController" %}
+  {% for controller in data["mappings"]["controller"]["data"] %}
+  {%- with con_data = data["mappings"]["controller"]["data"][controller] -%}
+  PIDController {{controller}}({{con_data["kp"]}}, {{con_data["ki"]}}, {{con_data["kd"]}});
+  {%+ endwith -%}
+  {%+ endfor +%}
+  {% endif -%}
 
   // time step
   double dt = 0.001;
@@ -95,13 +144,27 @@ int main()
   std::vector<std::array<double, 3>> velocities;
 
   // control velocities and accelerations
-  double control_vel_x_l, control_vel_y_l, control_vel_z_l = 0.0;
-  double control_vel_x_a, control_vel_y_a, control_vel_z_a = 0.0;
-  double control_acc_x_l, control_acc_y_l, control_acc_z_l = 0.0;
-  double control_acc_x_a, control_acc_y_a, control_acc_z_a = 0.0;
+  std::array<double, 6> control_velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> control_accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   // counter
   int i = 0;
+  int break_iteration_ = 500;
+
+  // check if pre-conditions are met
+  {%- for pre_cond in data["pre_conditions"] %}
+  {%- with constraint = constraints[pre_cond["constraint"]] %}
+  {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
+  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"].split("#")[-1]}}_position))
+  {% else -%}
+  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"].split("#")[-1]}}_position))
+  {% endif -%}
+  {
+    logger->logError("Pre-condition {{loop.index}} not met");
+    return -1;
+  }
+  {%- endwith %}
+  {%- endfor %}
 
   // run the system at 1KHz
   while (true)
@@ -128,43 +191,94 @@ int main()
     std::vector<KDL::Frame> frames(n_segments);
     vereshchagin_solver.getLinkCartesianPose(frames);
 
-    // get the current tool cartesian pose
-    std::array<double, 3> current_position = {
-        frames[n_segments - 1].p.x(), frames[n_segments - 1].p.y(), frames[n_segments - 1].p.z()};
-    positions.push_back(current_position);
-
     // get the current link cartesian velocities
     std::vector<KDL::Twist> twists(n_segments);
     vereshchagin_solver.getLinkCartesianVelocity(twists);
-
-    // get the current tool cartesian velocity
-    std::array<double, 3> current_velocity = {twists[n_segments - 1].vel.x(),
-                                              twists[n_segments - 1].vel.y(),
-                                              twists[n_segments - 1].vel.z()};
-    velocities.push_back(current_velocity);
 
     // print the joint positions, velocities, aceelerations and constraint torques
     logger->logInfo("Joint accelerations: %s", qdd);
     logger->logInfo("Joint torques: %s", constraint_tau);
     logger->logInfo("Joint velocities: %s", qd);
     logger->logInfo("Joint positions: %s", q);
-    logger->logInfo("Target position: [%f, %f, %f]", target_position[0], target_position[1],
-                    target_position[2]);
-    logger->logInfo("Current position: [%f, %f, %f]", current_position[0], current_position[1],
-                    current_position[2]);
-
-    // define the PID controllers
-    {{define_controllers_}}
 
     // update the beta energy
-    solver_utils->updateBetaEnergy(beta_energy,
-                                   {control_acc_x_l, control_acc_y_l, control_acc_z_l,
-                                    control_acc_x_a, control_acc_y_a, control_acc_z_a});
+    {% if data["mappings"]["interface"] == "http://example.com/rob#acc_energy" %}
+    {% if "lin_x" in data["mappings"]["controller-input-dimension"] and "lin_y" in data["mappings"]["controller-input-dimension"] and "lin_z" in data["mappings"]["controller-input-dimension"] %}
+    {%- if data["mappings"]["controller"]["controller_type"] == "CascadedController" -%}
+    {%- with pos_con_data = data["mappings"]["controller"]["data"]["pos_c"], vel_con_data = data["mappings"]["controller"]["data"]["vel_c"] -%}
 
-    logger->logInfo("Control acc: [%f, %f, %f, %f, %f, %f]", control_acc_x_l, control_acc_y_l,
-                    control_acc_z_l, control_acc_x_a, control_acc_y_a, control_acc_z_a);
+    if ( i % {{(1 / pos_con_data["dt"])|int}} == 0 ){
+      {%- with coord = constraints[pos_con_data["constraint"]]["coord"] -%}
+      {%- if "VectorXYZ" in coords[coords[coord]["f1_coord"]]["type"] +%}
+      auto target_position = {{coords[coords[coord]["f1_coord"]]["f1"].split("#")[-1]}}_coord_position;
+      {% else %}
+      auto target_position = {{coords[coords[coord]["f2_coord"]]["f1"].split("#")[-1]}}_coord_position;
+      {%- endif %}
+      {%- endwith %}
+      // get the current tool cartesian pose
+      int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[data["mappings"]["controller-input"]]["f1"].split("#")[-1]}});
+      std::array<double, 3> current_position = {
+        frames[seg_n].p.x(), frames[seg_n].p.y(), frames[seg_n].p.z()};
+      positions.push_back(current_position); 
+      auto con_vel = pos_c.computeControlSignal(current_position, target_position, {{pos_con_data["dt"]}});
+      // update control velocities
+      for (int j=0; j<con_vel.size(); j++)
+      {
+        control_velocities[j] = con_vel[j];
+      }
+    }
+
+    if (i % {{(1 / vel_con_data["dt"])|int}} == 0)
+    {
+      int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[data["mappings"]["controller-input"]]["f1"].split("#")[-1]}});
+      // get the current tool cartesian velocity
+      std::array<double, 3> current_velocity = {twists[seg_n].vel.x(),
+                                                twists[seg_n].vel.y(),
+                                                twists[seg_n].vel.z()};
+      velocities.push_back(current_velocity);
+      auto con_acc = vel_c.computeControlSignal(current_velocity, 
+          std::array<double, 3>{control_velocities[0], control_velocities[1],
+                                                  control_velocities[2]},
+          {{vel_con_data["dt"]}});
+      // update control accelerations
+      auto cod = std::vector<int>{ {{data["mappings"]["controller-output-dimension"]|join(",")}} };
+      for (int j = 0; j < cod.size(); j++)
+      {
+        if (cod[j] == 1){
+          control_accelerations[j] = con_acc[j];
+        }
+      }
+    }
+
+    solver_utils->updateBetaEnergy(beta_energy, control_accelerations);
+
+    logger->logInfo("Control acc: %s", control_accelerations);
+
+    {%- endwith %}
+    {%- endif %}
+    {%- endif %}
+    {%- endif %}
 
     std::cout << std::endl;
+
+    // check if post-conditions are met
+    {%- for post_cond in data["post_conditions"] %}
+    {%- with constraint = constraints[post_cond["constraint"]] %}
+    {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"].split("#")[-1]}});
+    {% else -%}
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"].split("#")[-1]}});
+    {% endif -%}
+    std::array<double, 3> current_position = {
+        frames[seg_n].p.x(), frames[seg_n].p.y(), frames[seg_n].p.z()};
+    logger->logInfo("Current position: %s", current_position);
+    if (post_monitor_{{loop.index}}.checkAll(current_position))
+    {
+      logger->logInfo("Post-condition {{loop.index}} met");
+      break;
+    }
+    {%- endwith %}
+    {%- endfor %}
 
     i++;
     
@@ -172,7 +286,7 @@ int main()
       break;
   }
 
-  plotter->plotXYZ(positions, target_position);
+  plotter->plotXYZ(positions, target_link_coord_position);
 
   return 0;
 }

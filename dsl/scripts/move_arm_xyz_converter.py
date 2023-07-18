@@ -59,8 +59,8 @@ class Convert:
         if self.debug:
             self.print_graph()
 
-        # template = self.templates_env.get_template(
-        #     'src/move_xyz_template.cpp.jinja')
+        template = self.templates_env.get_template(
+            'src/move_xyz_template.cpp.jinja2')
 
         data = self.test(g)
 
@@ -69,15 +69,17 @@ class Convert:
         
         ns = "http://example.com/rob#"
 
-        # result = template.render({
-        #     "data": data,
-        #     "ns": ROB+"/rob#"
-        # })
+        result = template.render({
+            "data": data["tasks"]["http://example.com/rob#move_arm_xyz_task"]["motion_specs"]["http://example.com/rob#move_arm_xyz"],
+            "coords": data["coords"],
+            "constraints": data["constraints"],
+            "ns": ns
+        })
 
-        # self.utils.write_to_file(result, template.name)
+        self.utils.write_to_file(result, template.name)
 
     def update_coords_data(self, cond, big_data):
-        coord = cond['constraint']['coord']
+        coord = cond['coord']
                         
         if coord not in big_data['coords']:
             coord_data = self.query_utils.get_coord_info(coord)
@@ -120,6 +122,7 @@ class Convert:
 
         big_data = {}
         big_data['coords'] = {}
+        big_data['constraints'] = {}
         big_data['tasks'] = {}
 
         # get monitors
@@ -148,8 +151,9 @@ class Convert:
                     pre_conditions_d = []
                     for pre_condition in pre_conditions:
 
-                        pcr = self.query_utils.get_pre_post_condition_info(pre_condition, {'constraint': pre_condition})
-                        big_data = self.update_coords_data(pcr, big_data)
+                        pcr, ci = self.query_utils.get_pre_post_condition_info(pre_condition, {'constraint': pre_condition})
+                        big_data["constraints"][pcr['constraint']] = ci[pcr['constraint']]
+                        big_data = self.update_coords_data(ci[pcr['constraint']], big_data)
                         pre_conditions_d.append(pcr)
 
                     motion_spec['pre_conditions'] = pre_conditions_d
@@ -157,18 +161,20 @@ class Convert:
                     post_conditions_d = []
                     for post_condition in post_conditions:
                         
-                        pcr = self.query_utils.get_pre_post_condition_info(post_condition, {'constraint': post_condition})
+                        pcr, ci = self.query_utils.get_pre_post_condition_info(post_condition, {'constraint': post_condition})
                         post_conditions_d.append(pcr)
-                        big_data = self.update_coords_data(pcr, big_data)
+                        big_data["constraints"][pcr['constraint']] = ci[pcr['constraint']]
+                        big_data = self.update_coords_data(ci[pcr['constraint']], big_data)
 
                     motion_spec['post_conditions'] = post_conditions_d
 
                     per_conditions_d = []
                     for per_condition in per_conditions:
 
-                        pcr = self.query_utils.get_per_condition_info(per_condition, {'constraint': per_condition})
+                        pcr, ci = self.query_utils.get_per_condition_info(per_condition, {'constraint': per_condition})
                         per_conditions_d.append(pcr)
-                        big_data = self.update_coords_data(pcr, big_data)
+                        big_data["constraints"][pcr['constraint']] = ci[pcr['constraint']]
+                        big_data = self.update_coords_data(ci[pcr['constraint']], big_data)
 
                     motion_spec['per_conditions'] = per_conditions_d
 
@@ -176,10 +182,16 @@ class Convert:
                     mapping_info = self.query_utils.get_mappings_info(mappings_iri)
                     motion_spec['mappings'] = mapping_info
 
-                    motion_specs[motion_spec_iri] = motion_spec
-                    
+                    for c in mapping_info["controller"]["data"]:
+                        curi = mapping_info["controller"]["data"][c]['constraint']
+                        # check if constraints is in big_data
+                        if curi not in big_data['constraints']:
+                            big_data['constraints'][curi] = self.query_utils.get_constraint_info({'constraint': curi})[curi]
+
+                    motion_specs[str(motion_spec_iri)] = motion_spec
+            
             data['motion_specs'] = motion_specs
-            big_data['tasks'][task_spec] = data
+            big_data['tasks'][str(task_spec)] = data
 
         return big_data
 
