@@ -36,13 +36,13 @@
         {
             "@id": "rob:dist-bracelet_link-target_link-threshold_pre",
             "@type": "Threshold",
-            "threshold-value": 0.05,
+            "threshold-value": 0.0025,
             "unit": "M"
         },
         {
             "@id": "rob:dist-bracelet_link-target_link-threshold_post",
             "@type": "Threshold",
-            "threshold-value": 0.01,
+            "threshold-value": 0.0025,
             "unit": "M"
         },
         {
