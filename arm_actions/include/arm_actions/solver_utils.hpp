@@ -60,11 +60,12 @@ public:
    * positions.
    * @param robot_chain The KDL::Chain object representing the robot's kinematic chain.
    * @param q The KDL::JntArray object representing the joint positions.
+   * @param seg_nr The segment number to compute the forward kinematics for.
    * @return A tuple containing the position (x, y, z) and orientation (roll, pitch, yaw) of the
    * tool tip.
    */
   static std::tuple<std::array<double, 3>, std::array<double, 3>> computeFK(
-      KDL::Chain *robot_chain, KDL::JntArray &q);
+      KDL::Chain *robot_chain, KDL::JntArray &q, int seg_nr = -1);
 
   /**
    * @brief Updates the beta_energy vector with the given control acceleration enegy input and

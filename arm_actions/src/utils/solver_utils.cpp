@@ -94,7 +94,7 @@ KDL::ChainHdSolver_Vereshchagin SolverUtils::initializeVereshchaginSolver(
 }
 
 std::tuple<std::array<double, 3>, std::array<double, 3>> SolverUtils::computeFK(
-    KDL::Chain *robot_chain, KDL::JntArray &q)
+    KDL::Chain *robot_chain, KDL::JntArray &q, int seg_nr)
 {
   // create the solver
   KDL::ChainFkSolverPos_recursive fk_solver(*robot_chain);
@@ -103,7 +103,7 @@ std::tuple<std::array<double, 3>, std::array<double, 3>> SolverUtils::computeFK(
   KDL::Frame tool_tip_frame;
 
   // calculate forward kinematics
-  int r = fk_solver.JntToCart(q, tool_tip_frame);
+  int r = fk_solver.JntToCart(q, tool_tip_frame, seg_nr);
   if (r < 0)
   {
     std::cout << "Failed to compute forward kinematics with error: " << r << std::endl;
