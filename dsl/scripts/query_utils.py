@@ -358,7 +358,7 @@ class QueryUtils:
                          [0, 0, 1, 0, 0, 0]],
                 beta = [0, 0, 9.81]
 
-                alpha_beta_data['alpha'] = alpha
+                alpha_beta_data['alpha'] = alpha[0]
                 alpha_beta_data['beta'] = beta
                 alpha_beta_data['nc'] = 3
 

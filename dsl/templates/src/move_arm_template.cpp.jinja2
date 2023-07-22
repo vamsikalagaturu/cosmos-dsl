@@ -51,6 +51,7 @@ int main()
   }
 
   plotter->plotXYZ(positions, target_link_coord_position);
+  plotter->plotXYZ(velocities, {0.01, 0.01, 0.01});
 
   return 0;
 }
