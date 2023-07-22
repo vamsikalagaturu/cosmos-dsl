@@ -21,7 +21,7 @@ bool Monitor::checkAny(std::array<double, 3> current_position)
 {
   auto error = _utils->calc_error(current_position, *_target_position);
 
-  if (_comp_op == _ns + "lt")
+  if (_comp_op == "lt")
   {
     if (std::any_of(error.begin(), error.end(), [&](double e) { return e < _thresh_val; }))
     {
@@ -32,7 +32,7 @@ bool Monitor::checkAny(std::array<double, 3> current_position)
       return false;
     }
   }
-  else if (_comp_op == _ns + "gt")
+  else if (_comp_op == "gt")
   {
     if (std::any_of(error.begin(), error.end(), [&](double e) { return e > _thresh_val; }))
     {
@@ -43,7 +43,7 @@ bool Monitor::checkAny(std::array<double, 3> current_position)
       return false;
     }
   }
-  else if (_comp_op == _ns + "eq")
+  else if (_comp_op == "eq")
   {
     if (std::any_of(error.begin(), error.end(), [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
     {
@@ -66,7 +66,7 @@ bool Monitor::checkAll(std::array<double, 3> current_position)
 {
   auto error = _utils->calc_error(current_position, *_target_position);
 
-  if (_comp_op == _ns + "lt")
+  if (_comp_op == "lt")
   {
     if (std::all_of(error.begin(), error.end(), [&](double e) { return e < _thresh_val; }))
     {
@@ -77,7 +77,7 @@ bool Monitor::checkAll(std::array<double, 3> current_position)
       return false;
     }
   }
-  else if (_comp_op == _ns + "gt")
+  else if (_comp_op == "gt")
   {
     if (std::all_of(error.begin(), error.end(), [&](double e) { return e > _thresh_val; }))
     {
@@ -88,7 +88,7 @@ bool Monitor::checkAll(std::array<double, 3> current_position)
       return false;
     }
   }
-  else if (_comp_op == _ns + "eq")
+  else if (_comp_op == "eq")
   {
     if (std::all_of(error.begin(), error.end(), [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
     {
@@ -111,7 +111,7 @@ bool Monitor::check(std::array<double, 3> current_position, std::array<double, 3
 {
   double distance = _utils->computeEuclideanDistance(current_position, target_position);
 
-  if (_comp_op == _ns + "lt")
+  if (_comp_op == "lt")
   {
     if (distance < _thresh_val)
     {
@@ -122,7 +122,7 @@ bool Monitor::check(std::array<double, 3> current_position, std::array<double, 3
       return false;
     }
   }
-  else if (_comp_op == _ns + "gt")
+  else if (_comp_op == "gt")
   {
     if (distance > _thresh_val)
     {
@@ -133,7 +133,7 @@ bool Monitor::check(std::array<double, 3> current_position, std::array<double, 3
       return false;
     }
   }
-  else if (_comp_op == _ns + "eq")
+  else if (_comp_op == "eq")
   {
     if (fabs(distance - _thresh_val) < 0.0001)
     {

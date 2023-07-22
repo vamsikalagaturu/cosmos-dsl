@@ -40,8 +40,8 @@ public:
    * @return The initialized Vereshchagin solver.
    */
   KDL::ChainHdSolver_Vereshchagin initializeVereshchaginSolver(
-      const KDL::Chain *robot_chain, const std::array<double, 6> constraint_weights,
-      KDL::Jacobian &alpha_unit_forces, KDL::JntArray &beta_energy, KDL::JntArray &qd,
+      const KDL::Chain *robot_chain, int nc, const std::vector<std::vector<double>> &alpha_cols,
+      KDL::Jacobian &alpha_unit_forces, std::vector<double> &beta_col, KDL::JntArray &beta_energy, KDL::JntArray &qd,
       KDL::JntArray &qdd, KDL::JntArray &ff_tau, KDL::JntArray &constraint_tau,
       KDL::Wrenches &f_ext);
 
@@ -51,8 +51,7 @@ public:
    * @param alpha_ang A vector containing the angular components of the alpha unit forces (size 3).
    * @param alpha_unit_forces The KDL::Jacobian object to store the alpha unit forces.
    */
-  static void populateAlphaUnitForces(const std::vector<double> &alpha_lin,
-                                      const std::vector<double> &alpha_ang,
+  static void populateAlphaUnitForces(const std::vector<std::vector<double>> &alpha_cols,
                                       KDL::Jacobian *alpha_unit_forces);
 
   /**

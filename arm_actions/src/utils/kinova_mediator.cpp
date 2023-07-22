@@ -238,6 +238,7 @@ void kinova_mediator::get_joint_torques(KDL::JntArray &joint_torques)
   // Joint torque given in Newton * meters
   for (int i = 0; i < kinova_constants::NUMBER_OF_JOINTS; i++)
     joint_torques(i) = base_feedback_.actuators(i).torque();
+    auto val = base_feedback_.base().tool_external_wrench_force_x();
 }
 
 // Set Joint Torques

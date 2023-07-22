@@ -127,7 +127,7 @@ void GNUPlotter::plotXYZ(const std::vector<std::array<double, 3>>& positions,
   gp << "set origin 0,0.66\n";
   gp << "set size 1,0.33\n";
   gp << "set ylabel 'X'\n";
-  gp << "set ytics 0.002\n";
+  gp << "set ytics 0.01\n";
   gp << "plot '-' with lines title 'X values', '-' with lines title 'Target X'\n";
   gp.send1d(x_values);
   gp.send1d(target_x);
@@ -136,7 +136,7 @@ void GNUPlotter::plotXYZ(const std::vector<std::array<double, 3>>& positions,
   gp << "set origin 0,0.33\n";
   gp << "set size 1,0.33\n";
   gp << "set ylabel 'Y'\n";
-  gp << "set ytics 0.003\n";
+  gp << "set ytics 0.01\n";
   gp << "plot '-' with lines title 'Y values', '-' with lines title 'Target Y'\n";
   gp.send1d(y_values);
   gp.send1d(target_y);
@@ -145,7 +145,7 @@ void GNUPlotter::plotXYZ(const std::vector<std::array<double, 3>>& positions,
   gp << "set origin 0,0\n";
   gp << "set size 1,0.33\n";
   gp << "set ylabel 'Z'\n";
-  gp << "set ytics 0.05\n";
+  gp << "set ytics 0.01\n";
   gp << "plot '-' with lines title 'Z values', '-' with lines title 'Target Z'\n";
   gp.send1d(z_values);
   gp.send1d(target_z);

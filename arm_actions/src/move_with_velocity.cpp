@@ -1,7 +1,7 @@
 #include "arm_actions/arm_actions.hpp"
 
 int main()
-{
+{  
   // get current file path
   std::filesystem::path path = __FILE__;
 
@@ -52,31 +52,6 @@ int main()
 
   // number of segments
   int n_segments = robot_chain.getNrOfSegments();
-
-  // compute the forward kinematics
-  std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result =
-      solver_utils->computeFK(&robot_chain, q);
-
-  // define unit constraint forces for EE
-  KDL::Jacobian alpha_unit_forces;
-
-  // beta - accel energy for EE
-  KDL::JntArray beta_energy;
-
-  // set the constraint weights
-  std::array<double, 6> constraint_weights = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-
-  // set the solver parameters
-  KDL::JntArray qd;              // input joint velocities
-  KDL::JntArray qdd;             // output joint accelerations
-  KDL::JntArray ff_tau;          // input feedforward torques
-  KDL::JntArray constraint_tau;  // output constraint torques
-  KDL::Wrenches f_ext;           // external forces at each segment
-
-  // initialize vereshchagin solver
-  KDL::ChainHdSolver_Vereshchagin vereshchagin_solver = solver_utils->initializeVereshchaginSolver(
-      &robot_chain, constraint_weights, alpha_unit_forces, beta_energy, qd, qdd, ff_tau,
-      constraint_tau, f_ext);
   
   // coords
   std::string target_link = "target_link";
@@ -98,21 +73,55 @@ int main()
     return -1;
   }
   
+  
   // initialize the monitors
-  Monitor pre_monitor_1(logger, "http://example.com/rob#gt", 
+  Monitor pre_monitor_1(logger, "gt", 
                           0.0025, 
                           "http://qudt.org/vocab/unit/M",
                           &target_link_coord_position);
   
-  Monitor post_monitor_1(logger, "http://example.com/rob#lt",
+  Monitor post_monitor_1(logger, "lt",
                           0.0025, 
                           "http://qudt.org/vocab/unit/M",
                           &target_link_coord_position);
+  
   
   // initialize the PID controllers
-  PIDController pos_c(5.0, 0.9, 0.0);
-  PIDController vel_c(20.0, 0.9, 0.0);
+  PIDController pid_velocity_controller(20.0, 0.9, 0.0);
+
+  // initialize solver params
+  // define unit constraint forces for EE
+  KDL::Jacobian alpha_unit_forces;
+
+  // beta - accel energy for EE
+  KDL::JntArray beta_energy;
+
+  // set the solver parameters
+  KDL::JntArray qd;              // input joint velocities
+  KDL::JntArray qdd;             // output joint accelerations
+  KDL::JntArray ff_tau;          // input feedforward torques
+  KDL::JntArray constraint_tau;  // output constraint torques
+  KDL::Wrenches f_ext;           // external forces at each segment
+
+  // initialize the solver weights
+  int solver_nc = 3;
+
+  std::vector<std::vector<double>> solver_alpha_weights;
   
+  std::vector<double> solver_alpha_col_1 = { 1, 0, 0, 0, 0, 0 };
+  solver_alpha_weights.push_back(solver_alpha_col_1);
+  std::vector<double> solver_alpha_col_2 = { 0, 1, 0, 0, 0, 0 };
+  solver_alpha_weights.push_back(solver_alpha_col_2);
+  std::vector<double> solver_alpha_col_3 = { 0, 0, 1, 0, 0, 0 };
+  solver_alpha_weights.push_back(solver_alpha_col_3);
+
+  std::vector<double> solver_beta_weights = { 0, 0, 9.81 };
+
+  // initialize vereshchagin solver
+  KDL::ChainHdSolver_Vereshchagin vereshchagin_solver = solver_utils->initializeVereshchaginSolver(
+      &robot_chain, solver_nc, solver_alpha_weights, alpha_unit_forces, solver_beta_weights, beta_energy,
+      qd, qdd, ff_tau,constraint_tau, f_ext);
+
   // time step
   double dt = 0.001;
 
@@ -135,82 +144,78 @@ int main()
     return -1;
   }
 
-  // run the system at 1KHz
+  // run the system
   while (true)
   {
     logger->logInfo("Iteration: %d", i);
 
     // compute the inverse dynamics
     int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext,
-                                           ff_tau, constraint_tau);
+                                            ff_tau, constraint_tau);
     if (sr < 0)
     {
       logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
       return -1;
-    }
-
+    }  
     // update the joint positions and velocities by integrating the accelerations
     for (int j = 0; j < n_joints; j++)
     {
       q(j) = q(j) + qd(j) * dt + 0.5 * qdd(j) * dt * dt;
       qd(j) = qd(j) + qdd(j) * dt;
-    }
-
+    }  
     // get the current link cartesian poses
     std::vector<KDL::Frame> frames(n_segments);
-    vereshchagin_solver.getLinkCartesianPose(frames);
-
+    vereshchagin_solver.getLinkCartesianPose(frames);  
     // get the current link cartesian velocities
     std::vector<KDL::Twist> twists(n_segments);
-    vereshchagin_solver.getLinkCartesianVelocity(twists);
-
+    vereshchagin_solver.getLinkCartesianVelocity(twists);  
     // print the joint positions, velocities, aceelerations and constraint torques
     logger->logInfo("Joint accelerations: %s", qdd);
     logger->logInfo("Joint torques: %s", constraint_tau);
     logger->logInfo("Joint velocities: %s", qd);
     logger->logInfo("Joint positions: %s", q);
 
-    // update the beta energy
-    
-    if ( i % 100 == 0 ){
-      auto target_position = target_link_coord_position;
-      
-      // get the current tool cartesian pose
-      int seg_n = utils->getLinkIdFromChain(robot_chain, bracelet_link);
-      std::array<double, 3> current_position = {
-        frames[seg_n].p.x(), frames[seg_n].p.y(), frames[seg_n].p.z()};
-      positions.push_back(current_position); 
-      auto con_vel = pos_c.computeControlSignal(current_position, target_position, 0.01);
-      // update control velocities
-      for (int j=0; j<con_vel.size(); j++)
-      {
-        control_velocities[j] = con_vel[j];
-      }
-    }
+    // update the beta energy and controllers
 
     if (i % 10 == 0)
     {
       int seg_n = utils->getLinkIdFromChain(robot_chain, bracelet_link);
+      
       // get the current tool cartesian velocity
-      std::array<double, 3> current_velocity = {twists[seg_n].vel.x(),
+      std::array<double, 3> bracelet_link_coord_velocity = {twists[seg_n].vel.x(),
                                                 twists[seg_n].vel.y(),
                                                 twists[seg_n].vel.z()};
-      velocities.push_back(current_velocity);
-      auto con_acc = vel_c.computeControlSignal(current_velocity, 
+      velocities.push_back(bracelet_link_coord_velocity);
+
+      auto cid = std::vector<int>{ 1,1,1,0,0,0 };
+
+      for (int j = 0; j < cid.size(); j++)
+      {
+        if (cid[j] == 1){
+          control_velocities[j] = 0.01;
+        }
+      }
+
+      auto pid_velocity_controller_io_output = pid_velocity_controller.computeControlSignal(bracelet_link_coord_velocity, 
           std::array<double, 3>{control_velocities[0], control_velocities[1],
                                                   control_velocities[2]},
           0.1);
-      // update control accelerations
+
       auto cod = std::vector<int>{ 1,1,1,0,0,0 };
       for (int j = 0; j < cod.size(); j++)
       {
         if (cod[j] == 1){
-          control_accelerations[j] = con_acc[j];
+          control_accelerations[j] = pid_velocity_controller_io_output[j];
         }
       }
     }
 
-    solver_utils->updateBetaEnergy(beta_energy, control_accelerations);
+    // update the default beta values with the controller values
+    std::vector<double> solver_beta_weights = { 0, 0, 9.81 };
+    for (int j = 0; j < solver_beta_weights.size(); j++)
+    {
+      beta_energy(j) = solver_beta_weights[j] + control_accelerations[j];
+    }
 
     logger->logInfo("Control acc: %s", control_accelerations);
 
@@ -218,10 +223,11 @@ int main()
 
     // check if post-conditions are met
     int seg_n = utils->getLinkIdFromChain(robot_chain, bracelet_link);
-    std::array<double, 3> current_position = {
+    std::array<double, 3> bracelet_link_coord_position = {
         frames[seg_n].p.x(), frames[seg_n].p.y(), frames[seg_n].p.z()};
-    logger->logInfo("Current position: %s", current_position);
-    if (post_monitor_1.checkAll(current_position))
+    positions.push_back(bracelet_link_coord_position);
+    logger->logInfo("bracelet_link_coord_position: %s", bracelet_link_coord_position);
+    if (post_monitor_1.checkAll(bracelet_link_coord_position))
     {
       logger->logInfo("Post-condition 1 met");
       break;
@@ -234,6 +240,7 @@ int main()
   }
 
   plotter->plotXYZ(positions, target_link_coord_position);
+  plotter->plotXYZ(velocities, {0.01, 0.01, 0.01});
 
   return 0;
 }

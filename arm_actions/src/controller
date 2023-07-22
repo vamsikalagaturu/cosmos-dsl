@@ -15,7 +15,7 @@ int main()
   logger->test();
 
   // initialize plotter
-  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, false, false);
+  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, true, false);
 
   // initialize utils
   std::shared_ptr<Utils> utils = std::make_shared<Utils>(logger);
@@ -69,7 +69,7 @@ int main()
   KDL::JntArray beta_energy;
 
   // set the constraint weights
-  std::array<double, 6> constraint_weights = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+  std::array<double, 6> constraint_weights = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   // set the solver parameters
   KDL::JntArray qd;              // input joint velocities
@@ -85,7 +85,7 @@ int main()
 
   // target position
   std::array<double, 3> target_position = {current_position[0] + 0.01, current_position[1] + 0.01,
-                                           current_position[2] + 0.1};
+                                           current_position[2] + 0.0};
 
   int sn = utils->getLinkIdFromChain(robot_chain, tool_link);
 
@@ -108,7 +108,7 @@ int main()
   int i = 0;
 
   // run the system at 1KHz
-  while (false)
+  while (true)
   {
     logger->logInfo("Iteration: %d", i);
 
@@ -154,31 +154,42 @@ int main()
     logger->logInfo("Joint positions: %s", q);
     logger->logInfo("Target position: %s", target_position);
     logger->logInfo("Current position: %s", current_position);
+    logger->logInfo("Current velocity: %s", current_velocity);
 
     // call the position controller at frequency of 10hz
-    if (i % 100 == 0)
-    {
-      auto con_vel = pos_controller.computeControlSignal(current_position, target_position, 0.01);
-      // update control velocities
-      for (int j=0; j<con_vel.size(); j++)
-      {
-        control_velocities[j] = con_vel[j];
-      }
-    }
+    // if (i % 100 == 0)
+    // {
+    //   auto con_vel = pos_controller.computeControlSignal(current_position, target_position,
+    //   0.01);
+    //   // update control velocities
+    //   for (int j=0; j<con_vel.size(); j++)
+    //   {
+    //     control_velocities[j] = con_vel[j];
+    //   }
+    // }
 
     // call the velocity controller at frequency of 100hz
-    if (i % 10 == 0)
-    {
-      auto con_acc = vel_controller.computeControlSignal(
-          current_velocity, std::array<double, 3>{control_velocities[0], control_velocities[1],
-                                                  control_velocities[2]},
-          0.1);
-      // update control accelerations
-      for (int j=0; j<con_acc.size(); j++)
-      {
-        control_accelerations[j] = con_acc[j];
-      }
-    }
+    // if (i % 10 == 0)
+    // {
+    // auto con_acc = vel_controller.computeControlSignal(
+    //     current_velocity, std::array<double, 3>{0.02, 0.02, 0.0}, 0.1);
+
+    // auto con_acc = vel_controller.computeControlSignal(
+    //     current_velocity, std::array<double, 3>{0.02, 0.0, 0.02}, 0.1);
+
+    auto con_acc = vel_controller.computeControlSignal(
+        current_velocity, std::array<double, 3>{0.0, 0.02, 0.02}, 0.1);
+
+    // update control accelerations
+    // for (int j=0; j<2; j++)
+    // {
+    //   control_accelerations[j] = con_acc[j];
+    // }
+    // }.
+
+    control_accelerations[0] = con_acc[0];
+    control_accelerations[1] = con_acc[1];
+    control_accelerations[2] = con_acc[2];
 
     // update the beta energy
     solver_utils->updateBetaEnergy(beta_energy, control_accelerations);
@@ -188,12 +199,13 @@ int main()
     std::cout << std::endl;
 
     i++;
-    
-    if (i == 500)
+
+    if (i == 100)
       break;
   }
 
-  plotter->plotXYZ(positions, target_position);
+  // plotter->plotXYZ(positions, target_position);
+  plotter->plotXYZ(velocities, std::array<double, 3>{0.02, 0.02, 0.0});
 
   return 0;
 }
