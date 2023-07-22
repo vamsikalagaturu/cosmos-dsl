@@ -69,7 +69,7 @@ class Convert:
         ns = "http://example.com/rob#"
 
         result = template.render({
-            "data": data["tasks"]["move_arm_xyz_task"]["motion_specs"]["move_arm_xyz"],
+            "motion_specs": data["tasks"]["move_arm_xyz_task"]["motion_specs"],
             "coords": data["coords"],
             "constraints": data["constraints"],
             "controllers": data["controllers"],

@@ -6,52 +6,45 @@ int main()
   {%- import "src/macros/monitors.cpp.jinja2" as macro_mons -%}
   {%- import "src/macros/controllers.cpp.jinja2" as macro_contr -%}
   {%- import "src/macros/solver_utils.cpp.jinja2" as macro_solver_utils -%}
+  {%- import "src/macros/utils.cpp.jinja2" as macro_utils -%}
   
   {% include "src/macros/initialization.cpp.jinja2" %}
   
   // coords
   {{- macro_coord.spawn_coords(coords) }}
+
+  {%- for motion_spec in motion_specs -%}
+  {%- with motion_spec_data = motion_specs[motion_spec] %}
   
   // initialize the monitors
-  {{ macro_mons.init_monitors(data["pre_conditions"], data["post_conditions"], constraints, coords) }}
+  {{ macro_mons.init_monitors(motion_spec_data["pre_conditions"], motion_spec_data["post_conditions"], constraints, coords) }}
   
   // initialize the PID controllers
-  {{ macro_contr.init_controllers(data["per_conditions"], controllers) }}
+  {{ macro_contr.init_controllers(motion_spec_data["per_conditions"], controllers) }}
 
   // initialize solver params
-  {{ macro_solver_utils.init(data) }}
+  {{ macro_solver_utils.init(motion_spec_data) }}
 
   // check if pre-conditions are met
-  {{- macro_mons.pre_cond_checks(data["pre_conditions"], constraints, coords) }}
+  {{- macro_mons.pre_cond_checks(motion_spec_data["pre_conditions"], constraints, coords) }}
 
-  // counter
-  int i = 0;
-  int break_iteration_ = 500;
-
-  // run the system
-  while (true)
-  {
-    logger->logInfo("Iteration: %d", i);
+  // start loop
+  {{ macro_utils.start_loop() }}
 
     // compute the inverse dynamics
     {{ macro_solver_utils.jnt2cart() }}
 
     // update the beta energy and controllers
-    {{- macro_solver_utils.updateBetaAndContr(data, constraints, coords, controllers) }}
-
-    std::cout << std::endl;
+    {{- macro_solver_utils.updateBetaAndContr(motion_spec_data, constraints, coords, controllers) }}
 
     // check if post-conditions are met
-    {{- macro_mons.post_cond_checks(data["post_conditions"], constraints, coords) }}
+    {{- macro_mons.post_cond_checks(motion_spec_data["post_conditions"], constraints, coords) }}
 
-    i++;
-    
-    if (i == break_iteration_)
-      break;
-  }
+    // end loop
+    {{ macro_utils.end_loop() }}
 
-  plotter->plotXYZ(positions, target_link_coord_position);
-  plotter->plotXYZ(velocities, {0.01, 0.01, 0.01});
+  {% endwith %}
+  {%- endfor -%}
 
   return 0;
 }

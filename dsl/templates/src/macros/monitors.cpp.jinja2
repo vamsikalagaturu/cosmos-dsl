@@ -56,6 +56,9 @@
       logger->logInfo("Post-condition {{loop.index}} met");
       break;
     }
+
+    std::cout << std::endl;
+    
     {%- endwith %}
     {%- endfor %}
     {%- endmacro -%}

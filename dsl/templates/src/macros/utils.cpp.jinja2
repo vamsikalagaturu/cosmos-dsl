@@ -1,0 +1,23 @@
+  {%- macro start_loop() -%}
+  // counter
+  int i = 0;
+  int break_iteration_ = 500;
+
+  // run the system
+  while (true)
+  {
+    logger->logInfo("Iteration: %d", i);
+  {%- endmacro -%}
+
+
+
+  {%- macro end_loop() -%}
+       i++;
+    
+    if (i == break_iteration_)
+      break;
+  }
+
+  plotter->plotXYZ(positions, target_link_coord_position);
+  plotter->plotXYZ(velocities, {0.01, 0.01, 0.01});
+  {%- endmacro -%}
