@@ -1,0 +1,61 @@
+  {%- macro init_monitors(pre_conds, post_conds, constraints, coords) -%}
+  {% for pre_cond in pre_conds -%}
+  {%- with constraint = constraints[pre_cond["constraint"]] -%}
+  Monitor pre_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}", 
+                          {{constraint["thresh_val"]}}, 
+                          "{{constraint["thresh_unit"]}}",
+                          &{{coords[constraint["coord"]]["f1_coord"]}}_position);
+  {% endwith %}
+  {%- endfor -%}
+
+  {# post conditions #}
+  {% for post_cond in post_conds -%}
+  {%- with constraint = constraints[post_cond["constraint"]] -%}
+
+  Monitor post_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}",
+                          {{constraint["thresh_val"]}}, 
+                          "{{constraint["thresh_unit"]}}",
+                          &{{coords[constraint["coord"]]["f1_coord"]}}_position);
+  {% endwith %}
+  {%- endfor -%}
+  {%- endmacro -%}
+
+  {%- macro pre_cond_checks(pre_conds, constraints, coords) -%}
+  {%- for pre_cond in pre_conds %}
+  {%- with constraint = constraints[pre_cond["constraint"]] %}
+  {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
+  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_position))
+  {% else -%}
+  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_position))
+  {% endif -%}
+  {
+    logger->logError("Pre-condition {{loop.index}} not met");
+    return -1;
+  }
+  {%- endwith %}
+  {%- endfor %}
+  {%- endmacro -%}
+
+    {%- macro post_cond_checks(post_conds, constraints, coords) -%}
+    {%- for post_cond in post_conds %}
+    {% with -%}
+    {%- set constraint = constraints[post_cond["constraint"]] -%}
+    {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
+    {%- set cp = coords[constraint["coord"]]["f2_coord"] + "_position" -%}
+    {% else -%}
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
+    {%- set cp = coords[constraint["coord"]]["f1_coord"] + "_position" -%}
+    {% endif %}
+    std::array<double, 3> {{cp}} = {
+        frames[seg_n].p.x(), frames[seg_n].p.y(), frames[seg_n].p.z()};
+    positions.push_back({{cp}});
+    logger->logInfo("{{cp}}: %s", {{cp}});
+    if (post_monitor_{{loop.index}}.checkAll({{cp}}))
+    {
+      logger->logInfo("Post-condition {{loop.index}} met");
+      break;
+    }
+    {%- endwith %}
+    {%- endfor %}
+    {%- endmacro -%}

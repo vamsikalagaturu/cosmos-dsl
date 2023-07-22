@@ -1,0 +1,136 @@
+  {%- macro init(data) -%}
+  // define unit constraint forces for EE
+  KDL::Jacobian alpha_unit_forces;
+
+  // beta - accel energy for EE
+  KDL::JntArray beta_energy;
+
+  // set the solver parameters
+  KDL::JntArray qd;              // input joint velocities
+  KDL::JntArray qdd;             // output joint accelerations
+  KDL::JntArray ff_tau;          // input feedforward torques
+  KDL::JntArray constraint_tau;  // output constraint torques
+  KDL::Wrenches f_ext;           // external forces at each segment
+
+  // initialize the solver weights
+  int solver_nc = {{data['alpha_beta']['nc']}};
+
+  std::vector<std::vector<double>> solver_alpha_weights;
+  {% for col in data['alpha_beta']['alpha'] %}
+  std::vector<double> solver_alpha_col_{{loop.index}} = { {{col|join(", ")}} };
+  solver_alpha_weights.push_back(solver_alpha_col_{{loop.index}});
+  {%- endfor %}
+
+  std::vector<double> solver_beta_weights = { {{data['alpha_beta']['beta']|join(", ")}} };
+
+  // initialize vereshchagin solver
+  KDL::ChainHdSolver_Vereshchagin vereshchagin_solver = solver_utils->initializeVereshchaginSolver(
+      &robot_chain, solver_nc, solver_alpha_weights, alpha_unit_forces, solver_beta_weights, beta_energy,
+      qd, qdd, ff_tau,constraint_tau, f_ext);
+
+  // time step
+  double dt = 0.001;
+
+  // store positions and velocities
+  std::vector<std::array<double, 3>> positions;
+  std::vector<std::array<double, 3>> velocities;
+
+  // control velocities and accelerations
+  std::array<double, 6> control_velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> control_accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+  {%- endmacro -%}
+    
+    {# call cart_to_joint method #}
+
+    {%- macro jnt2cart() -%}
+    int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext,
+                                            ff_tau, constraint_tau);
+    if (sr < 0)
+    {
+      logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
+      return -1;
+    }  
+    // update the joint positions and velocities by integrating the accelerations
+    for (int j = 0; j < n_joints; j++)
+    {
+      q(j) = q(j) + qd(j) * dt + 0.5 * qdd(j) * dt * dt;
+      qd(j) = qd(j) + qdd(j) * dt;
+    }  
+    // get the current link cartesian poses
+    std::vector<KDL::Frame> frames(n_segments);
+    vereshchagin_solver.getLinkCartesianPose(frames);  
+    // get the current link cartesian velocities
+    std::vector<KDL::Twist> twists(n_segments);
+    vereshchagin_solver.getLinkCartesianVelocity(twists);  
+    // print the joint positions, velocities, aceelerations and constraint torques
+    logger->logInfo("Joint accelerations: %s", qdd);
+    logger->logInfo("Joint torques: %s", constraint_tau);
+    logger->logInfo("Joint velocities: %s", qd);
+    logger->logInfo("Joint positions: %s", q);
+    {%- endmacro -%}
+
+    {# update beta and controllers #}
+
+    {%- macro updateBetaAndContr(data, constraints, coords, controllers) -%}
+    {%- if data["mappings"]["interface"] == "acc_energy" -%}
+    
+    {%- for con_data in data["mappings"]["controller-mappings"] %}
+
+    if (i % {{(1 / controllers[con_data["controller"]]["dt"])|int}} == 0)
+    {
+      int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[con_data["input"]]["f1"]}});
+      
+      {# check controller constraint coord type -#}
+      {% with con_cons = constraints[controllers[con_data["controller"]]["constraint"]] -%}
+      
+      {% if coords[con_cons["coord"]]["type"] == "VelocityCoordinate" -%}
+      
+      // get the current tool cartesian velocity
+      std::array<double, 3> {{con_data["input"]}}_velocity = {twists[seg_n].vel.x(),
+                                                twists[seg_n].vel.y(),
+                                                twists[seg_n].vel.z()};
+      velocities.push_back({{con_data["input"]}}_velocity);
+
+      auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")}} };
+
+      for (int j = 0; j < cid.size(); j++)
+      {
+        if (cid[j] == 1){
+          control_velocities[j] = {{con_cons["thresh_val"]}};
+        }
+      }
+
+      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal({{con_data["input"]}}_velocity, 
+          std::array<double, 3>{control_velocities[0], control_velocities[1],
+                                                  control_velocities[2]},
+          {{controllers[con_data["controller"]]["dt"]}});
+
+      auto cod = std::vector<int>{ {{con_data["output-dimension"]|join(",")}} };
+
+      {%- endif -%}
+      {%- endwith -%}
+
+      {%- if data["mappings"]["solver-input"] == con_data["output"] %}
+      for (int j = 0; j < cod.size(); j++)
+      {
+        if (cod[j] == 1){
+          control_accelerations[j] = {{con_data["output"]}}[j];
+        }
+      }
+      {%- endif %}
+    }
+
+    {% endfor -%}
+
+    // update the default beta values with the controller values
+    std::vector<double> solver_beta_weights = { {{data['alpha_beta']['beta']|join(", ")}} };
+    for (int j = 0; j < solver_beta_weights.size(); j++)
+    {
+      beta_energy(j) = solver_beta_weights[j] + control_accelerations[j];
+    }
+
+    logger->logInfo("Control acc: %s", control_accelerations);
+
+    {%- endif %}
+    {%- endmacro -%}

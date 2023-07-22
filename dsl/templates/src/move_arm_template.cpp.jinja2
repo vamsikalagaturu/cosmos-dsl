@@ -1,0 +1,56 @@
+#include "arm_actions/arm_actions.hpp"
+
+int main()
+{
+  {%- import "src/macros/coords.cpp.jinja2" as macro_coord -%}
+  {%- import "src/macros/monitors.cpp.jinja2" as macro_mons -%}
+  {%- import "src/macros/controllers.cpp.jinja2" as macro_contr -%}
+  {%- import "src/macros/solver_utils.cpp.jinja2" as macro_solver_utils -%}
+  
+  {% include "src/macros/initialization.cpp.jinja2" %}
+  
+  // coords
+  {{- macro_coord.spawn_coords(coords) }}
+  
+  // initialize the monitors
+  {{ macro_mons.init_monitors(data["pre_conditions"], data["post_conditions"], constraints, coords) }}
+  
+  // initialize the PID controllers
+  {{ macro_contr.init_controllers(data["per_conditions"], controllers) }}
+
+  // initialize solver params
+  {{ macro_solver_utils.init(data) }}
+
+  // check if pre-conditions are met
+  {{- macro_mons.pre_cond_checks(data["pre_conditions"], constraints, coords) }}
+
+  // counter
+  int i = 0;
+  int break_iteration_ = 500;
+
+  // run the system
+  while (true)
+  {
+    logger->logInfo("Iteration: %d", i);
+
+    // compute the inverse dynamics
+    {{ macro_solver_utils.jnt2cart() }}
+
+    // update the beta energy and controllers
+    {{- macro_solver_utils.updateBetaAndContr(data, constraints, coords, controllers) }}
+
+    std::cout << std::endl;
+
+    // check if post-conditions are met
+    {{- macro_mons.post_cond_checks(data["post_conditions"], constraints, coords) }}
+
+    i++;
+    
+    if (i == break_iteration_)
+      break;
+  }
+
+  plotter->plotXYZ(positions, target_link_coord_position);
+
+  return 0;
+}

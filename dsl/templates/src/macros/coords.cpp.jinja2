@@ -1,0 +1,24 @@
+  {%- macro spawn_coords(coords) -%}
+  {%- for coord in coords -%}
+  {%- if "FrameCoordinate" in coords[coord]["type"] and coords[coord]["unit"] == "http://qudt.org/vocab/unit/M" %}
+  std::string {{coords[coord]["f1"]}} = "{{coords[coord]["f1"]}}";
+  std::array<double, 3> {{coords[coord]["f1"]}}_coord_position;
+  {%- if "VectorXYZ" in coords[coord]["type"] +%}
+  {{coords[coord]["f1"]}}_coord_position = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
+  {%+ else %}
+  if (utils->checkLinkInChain(robot_chain, {{coords[coord]["f1"]}}))
+  {
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coord]["f1"]}});
+    std::tuple<std::array<double, 3>, std::array<double, 3>> fk_result =
+      solver_utils->computeFK(&robot_chain, q, seg_n);
+    {{coords[coord]["f1"]}}_coord_position = std::get<0>(fk_result);
+  }
+  else
+  {
+    logger->logError("Not implemented");
+    return -1;
+  }
+  {%+ endif -%}
+  {%+ endif -%}
+  {% endfor -%}
+  {%- endmacro -%}

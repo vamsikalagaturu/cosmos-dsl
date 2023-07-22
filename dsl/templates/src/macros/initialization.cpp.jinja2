@@ -1,0 +1,51 @@
+  {# initialization code #}
+  // get current file path
+  std::filesystem::path path = __FILE__;
+
+  std::string log_path = path.parent_path().parent_path().parent_path().string() + "/logs/runs/";
+
+  std::string data_path = path.parent_path().parent_path().parent_path().string() + "/logs/data/";
+
+  // initialize logger
+  std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, false, log_path);
+
+  // initialize plotter
+  std::shared_ptr<GNUPlotter> plotter = std::make_shared<GNUPlotter>(data_path, true, false);
+
+  // initialize utils
+  std::shared_ptr<Utils> utils = std::make_shared<Utils>(logger);
+
+  // initialize solver utils
+  std::shared_ptr<SolverUtils> solver_utils = std::make_shared<SolverUtils>(logger);
+
+  // get the robot urdf path
+  std::string robot_urdf =
+      (path.parent_path().parent_path() / "urdf" / "gen3_robotiq_2f_85.urdf").string();
+
+  // set the base and tool links
+  std::string base_link = "base_link";
+  std::string tool_link = "bracelet_link";
+
+  // define the robot chain
+  KDL::Chain robot_chain;
+
+  // define the initial joint angles
+  std::vector initial_joint_angles = {0.0, 0.0, 0.0, -M_PI_2, 0.0, -M_PI_2, 0.0};
+
+  // define the joint angles
+  KDL::JntArray q;
+
+  // initialize the robot
+  int r = utils->initialize_robot(robot_urdf, robot_chain, base_link, tool_link,
+                                  initial_joint_angles, q);
+  if (r != 0)
+  {
+    logger->logError("Failed to initialize robot");
+    return -1;
+  }
+
+  // number of joints
+  int n_joints = robot_chain.getNrOfJoints();
+
+  // number of segments
+  int n_segments = robot_chain.getNrOfSegments();
