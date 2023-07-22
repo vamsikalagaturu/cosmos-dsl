@@ -1,4 +1,4 @@
-from rdflib import RDF, Graph
+from rdflib import RDF, Graph, URIRef
 from rdflib.collection import Collection
 import rdflib
 
@@ -6,11 +6,16 @@ import rdflib
 class QueryUtils:
 
     ROB = "http://example.com"
+    KINEMATICS = rdflib.Namespace(ROB + "/kinematics#")
     COORD = rdflib.Namespace(ROB + "/coordinate#")
+    CONSTRAINT = rdflib.Namespace(ROB + "/constraint#")
     MAPPINGS = rdflib.Namespace(ROB + "/mappings#")
+    CONTROLLERMAPPING = rdflib.Namespace(ROB + "/controller_mapping#")
+    CONTROLLERIO = rdflib.Namespace(ROB + "/controller_io#")
 
     def __init__(self, graph: Graph):
         self.graph = graph
+        self.ns = QueryUtils.ROB + "/rob#"
 
     def get_pre_post_condition_info(self, pre_condition, init_bindings=None):
         """
@@ -26,18 +31,18 @@ class QueryUtils:
                     constraint-ns:coord ?coord .
             }}
         """
-        
+
         qres = self.graph.query(query, initBindings=init_bindings)
 
         pre_condition_info = {}
 
         for row in qres:
             ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
-            pre_condition_info['monitor'] = row[0]
-            pre_condition_info['constraint'] = row[1]
+            pre_condition_info['monitor'] = str(row[0]).replace(self.ns, '')
+            pre_condition_info['constraint'] = str(row[1]).replace(self.ns, '')
 
         return pre_condition_info, ci
-    
+
     def get_per_condition_info(self, per_condition, init_bindings=None):
         """
         Returns the per-condition of a given constraint.
@@ -52,23 +57,23 @@ class QueryUtils:
                     constraint-ns:coord ?coord .
             }}
         """
-        
+
         qres = self.graph.query(query, initBindings=init_bindings)
 
         per_condition_info = {}
 
         for row in qres:
             ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
-            per_condition_info['controller'] = row[0]
-            per_condition_info['constraint'] = row[1]
+            per_condition_info['controller'] = str(row[0]).replace(self.ns, '')
+            per_condition_info['constraint'] = str(row[1]).replace(self.ns, '')
 
         return per_condition_info, ci
-    
+
     def get_constraint_info(self, init_bindings=None):
         """
         Returns a dictionary of constraint information for a given set of bindings.
         """
-        
+
         query = f"""
             SELECT ?constraint ?operator ?tv ?tu ?coord
             WHERE {{
@@ -81,30 +86,34 @@ class QueryUtils:
                     qudt-schema:unit ?tu .
             }}
         """
-        
+
         qres = self.graph.query(query, initBindings=init_bindings)
 
         constraint = {}
 
         for row in qres:
             constraint_info = {}
-            constraint_info['operator'] = row[1]
+            constraint_info['operator'] = str(row[1]).replace(self.ns, '')
             constraint_info['thresh_val'] = float(row[2])
             constraint_info['thresh_unit'] = str(row[3])
-            constraint_info['coord'] = row[4]
+            constraint_info['coord'] = str(row[4]).replace(self.ns, '')
 
-            constraint[row[0]] = constraint_info
-        
+            constraint[str(row[0]).replace(self.ns, '')] = constraint_info
+
         return constraint
-    
+
     def get_coord_info(self, coord, init_bindings=None):
         """
         Returns a dictionary of coordinate information for a given set of bindings.
         """
         coord_info = {}
-        
+
+        if (self.ns not in str(coord)):
+            coord = URIRef(self.ns + coord)
+
         # check coord type is distance coordinate
         if (coord, RDF.type, QueryUtils.COORD["DistanceCoordinate"]) in self.graph:
+
             query = f"""
                 SELECT ?dist_coord ?du ?qk ?f1_coord ?f2_coord
                 WHERE {{
@@ -129,16 +138,16 @@ class QueryUtils:
 
             if init_bindings is None:
                 init_bindings = {'dist_coord': coord}
-            
+
             qres = self.graph.query(query, initBindings=init_bindings)
 
             for row in qres:
                 coord_info = {
-                    'type' : 'DistanceCoordinate',
-                    'unit' : str(row[1]),
-                    'quant_kind' : row[2],
-                    'f1_coord' : row[3],
-                    'f2_coord' : row[4]
+                    'type': 'DistanceCoordinate',
+                    'unit': str(row[1]),
+                    'quant_kind': row[2],
+                    'f1_coord': str(row[3]).replace(self.ns, ''),
+                    'f2_coord': str(row[4]).replace(self.ns, '')
                 }
 
         # check coord type is velocity coordinate
@@ -152,7 +161,8 @@ class QueryUtils:
                     ?vel a kinematics:CartesianVelocity ;
                         a kinematics:LinearVelocity ;
                         qudt-schema:hasQuantityKind ?qk ;
-                        kinematics:between-entities ?f1, ?f2 .
+                        kinematics:of-frame ?f1 ;
+                        kinematics:wrt-frame ?f2 .
                     FILTER (?f1 != ?f2)
                     ?f1 a frame:Frame .
                     ?f2 a frame:Frame .
@@ -167,18 +177,18 @@ class QueryUtils:
 
             if init_bindings is None:
                 init_bindings = {'vel_coord': coord}
-            
+
             qres = self.graph.query(query, initBindings=init_bindings)
 
             for row in qres:
                 coord_info = {
-                    'type' : 'VelocityCoordinate',
-                    'unit' : str(row[1]),
-                    'quant_kind' : row[2],
-                    'f1_coord' : row[3],
-                    'f2_coord' : row[4]
+                    'type': 'VelocityCoordinate',
+                    'unit': str(row[1]),
+                    'quant_kind': row[2],
+                    'f1_coord': str(row[3]).replace(self.ns, ''),
+                    'f2_coord': str(row[4]).replace(self.ns, '')
                 }
-            
+
         # check coord type is FrameCoordinate
         elif (coord, RDF.type, QueryUtils.COORD["FrameCoordinate"]) in self.graph:
             query = f"""
@@ -201,14 +211,14 @@ class QueryUtils:
 
             if init_bindings is None:
                 init_bindings = {'frame_coord': coord}
-            
+
             qres = self.graph.query(query, initBindings=init_bindings)
 
             for row in qres:
                 coord_info = {
-                    'type' : ['FrameCoordinate'],
-                    'f1' : row[1],
-                    'unit' : str(row[2])
+                    'type': ['FrameCoordinate'],
+                    'f1': str(row[1]).replace(self.ns, ''),
+                    'unit': str(row[2])
                 }
 
                 if row[3] is not None:
@@ -218,86 +228,91 @@ class QueryUtils:
                     coord_info['z'] = float(row[5])
 
         return coord_info
-    
+
     def get_mappings_info(self, mappings_iri, init_bindings=None):
         """
         Returns a dictionary of mappings information for a given set of bindings.
         """
         mappings_info = {}
-        
+
         query = f"""
-            SELECT DISTINCT ?interface ?solver ?controller ?controller_input
+            SELECT DISTINCT ?interface ?solver ?solver_input
             WHERE {{
                 ?mappings a mapping:ControllerSolver ;
                     mapping:interface ?interface ;
                     mapping:solver ?solver ;
-                    mapping:controller ?controller ;
-                    mapping:controller-input ?controller_input ;
-                    mapping:controller-input-dimension ?cid .
+                    mapping:solver-input ?solver_input ;
+                    mapping:controller-mappings ?controller_mappings .
                 ?interface a mapping:AccEnegery .
                 ?solver a vereshchaginSolver:VereshchaginSolver .
-                ?controller a cascadedController:CascadedController .
-                ?controller_input a coord:FrameCoordinate .
+                ?solver_input a controllerIo:ControllerIO ;
+                    a controllerIo:ControllerOutput .
             }}
         """
 
         if init_bindings is None:
             init_bindings = {'mappings': mappings_iri}
-        
+
         qres = self.graph.query(query, initBindings=init_bindings)
 
         for row in qres:
-            mappings_info['interface'] = str(row[0])
-            mappings_info['solver'] = row[1]
-            mappings_info['controller'] = self.get_controller_info(init_bindings={'controller': row[2]})
-            mappings_info['controller-input'] = row[3]
+            mappings_info['interface'] = str(row[0]).replace(self.ns, '')
+            mappings_info['solver'] = str(row[1]).replace(self.ns, '')
+            mappings_info['solver-input'] = str(row[2]).replace(self.ns, '')
 
-        cip = self.graph.objects(mappings_iri, QueryUtils.MAPPINGS["controller-input-dimension"])
-        
-        # get controller output dimension collection
-        cop_node = self.graph.value(mappings_iri, QueryUtils.MAPPINGS["controller-output-dimension"])
-        cop = Collection(self.graph, cop_node)
+        # get controller mappings
+        controller_mappings = self.graph.objects(
+            mappings_iri, QueryUtils.MAPPINGS["controller-mappings"])
 
-        mappings_info['controller-input-dimension'] = [str(d) for d in cip]
-        mappings_info['controller-output-dimension'] = [int(d) for d in cop]
-        
+        controller_mappings_data = []
+
+        for controller_mapping_iri in controller_mappings:
+            if (controller_mapping_iri, RDF.type, QueryUtils.CONTROLLERMAPPING["ControllerMapping"]):
+                controller = self.graph.value(
+                    controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
+                    ["controller"])
+                input_iri = self.graph.value(
+                    controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
+                    ["input"])
+                output_iri = self.graph.value(
+                    controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
+                    ["output"])
+
+                d = {}
+
+                d['controller'] = str(controller).replace(self.ns, '')
+
+                if (input_iri, RDF.type, QueryUtils.CONTROLLERIO["ControllerInput"]):
+                    d['input'] = self.graph.value(
+                        input_iri, QueryUtils.CONTROLLERIO["io"]).__str__().replace(self.ns, '')
+                    cop_node = self.graph.value(
+                        input_iri, QueryUtils.CONTROLLERIO["io-dimension"])
+                    cop = Collection(self.graph, cop_node)
+                    d['input-dimension'] = [int(d) for d in cop]
+
+                if (output_iri, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
+                    d['output'] = str(output_iri).replace(self.ns, '')
+                    cop_node = self.graph.value(
+                        output_iri, QueryUtils.CONTROLLERIO["io-dimension"])
+                    cop = Collection(self.graph, cop_node)
+                    d['output-dimension'] = [int(d) for d in cop]
+
+                controller_mappings_data.append(d)
+
+        mappings_info['controller-mappings'] = controller_mappings_data
+
         return mappings_info
 
-
-    def get_controller_info(self, init_bindings=None):
-        """
-        Returns a dictionary of controller information for a given set of bindings.
-        """
-        controller_info = {}
-        
-        query = f"""
-            SELECT DISTINCT ?controller ?pc ?vc
-            WHERE {{
-                ?controller a cascadedController:CascadedController ;
-                    cascadedController:position-controller ?pc ;
-                    cascadedController:velocity-controller ?vc .
-                ?pc a pidController:PIDController .
-                ?vc a pidController:PIDController .
-            }}
-        """
-        
-        qres = self.graph.query(query, initBindings=init_bindings)
-
-        for row in qres:
-            controller_info['controller'] = row[0]
-            controller_info['controller_type'] = 'CascadedController'
-            controller_info["data"] = {}
-            controller_info["data"]['pos_c'] = self.get_pid_controller_info(init_bindings={'controller': row[1]})
-            controller_info["data"]['vel_c'] = self.get_pid_controller_info(init_bindings={'controller': row[2]})
-        
-        return controller_info
-    
-    def get_pid_controller_info(self, init_bindings=None):
+    def get_pid_controller_info(self, controller, init_bindings=None):
         """
         Returns a dictionary of PID controller information for a given set of bindings.
         """
         pid_controller_info = {}
-        
+
+        if controller is not None:
+            if (self.ns not in str(controller)):
+                controller = URIRef(self.ns + controller)
+
         query = f"""
             SELECT DISTINCT ?kp ?ki ?kd ?dt ?constraint
             WHERE {{
@@ -310,7 +325,10 @@ class QueryUtils:
                 ?constraint a constraint-ns:Constraint .
             }}
         """
-        
+
+        if init_bindings is None:
+            init_bindings = {'controller': controller}
+
         qres = self.graph.query(query, initBindings=init_bindings)
 
         for row in qres:
@@ -318,9 +336,30 @@ class QueryUtils:
             pid_controller_info['ki'] = float(row[1])
             pid_controller_info['kd'] = float(row[2])
             pid_controller_info['dt'] = float(row[3])
-            pid_controller_info['constraint'] = row[4]
-        
+            pid_controller_info['constraint'] = str(row[4]).replace(self.ns, '')
+
         return pid_controller_info
-    
 
+    def get_alpha_beta_data(self, constraint):
+        """
+        Returns a dictionary of alpha beta data for a given constraint.
+        """
+        alpha_beta_data = {}
 
+        coord = self.graph.value(self.ns + constraint,
+                                 QueryUtils.CONSTRAINT["coord"])
+
+        if (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
+            of_vel = self.graph.value(coord, QueryUtils.COORD["of-velocity"])
+
+            if (of_vel, RDF.type, QueryUtils.KINEMATICS["LinearVelocity"]) in self.graph:
+                alpha = [[1, 0, 0, 0, 0, 0],
+                         [0, 1, 0, 0, 0, 0],
+                         [0, 0, 1, 0, 0, 0]],
+                beta = [0, 0, 9.81]
+
+                alpha_beta_data['alpha'] = alpha
+                alpha_beta_data['beta'] = beta
+                alpha_beta_data['nc'] = 3
+
+        return alpha_beta_data

@@ -6,8 +6,6 @@ import argparse
 import json
 import rdflib
 from rdflib.namespace import RDF
-from rdflib import Graph, URIRef
-from rdflib.collection import Collection
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -15,6 +13,7 @@ from utils import Utils
 from query_utils import QueryUtils
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 
 class Convert:
     def __init__(self, debug=True):
@@ -60,19 +59,20 @@ class Convert:
             self.print_graph()
 
         template = self.templates_env.get_template(
-            'src/move_xyz_template.cpp.jinja2')
+            'src/move_arm_template.cpp.jinja2')
 
         data = self.test(g)
 
         if True or self.debug:
             print(json.dumps(data, indent=2))
-        
+
         ns = "http://example.com/rob#"
 
         result = template.render({
-            "data": data["tasks"]["http://example.com/rob#move_arm_xyz_task"]["motion_specs"]["http://example.com/rob#move_arm_xyz"],
+            "data": data["tasks"]["move_arm_xyz_task"]["motion_specs"]["move_arm_xyz"],
             "coords": data["coords"],
             "constraints": data["constraints"],
+            "controllers": data["controllers"],
             "ns": ns
         })
 
@@ -80,16 +80,21 @@ class Convert:
 
     def update_coords_data(self, cond, big_data):
         coord = cond['coord']
-                        
+
         if coord not in big_data['coords']:
             coord_data = self.query_utils.get_coord_info(coord)
+
             big_data['coords'][coord] = coord_data
 
             if coord_data['type'] == 'DistanceCoordinate' or \
-                coord_data['type'] == 'VelocityCoordinate':
-                
-                f1_coord_data = self.query_utils.get_coord_info(coord_data['f1_coord'])
-                f2_coord_data = self.query_utils.get_coord_info(coord_data['f2_coord'])
+                    coord_data['type'] == 'VelocityCoordinate':
+
+                f1_coord_data = self.query_utils.get_coord_info(
+                    coord_data
+                    ['f1_coord'])
+                f2_coord_data = self.query_utils.get_coord_info(
+                    coord_data
+                    ['f2_coord'])
 
                 big_data['coords'][coord_data['f1_coord']] = f1_coord_data
                 big_data['coords'][coord_data['f2_coord']] = f2_coord_data
@@ -99,30 +104,15 @@ class Convert:
     def test(self, g: rdflib.ConjunctiveGraph):
 
         ROB = "http://example.com"
-        POINT = rdflib.Namespace(ROB + "/point#")
-        FRAME = rdflib.Namespace(ROB + "/frame#")
-        SPATREL = rdflib.Namespace(ROB + "/spatial_relations#")
-        COORD = rdflib.Namespace(ROB + "/coordinate#")
-        DIST = rdflib.Namespace(ROB + "/distance#")
-        DISTCOORD = rdflib.Namespace(ROB + "/dist_coord#")
-        MONITOR = rdflib.Namespace(ROB + "/monitor#")
-        CONSTRAINT = rdflib.Namespace(ROB + "/constraint-ns#")
-        THRESHOLD = rdflib.Namespace(ROB + "/threshold#")
-        QUDT = rdflib.Namespace("http://qudt.org/schema/qudt/")
         BASETASK = rdflib.Namespace(ROB + "/base_task#")
-        MoveArmXYZ = rdflib.Namespace(ROB + "/move_arm_xyz#")
-        MOTIONSPEC = rdflib.Namespace(ROB + "/move_arm_xyz#")
-        CASCADEDCONTRL = rdflib.Namespace(ROB + "/cascaded_controller#")
-        PIDCONTROLLER = rdflib.Namespace(ROB + "/pid_controller#")
-        VERESHSOLVER = rdflib.Namespace(ROB + "/vereshchagin_solver#")
-        KINEMATICS = rdflib.Namespace(ROB + "/kinematics#")
-        MAPPINGS = rdflib.Namespace(ROB + "/mappings#")
+        MOTIONSPEC = rdflib.Namespace(ROB + "/move_arm#")
 
         self.query_utils = QueryUtils(g)
 
         big_data = {}
         big_data['coords'] = {}
         big_data['constraints'] = {}
+        big_data['controllers'] = {}
         big_data['tasks'] = {}
 
         # get monitors
@@ -137,61 +127,78 @@ class Convert:
             motion_specs = {}
 
             for motion_spec_iri in motion_specs_iris:
-                
-                if (motion_spec_iri, RDF.type, MOTIONSPEC["MoveArmXYZ"]) in g:
+
+                if (motion_spec_iri, RDF.type, MOTIONSPEC["MoveArm"]) in g:
 
                     motion_spec = {}
+
                     # get the motion-specification node
                     mappings_iri = g.value(
                         motion_spec_iri, MOTIONSPEC["mappings"])
-                    pre_conditions = g.objects(motion_spec_iri, MOTIONSPEC["pre-conditions"])
-                    per_conditions = g.objects(motion_spec_iri, MOTIONSPEC["per-conditions"])
-                    post_conditions = g.objects(motion_spec_iri, MOTIONSPEC["post-conditions"])
+
+                    # get the mappings data
+                    mapping_info = self.query_utils.get_mappings_info(
+                        mappings_iri)
+                    motion_spec['mappings'] = mapping_info
+
+                    pre_conditions = g.objects(
+                        motion_spec_iri, MOTIONSPEC["pre-conditions"])
+                    per_conditions = g.objects(
+                        motion_spec_iri, MOTIONSPEC["per-conditions"])
+                    post_conditions = g.objects(
+                        motion_spec_iri, MOTIONSPEC["post-conditions"])
 
                     pre_conditions_d = []
                     for pre_condition in pre_conditions:
 
-                        pcr, ci = self.query_utils.get_pre_post_condition_info(pre_condition, {'constraint': pre_condition})
-                        big_data["constraints"][pcr['constraint']] = ci[pcr['constraint']]
-                        big_data = self.update_coords_data(ci[pcr['constraint']], big_data)
+                        pcr, ci = self.query_utils.get_pre_post_condition_info(
+                            pre_condition, {'constraint': pre_condition})
+                        big_data["constraints"][pcr['constraint']
+                                                ] = ci[pcr['constraint']]
+                        big_data = self.update_coords_data(
+                            ci[pcr['constraint']], big_data)
                         pre_conditions_d.append(pcr)
 
                     motion_spec['pre_conditions'] = pre_conditions_d
 
                     post_conditions_d = []
                     for post_condition in post_conditions:
-                        
-                        pcr, ci = self.query_utils.get_pre_post_condition_info(post_condition, {'constraint': post_condition})
+
+                        pcr, ci = self.query_utils.get_pre_post_condition_info(
+                            post_condition, {'constraint': post_condition})
                         post_conditions_d.append(pcr)
-                        big_data["constraints"][pcr['constraint']] = ci[pcr['constraint']]
-                        big_data = self.update_coords_data(ci[pcr['constraint']], big_data)
+                        big_data["constraints"][pcr['constraint']
+                                                ] = ci[pcr['constraint']]
+                        big_data = self.update_coords_data(
+                            ci[pcr['constraint']], big_data)
 
                     motion_spec['post_conditions'] = post_conditions_d
 
                     per_conditions_d = []
                     for per_condition in per_conditions:
 
-                        pcr, ci = self.query_utils.get_per_condition_info(per_condition, {'constraint': per_condition})
+                        pcr, ci = self.query_utils.get_per_condition_info(
+                            per_condition, {'constraint': per_condition})
                         per_conditions_d.append(pcr)
-                        big_data["constraints"][pcr['constraint']] = ci[pcr['constraint']]
-                        big_data = self.update_coords_data(ci[pcr['constraint']], big_data)
+                        big_data["constraints"][pcr['constraint']
+                                                ] = ci[pcr['constraint']]
+                        big_data = self.update_coords_data(
+                            ci[pcr['constraint']], big_data)
+                        cont_info = self.query_utils.get_pid_controller_info(
+                            pcr['controller'])
+                        big_data["controllers"][pcr['controller']] = cont_info
+                        alpha_beta_data = self.query_utils.get_alpha_beta_data(
+                            pcr['constraint'])
+                        motion_spec['alpha_beta'] = alpha_beta_data
+                        # TODO: parse if there are multiple controllers
 
                     motion_spec['per_conditions'] = per_conditions_d
 
-                    # get the mappings data
-                    mapping_info = self.query_utils.get_mappings_info(mappings_iri)
-                    motion_spec['mappings'] = mapping_info
+                    motion_specs[str(motion_spec_iri).replace(
+                        ROB + "/rob#", '')] = motion_spec
 
-                    for c in mapping_info["controller"]["data"]:
-                        curi = mapping_info["controller"]["data"][c]['constraint']
-                        # check if constraints is in big_data
-                        if curi not in big_data['constraints']:
-                            big_data['constraints'][curi] = self.query_utils.get_constraint_info({'constraint': curi})[curi]
-
-                    motion_specs[str(motion_spec_iri)] = motion_spec
-            
             data['motion_specs'] = motion_specs
-            big_data['tasks'][str(task_spec)] = data
+            big_data['tasks'][str(task_spec).replace(ROB+"/rob#", '')] = data
 
         return big_data
 
