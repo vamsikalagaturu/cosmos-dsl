@@ -10,36 +10,20 @@
             "@type": "@id"
         },
 
-        "controller": {
-            "@id": "mapping:controller",
-            "@type": "@id"
-        },
-
         "solver": {
             "@id": "mapping:solver",
             "@type": "@id"
         },
 
-        "controller-input": {
-            "@id": "mapping:controller-input",
+        "solver-input": {
+            "@id": "mapping:solver-input",
             "@type": "@id"
         },
 
-        "controller-input-dimension": {
-            "@id": "mapping:controller-input-dimension",
-            "@type": "xsd:string",
+        "controller-mappings": {
+            "@id": "mapping:controller-mappings",
+            "@type": "@id",
             "@container": "@set"
-        },
-
-        "controller-output": {
-            "@id": "mapping:controller-output",
-            "@type": "@id"
-        },
-
-        "controller-output-dimension": {
-            "@id": "mapping:controller-output-dimension",
-            "@type": "xsd:int",
-            "@container": "@list"
         }
     }
 }

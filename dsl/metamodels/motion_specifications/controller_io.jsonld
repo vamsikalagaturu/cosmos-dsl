@@ -1,0 +1,19 @@
+{
+    "@context": {
+        "controllerIo": "http://example.com/controller_io#",
+
+        "ControllerIO": "controllerIo:ControllerIO",
+        "ControllerInput": "controllerIo:ControllerInput",
+        "ControllerOutput": "controllerIo:ControllerOutput",
+
+        "io": {
+            "@id": "controllerIo:io",
+            "@type": "@id"
+        },
+        "io-dimension": {
+            "@id": "controllerIo:io-dimension",
+            "@type": "xsd:int",
+            "@container": "@list"
+        }
+    }
+}
