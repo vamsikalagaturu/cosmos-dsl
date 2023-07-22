@@ -26,10 +26,8 @@
                 "CartesianVelocity",
                 "LinearVelocity"
             ],
-            "between-entities": [
-                "rob:bracelet_link",
-                "rob:target_link"
-            ],
+            "of-frame": "rob:bracelet_link",
+            "wrt-frame": "rob:target_link",
             "quantity-kind": "Velocity"
         }
     ]

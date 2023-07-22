@@ -22,12 +22,6 @@
             "@type": "Equal"
         },
         {
-            "@id": "rob:dist-bracelet_link-target_link-controller-threshold",
-            "@type": "Threshold",
-            "threshold-value": 0.0,
-            "unit": "M"
-        },
-        {
             "@id": "rob:vel-bracelet_link-target_link-controller-threshold",
             "@type": "Threshold",
             "threshold-value": 0.01,
@@ -44,13 +38,6 @@
             "@type": "Threshold",
             "threshold-value": 0.0025,
             "unit": "M"
-        },
-        {
-            "@id": "rob:bracelet_link-target_link-constraint_dist",
-            "@type": ["Constraint", "DistanceConstraint"],
-            "threshold": "rob:dist-bracelet_link-target_link-controller-threshold",
-            "operator": "rob:eq",
-            "coord": "rob:dist-bracelet_link-target_link-coord"
         },
         {
             "@id": "rob:bracelet_link-target_link-constraint_vel",
