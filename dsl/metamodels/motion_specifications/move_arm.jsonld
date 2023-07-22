@@ -1,28 +1,28 @@
 {
     "@context": {
-        "moveArmXYZ": "http://example.com/move_arm_xyz#",
+        "moveArm": "http://example.com/move_arm#",
 
-        "MoveArmXYZ": "moveArmXYZ:MoveArmXYZ",
+        "MoveArm": "moveArm:MoveArm",
 
         "mappings": {
-            "@id": "moveArmXYZ:mappings",
+            "@id": "moveArm:mappings",
             "@type": "@id"
         },
 
         "pre-conditions": {
-            "@id": "moveArmXYZ:pre-conditions",
+            "@id": "moveArm:pre-conditions",
             "@type": "@id",
             "@container": "@set"
         },
 
         "per-conditions": {
-            "@id": "moveArmXYZ:per-conditions",
+            "@id": "moveArm:per-conditions",
             "@type": "@id",
             "@container": "@set"
         },
 
         "post-conditions": {
-            "@id": "moveArmXYZ:post-conditions",
+            "@id": "moveArm:post-conditions",
             "@type": "@id",
             "@container": "@set"
         }
