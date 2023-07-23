@@ -18,6 +18,19 @@
       break;
   }
 
-  plotter->plotXYZ(positions, target_link_coord_position);
-  plotter->plotXYZ(velocities, {0.01, 0.01, 0.01});
+  std::vector<KDL::Vector> target_positions;
+  for (int i = 0; i < positions.size(); i++)
+  {
+    target_positions.push_back(target_link_coord_position.p);
+  }
+
+  std::vector<KDL::Vector> target_velocities;
+  for (int i = 0; i < velocities.size(); i++)
+  {
+    target_velocities.push_back(KDL::Vector{0.01, 0.01, 0.01});
+  }
+
+  plotter->plotXYZ(positions, target_positions, "positions");
+  plotter->plotXYZ(velocities, target_velocities, "velocities");
+
   {%- endmacro -%}

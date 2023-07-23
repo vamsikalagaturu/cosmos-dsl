@@ -32,8 +32,8 @@
   double dt = 0.001;
 
   // store positions and velocities
-  std::vector<std::array<double, 3>> positions;
-  std::vector<std::array<double, 3>> velocities;
+  std::vector<KDL::Vector>> positions;
+  std::vector<KDL::Vector>> velocities;
 
   // control velocities and accelerations
   std::array<double, 6> control_velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -87,10 +87,8 @@
       {% if coords[con_cons["coord"]]["type"] == "VelocityCoordinate" -%}
       
       // get the current tool cartesian velocity
-      std::array<double, 3> {{con_data["input"]}}_velocity = {twists[seg_n].vel.x(),
-                                                twists[seg_n].vel.y(),
-                                                twists[seg_n].vel.z()};
-      velocities.push_back({{con_data["input"]}}_velocity);
+      KDL::Twist {{con_data["input"]}}_twist = twists[seg_n];
+      velocities.push_back({{con_data["input"]}}_twist.vel);
 
       auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")}} };
 
@@ -101,9 +99,8 @@
         }
       }
 
-      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal({{con_data["input"]}}_velocity, 
-          std::array<double, 3>{control_velocities[0], control_velocities[1],
-                                                  control_velocities[2]},
+      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal({{con_data["input"]}}_twist.vel, 
+          {control_velocities[0], control_velocities[1], control_velocities[2]},
           {{controllers[con_data["controller"]]["dt"]}});
 
       auto cod = std::vector<int>{ {{con_data["output-dimension"]|join(",")}} };
