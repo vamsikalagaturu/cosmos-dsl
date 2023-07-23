@@ -104,6 +104,14 @@ public:
   std::vector<double> calc_error(const std::array<double, 3>& p1,
                                                 const std::array<double, 3>& p2); 
 
+  /**
+   * @brief Calculates the error between two kdl vectors.
+   * @param v1 The first vector.
+   * @param v2 The second vector.
+   * @return The error as a kdl vector.
+   */
+  KDL::Vector calc_error(const KDL::Vector& v1, const KDL::Vector& v2);
+
 private:
   std::shared_ptr<Logger> _logger;
 };

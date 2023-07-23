@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 
+#include "frames.hpp"
+
 /**
  * @brief PID Controller class for computing control signals.
  */
@@ -32,6 +34,16 @@ public:
       const std::array<double, 3>& current_value, const std::array<double, 3>& target_value,
       double dt);
 
+  /**
+   * @brief Computes the control signal based on the current and target values.
+   * @param current_value The current values of the system kdl vector.
+   * @param target_value The desired target values kdl vector.
+   * @param dt The time step or time difference.
+   * @return The computed control signal as a kdl vector.
+   */
+  KDL::Vector computeControlSignal(const KDL::Vector& current_value,
+                                   const KDL::Vector& target_value, double dt);
+
 private:
   /**
    * @brief Calculates the error between two points.
@@ -43,6 +55,15 @@ private:
   std::tuple<double, double, double> calc_error(const std::array<double, 3>& p1,
                                                 const std::array<double, 3>& p2);
 
+  /**
+   * @brief Calculates the error between two vectors.
+   *
+   * @param v1 The first vector.
+   * @param v2 The second vector.
+   * @return The error as a kdl vector.
+   */
+  KDL::Vector calc_error(const KDL::Vector& v1, const KDL::Vector& v2);
+
   double Kp;            // Proportional gain
   double Ki;            // Integral gain
   double Kd;            // Derivative gain
@@ -52,6 +73,9 @@ private:
   double last_error_x;  // Previous error in the x-axis
   double last_error_y;  // Previous error in the y-axis
   double last_error_z;  // Previous error in the z-axis
+
+  KDL::Vector error_sum;  // Accumulated error
+  KDL::Vector last_error; // Previous error
 };
 
 #endif /* PID_CONTROLLER_HPP */

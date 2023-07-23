@@ -173,6 +173,8 @@ void Logger::test()
   std::array<double, 6> control_accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   logInfo("Control accelerations: %s", control_accelerations);
 
+  KDL::Vector target_position_kdl(0.0, 0.0, 0.0);
+  logInfo("Target position kdl: %s", target_position_kdl);
 }
 
 template <typename T, size_t N>
@@ -195,7 +197,16 @@ void Logger::logInfo(const std::vector<std::vector<T>>& vec_of_vec)
 
 void Logger::logInfo(const KDL::JntArray& jnt_array)
 {
-  logMessage(INFO, LoggerUtil::jntArrayToString(jnt_array));
+  logMessage(INFO, LoggerUtil::jntArrayToString(jnt_array).c_str());
+}
+
+void Logger::logInfo(const KDL::Vector& vec)
+{
+  // convert to string
+  std::ostringstream oss;
+  oss << "[" << vec.x() << ", " << vec.y() << ", " << vec.z() << "]";
+
+  logMessage(INFO, oss.str().c_str());
 }
 
 template <typename... Args>
@@ -220,6 +231,15 @@ void Logger::logInfo(const char* format, const std::array<T, N>& arr)
 void Logger::logInfo(const char* format, const KDL::JntArray& jnt_array)
 {
   logFormattedMessage(INFO, format, LoggerUtil::jntArrayToString(jnt_array).c_str());
+}
+
+void Logger::logInfo(const char* format, const KDL::Vector& vec)
+{
+  // convert to string
+  std::ostringstream oss;
+  oss << "[" << vec.x() << ", " << vec.y() << ", " << vec.z() << "]";
+
+  logFormattedMessage(INFO, format, oss.str().c_str());
 }
 
 // Logger::logWarning

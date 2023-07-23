@@ -41,8 +41,8 @@ public:
    */
   KDL::ChainHdSolver_Vereshchagin initializeVereshchaginSolver(
       const KDL::Chain *robot_chain, int nc, const std::vector<std::vector<double>> &alpha_cols,
-      KDL::Jacobian &alpha_unit_forces, std::vector<double> &beta_col, KDL::JntArray &beta_energy, KDL::JntArray &qd,
-      KDL::JntArray &qdd, KDL::JntArray &ff_tau, KDL::JntArray &constraint_tau,
+      KDL::Jacobian &alpha_unit_forces, std::vector<double> &beta_col, KDL::JntArray &beta_energy,
+      KDL::JntArray &qd, KDL::JntArray &qdd, KDL::JntArray &ff_tau, KDL::JntArray &constraint_tau,
       KDL::Wrenches &f_ext);
 
   /**
@@ -65,6 +65,16 @@ public:
    */
   static std::tuple<std::array<double, 3>, std::array<double, 3>> computeFK(
       KDL::Chain *robot_chain, KDL::JntArray &q, int seg_nr = -1);
+
+  /**
+   * @brief Computes the forward kinematics (position and orientation) of a robot given joint
+   * positions.
+   * @param robot_chain The KDL::Chain object representing the robot's kinematic chain.
+   * @param q The KDL::JntArray object representing the joint positions.
+   * @param seg_nr The segment number to compute the forward kinematics for.
+   * @return A kdl frame containing the position and orientation of the tool tip.
+   */
+  static KDL::Frame computeFKFrame(KDL::Chain *robot_chain, KDL::JntArray &q, int seg_nr = -1);
 
   /**
    * @brief Updates the beta_energy vector with the given control acceleration enegy input and

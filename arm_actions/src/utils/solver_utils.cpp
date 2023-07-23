@@ -115,6 +115,25 @@ std::tuple<std::array<double, 3>, std::array<double, 3>> SolverUtils::computeFK(
   return std::make_tuple(position, rpy);
 }
 
+KDL::Frame SolverUtils::computeFKFrame(KDL::Chain *robot_chain, KDL::JntArray &q, int seg_nr)
+{
+  // create the solver
+  KDL::ChainFkSolverPos_recursive fk_solver(*robot_chain);
+
+  // create the frame that will contain the results
+  KDL::Frame tool_tip_frame;
+
+  // calculate forward kinematics
+  int r = fk_solver.JntToCart(q, tool_tip_frame, seg_nr);
+  if (r < 0)
+  {
+    std::cout << "Failed to compute forward kinematics with error: " << r << std::endl;
+    return KDL::Frame();
+  }
+
+  return tool_tip_frame;
+}
+
 void SolverUtils::updateBetaEnergy(KDL::JntArray &beta_energy,
                                    const std::array<double, 6> &control_ae)
 {

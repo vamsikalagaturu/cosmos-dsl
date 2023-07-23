@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "jntarray.hpp"
+#include "kinfam_io.hpp"
 
 class Logger
 {
@@ -44,6 +45,8 @@ public:
 
   void logInfo(const KDL::JntArray& jnt_array);
 
+  void logInfo(const KDL::Vector& vector);
+
   template <typename... Args>
   void logInfo(const char* format, Args... args);
 
@@ -54,6 +57,8 @@ public:
   void logInfo(const char* format, const std::array<T, N>& arr);
 
   void logInfo(const char* format, const KDL::JntArray& jnt_array);
+
+  void logInfo(const char* format, const KDL::Vector& vector);
 
   // logwarning
   template <typename... Args>

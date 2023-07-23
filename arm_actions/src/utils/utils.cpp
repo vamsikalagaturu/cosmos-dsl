@@ -168,3 +168,9 @@ std::vector<double> Utils::calc_error(const std::array<double, 3>& p1,
 
   return { dx, dy, dz };
 }
+
+KDL::Vector Utils::calc_error(const KDL::Vector& v1, const KDL::Vector& v2)
+{
+  return v2 - v1;
+}
+
