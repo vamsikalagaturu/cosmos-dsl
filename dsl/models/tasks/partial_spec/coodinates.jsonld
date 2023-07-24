@@ -1,0 +1,59 @@
+{
+    "@context": [
+        "../../../metamodels/relations/coordinate.jsonld",
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+
+    "@id": "rob:coordinates",
+
+    "@graph": [
+        {
+            "@id": "rob:bracelet_link_coord",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:bracelet_link",
+            "unit": "M"
+        },
+        {
+            "@id": "rob:target_link_coord",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link",
+            "unit": "M",
+            "x": -0.3044,
+            "y": -0.0149,
+            "z": 0.8056
+        },
+        {
+            "@id": "rob:dist_bracelet_link_target_link_coord",
+            "@type": "DistanceCoordinate",
+            "of-distance": "rob:dist_bracelet_link_target_link",
+            "unit": "M"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_x_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_x",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_y_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_y",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_z_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_z",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_xyz_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_xyz",
+            "unit": "M-PER-SEC"
+        }
+    ]
+}

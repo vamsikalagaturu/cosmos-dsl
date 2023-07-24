@@ -1,0 +1,19 @@
+{
+    "@context": [
+        "../../../metamodels/tasks/base_task.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+    "@id": "rob:task_specifications",
+    "@graph": [
+        {
+            "@id": "rob:move_arm_xyz_task",
+            "@type": "BaseTask",
+            "motion-specifications": [
+                "rob:move_arm_vel_xyz",
+                "rob:move_arm_vel_xyz_1d"
+            ]
+        }
+    ]
+}

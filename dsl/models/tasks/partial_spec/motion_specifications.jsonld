@@ -1,0 +1,41 @@
+{
+    "@context": [
+        "../../../metamodels/motion_specifications/move_arm.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+    "@id": "rob:motion_specifications",
+    "@graph": [
+        {
+            "@id": "rob:move_arm_vel_xyz_1d",
+            "@type": "MoveArm",
+            "mappings": "rob:controller_solver_mappings_1d",
+            "pre-conditions": [
+                "rob:bracelet_link_target_link_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint",
+                "rob:bracelet_link_target_link_vel_y_constraint",
+                "rob:bracelet_link_target_link_vel_z_constraint"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_constraint_post"
+            ]
+        },
+        {
+            "@id": "rob:move_arm_vel_xyz",
+            "@type": "MoveArm",
+            "mappings": "rob:controller_solver_mappings_xyz",
+            "pre-conditions": [
+                "rob:bracelet_link_target_link_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_target_link_vel_xyz_constraint"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_constraint_post"
+            ]
+        }
+    ]
+}

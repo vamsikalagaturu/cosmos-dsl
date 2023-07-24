@@ -1,0 +1,47 @@
+{
+    "@context": [
+        "../../../metamodels/controllers/pid_controller.jsonld",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+    "@id": "rob:pid_controllers",
+    "@graph": [
+        {
+            "@id": "rob:pid_vel_x_controller",
+            "@type": "PIDController",
+            "p-gain": 20.0,
+            "i-gain": 0.9,
+            "d-gain": 0.0,
+            "time-step": 0.1,
+            "constraint": "rob:bracelet_link_target_link_vel_x_constraint"
+        },
+        {
+            "@id": "rob:pid_vel_y_controller",
+            "@type": "PIDController",
+            "p-gain": 20.0,
+            "i-gain": 0.9,
+            "d-gain": 0.0,
+            "time-step": 0.1,
+            "constraint": "rob:bracelet_link_target_link_vel_y_constraint"
+        },
+        {
+            "@id": "rob:pid_vel_z_controller",
+            "@type": "PIDController",
+            "p-gain": 20.0,
+            "i-gain": 0.9,
+            "d-gain": 0.0,
+            "time-step": 0.1,
+            "constraint": "rob:bracelet_link_target_link_vel_z_constraint"
+        },
+        {
+            "@id": "rob:pid_vel_xyz_controller",
+            "@type": "PIDController",
+            "p-gain": 20.0,
+            "i-gain": 0.9,
+            "d-gain": 0.0,
+            "time-step": 0.1,
+            "constraint": "rob:bracelet_link_target_link_vel_xyz_constraint"
+        }
+    ]
+}
