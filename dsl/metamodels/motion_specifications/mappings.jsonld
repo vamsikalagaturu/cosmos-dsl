@@ -17,7 +17,8 @@
 
         "solver-input": {
             "@id": "mapping:solver-input",
-            "@type": "@id"
+            "@type": "@id",
+            "@container": "@set"
         },
 
         "controller-mappings": {

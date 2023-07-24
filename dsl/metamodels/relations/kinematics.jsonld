@@ -10,6 +10,8 @@
         "LinearVelocity": "kinematics:LinearVelocity",
         "AngularVelocity": "kinematics:AngularVelocity",
 
+        "OneDimensionalVelocity": "kinematics:OneDimensionalVelocity",
+
         "between-entities": {
             "@id": "kinematics:between-entities",
             "@container": "@set",
@@ -24,6 +26,12 @@
         "wrt-frame": {
             "@id": "kinematics:wrt-frame",
             "@type": "@id"
+        },
+
+        "dimension": {
+            "@id": "kinematics:dimension",
+            "@type": "xsd:integer",
+            "@container": "@list"
         }
     }
 }
