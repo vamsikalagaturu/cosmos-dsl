@@ -23,7 +23,8 @@ class Convert:
 
         # relative paths to models
         root_path = os.path.join(os.path.dirname(__file__), '..')
-        self.models = f'{root_path}/models/tasks/xyz_motion/'
+        # self.models = f'{root_path}/models/tasks/xyz_motion/'
+        self.models = f'{root_path}/models/tasks/partial_spec/'
 
         self.templates_env = Environment(
             loader=FileSystemLoader(f'{root_path}/templates'))
@@ -174,6 +175,8 @@ class Convert:
 
                     motion_spec['post_conditions'] = post_conditions_d
 
+                    alphas = []
+
                     per_conditions_d = []
                     for per_condition in per_conditions:
 
@@ -187,12 +190,23 @@ class Convert:
                         cont_info = self.query_utils.get_pid_controller_info(
                             pcr['controller'])
                         big_data["controllers"][pcr['controller']] = cont_info
-                        alpha_beta_data = self.query_utils.get_alpha_beta_data(
-                            pcr['constraint'])
-                        motion_spec['alpha_beta'] = alpha_beta_data
-                        # TODO: parse if there are multiple controllers
+                        alpha = self.query_utils.get_alpha(pcr['constraint'])
+                        if isinstance(alpha[0], list):
+                            for a in alpha:
+                                alphas.append(a)
+                        else:
+                            alphas.append(alpha)
 
                     motion_spec['per_conditions'] = per_conditions_d
+
+                    # construct alpha, beta and nc
+                    alpha, beta, nc = self.query_utils.construct_abc(alphas)
+
+                    motion_spec['alpha_beta_nc'] = {
+                        'alpha': alpha,
+                        'beta': beta,
+                        'nc': nc
+                    }
 
                     motion_specs[str(motion_spec_iri).replace(
                         ROB + "/rob#", '')] = motion_spec

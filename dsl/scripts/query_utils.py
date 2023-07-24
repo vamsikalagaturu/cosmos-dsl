@@ -58,6 +58,8 @@ class QueryUtils:
             }}
         """
 
+        # TODO: modify the init_bindings and percondition. its wrong way
+
         qres = self.graph.query(query, initBindings=init_bindings)
 
         per_condition_info = {}
@@ -158,11 +160,21 @@ class QueryUtils:
                     ?vel_coord a coord:VelocityCoordinate ;
                         coord:of-velocity ?vel ;
                         qudt-schema:unit ?vu .
-                    ?vel a kinematics:CartesianVelocity ;
-                        a kinematics:LinearVelocity ;
-                        qudt-schema:hasQuantityKind ?qk ;
-                        kinematics:of-frame ?f1 ;
-                        kinematics:wrt-frame ?f2 .
+                    {{
+                        ?vel a kinematics:CartesianVelocity ;
+                            a kinematics:LinearVelocity ;
+                            qudt-schema:hasQuantityKind ?qk ;
+                            kinematics:of-frame ?f1 ;
+                            kinematics:wrt-frame ?f2 .
+                    }}
+                    UNION
+                    {{
+                        ?vel a kinematics:CartesianVelocity ;
+                            a kinematics:OneDimensionalVelocity ;
+                            qudt-schema:hasQuantityKind ?qk ;
+                            kinematics:of-frame ?f1 ;
+                            kinematics:wrt-frame ?f2 .
+                    }}
                     FILTER (?f1 != ?f2)
                     ?f1 a frame:Frame .
                     ?f2 a frame:Frame .
@@ -236,17 +248,13 @@ class QueryUtils:
         mappings_info = {}
 
         query = f"""
-            SELECT DISTINCT ?interface ?solver ?solver_input
+            SELECT DISTINCT ?interface ?solver
             WHERE {{
                 ?mappings a mapping:ControllerSolver ;
                     mapping:interface ?interface ;
-                    mapping:solver ?solver ;
-                    mapping:solver-input ?solver_input ;
-                    mapping:controller-mappings ?controller_mappings .
+                    mapping:solver ?solver .
                 ?interface a mapping:AccEnegery .
                 ?solver a vereshchaginSolver:VereshchaginSolver .
-                ?solver_input a controllerIo:ControllerIO ;
-                    a controllerIo:ControllerOutput .
             }}
         """
 
@@ -258,7 +266,15 @@ class QueryUtils:
         for row in qres:
             mappings_info['interface'] = str(row[0]).replace(self.ns, '')
             mappings_info['solver'] = str(row[1]).replace(self.ns, '')
-            mappings_info['solver-input'] = str(row[2]).replace(self.ns, '')
+
+        solver_inputs = self.graph.objects(
+            mappings_iri, QueryUtils.MAPPINGS["solver-input"])
+
+        mappings_info['solver-input'] = []
+
+        for solver_input in solver_inputs:
+            if (solver_input, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
+                mappings_info['solver-input'].append(str(solver_input).replace(self.ns, ''))
 
         # get controller mappings
         controller_mappings = self.graph.objects(
@@ -340,13 +356,15 @@ class QueryUtils:
 
         return pid_controller_info
 
-    def get_alpha_beta_data(self, constraint):
+    def get_alpha(self, constraint):
         """
         Returns a dictionary of alpha beta data for a given constraint.
         """
-        alpha_beta_data = {}
 
-        coord = self.graph.value(self.ns + constraint,
+        if (self.ns not in str(constraint)):
+            constraint = URIRef(self.ns + constraint)
+
+        coord = self.graph.value(constraint,
                                  QueryUtils.CONSTRAINT["coord"])
 
         if (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
@@ -355,11 +373,50 @@ class QueryUtils:
             if (of_vel, RDF.type, QueryUtils.KINEMATICS["LinearVelocity"]) in self.graph:
                 alpha = [[1, 0, 0, 0, 0, 0],
                          [0, 1, 0, 0, 0, 0],
-                         [0, 0, 1, 0, 0, 0]],
-                beta = [0, 0, 9.81]
+                         [0, 0, 1, 0, 0, 0]]
 
-                alpha_beta_data['alpha'] = alpha[0]
-                alpha_beta_data['beta'] = beta
-                alpha_beta_data['nc'] = 3
+                return alpha
 
-        return alpha_beta_data
+            elif (of_vel, RDF.type, QueryUtils.KINEMATICS["OneDimensionalVelocity"]) in self.graph:
+                dimension_node = self.graph.value(
+                    of_vel, QueryUtils.KINEMATICS["dimension"])
+                
+                dimension = Collection(self.graph, dimension_node)
+
+                alpha = [float(d) for d in dimension]
+
+                return alpha
+
+    def construct_abc(self, alpha_in):
+        """
+        Construct the alpha beta matrices.
+        """
+        alpha = []
+        beta = []
+        nc = 0
+
+        # if alpha is not a list of lists
+        if isinstance(alpha_in[0], list):
+            for a in alpha_in:
+                # if a is not in alpha, add it
+                if a not in alpha:
+                    alpha.append(a)
+        elif isinstance(alpha_in[0], float):
+            alpha.append(alpha_in)
+
+        # sort alpha
+        alpha.sort(reverse=True)
+
+        if not isinstance(alpha[0], list):
+            raise Exception("Alpha is not a list of lists")
+
+        nc = len(alpha)
+
+        beta = [0.0 for i in range(nc)]
+
+        # construct beta from alpha based on apperance of non-zero elements
+        for i, a in enumerate(alpha):
+            if a[2] != 0:
+                beta[i] = 9.81
+
+        return alpha, beta, nc
