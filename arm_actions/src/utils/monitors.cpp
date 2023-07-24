@@ -106,6 +106,20 @@ bool Monitor::checkAny(KDL::Frame current, KDL::Frame target)
   return _checkAny(error);
 }
 
+bool Monitor::checkAll(KDL::Twist current)
+{
+  KDL::Vector current_velocity = current.vel;
+
+  return _checkAll(current_velocity);
+}
+
+bool Monitor::checkAny(KDL::Twist current)
+{
+  KDL::Vector current_velocity = current.vel;
+
+  return _checkAny(current_velocity);
+}
+
 bool Monitor::_checkAll(std::vector<double> error)
 {
   if (_comp_op == "lt")

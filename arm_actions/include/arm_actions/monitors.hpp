@@ -5,7 +5,6 @@
 
 #include "arm_actions/logger.hpp"
 #include "arm_actions/utils.hpp"
-
 #include "frames.hpp"
 
 class Monitor
@@ -13,13 +12,13 @@ class Monitor
 public:
   Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
           std::string thresh_unit, std::array<double, 3> *target);
-  
+
   Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
           std::string thresh_unit, KDL::Frame *target);
 
   Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
           std::string thresh_unit);
-  
+
   ~Monitor();
 
   bool checkAny(std::array<double, 3> current);
@@ -33,25 +32,25 @@ public:
   /**
    * @brief checks current position against target position
    * @param current position frame
-  */
+   */
   bool checkAll(KDL::Frame current);
 
   /**
    * @brief checks current position against target position
    * @param current position frame
-  */
+   */
   bool checkAny(KDL::Frame current);
 
   /**
    * @brief checks current position against target position
    * @param current position frame
-  */
+   */
   bool checkAll(KDL::Frame current, KDL::Frame target);
 
   /**
    * @brief checks current position against target position
    * @param current position frame
-  */
+   */
   bool checkAny(KDL::Frame current, KDL::Frame target);
 
   /**
@@ -66,8 +65,21 @@ public:
    */
   bool checkAny(KDL::Twist current);
 
-private:
+  /**
+   * @brief checks current velocity against threshold
+   * @param current velocity
+   * @param target velocity
+   */
+  bool checkAll(KDL::Twist current, KDL::Twist target);
 
+  /**
+   * @brief checks current velocity against threshold
+   * @param current velocity
+   * @param target velocity
+   */
+  bool checkAny(KDL::Twist current, KDL::Twist target);
+
+private:
   /**
    * @brief takes in error and compares against threshold
    * @param error vector
@@ -89,7 +101,7 @@ private:
   /**
    * @brief takes in error and compares against threshold
    * @param error kdl vector
-  */
+   */
   bool _checkAny(KDL::Vector error);
 
   std::string _comp_op;
