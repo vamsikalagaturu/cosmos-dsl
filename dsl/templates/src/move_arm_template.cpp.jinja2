@@ -13,7 +13,10 @@ int main()
   // coords
   {{- macro_coord.spawn_coords(coords) }}
 
-  {%- for motion_spec in motion_specs -%}
+  {%- for motion_spec in motion_specs %}
+
+  auto {{ motion_spec }} = [&]() {
+
   {%- with motion_spec_data = motion_specs[motion_spec] %}
   
   // initialize the monitors
@@ -43,8 +46,22 @@ int main()
     // end loop
     {{ macro_utils.end_loop() }}
 
-  {% endwith %}
-  {%- endfor -%}
+  {%- endwith %}
+
+  return 1;
+  };
+  {% endfor -%}
+
+  {#+  +#}
+  // run the motion
+  {% for motion_spec in motion_specs %}
+  int {{ motion_spec }}_status = {{ motion_spec }}();
+  if ({{ motion_spec }}_status != 1)
+  {
+    std::cout << "Motion {{ motion_spec }} failed" << std::endl;
+    return 0;
+  }
+  {% endfor %}
 
   return 0;
 }
