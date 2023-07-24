@@ -217,7 +217,7 @@ int main()
       beta_energy(j) = solver_beta_weights[j] + control_accelerations[j];
     }
 
-    logger->logInfo("Control acc: %s", control_accelerations);
+    logger->logInfo("beta_energy: %s", beta_energy);
 
     std::cout << std::endl;
 

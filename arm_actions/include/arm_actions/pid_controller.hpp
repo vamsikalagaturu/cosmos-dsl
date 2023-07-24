@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "frames.hpp"
+#include "jntarray.hpp"
 
 /**
  * @brief PID Controller class for computing control signals.
@@ -39,9 +40,9 @@ public:
    * @param current_value The current values of the system kdl vector.
    * @param target_value The desired target values kdl vector.
    * @param dt The time step or time difference.
-   * @return The computed control signal as a kdl vector.
+   * @return The computed control signal as a kdl JntArray.
    */
-  KDL::Vector computeControlSignal(const KDL::Vector& current_value,
+  KDL::JntArray computeControlSignal(const KDL::Vector& current_value,
                                    const KDL::Vector& target_value, double dt);
 
 private:

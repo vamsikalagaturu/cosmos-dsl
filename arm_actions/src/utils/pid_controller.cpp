@@ -47,7 +47,7 @@ std::vector<double> PIDController::computeControlSignal(
   return control_signal;
 }
 
-KDL::Vector PIDController::computeControlSignal(const KDL::Vector& current_value,
+KDL::JntArray PIDController::computeControlSignal(const KDL::Vector& current_value,
                                    const KDL::Vector& target_value, double dt)
 {
   KDL::Vector error = calc_error(current_value, target_value);
@@ -64,7 +64,12 @@ KDL::Vector PIDController::computeControlSignal(const KDL::Vector& current_value
 
   last_error = error;
 
-  KDL::Vector control_signal = proportional_term + integral_term + derivative_term;
+  KDL::JntArray control_signal(6);
+
+  for (int i = 0; i < 3; i++)
+  {
+    control_signal(i) = proportional_term(i) + integral_term(i) + derivative_term(i);
+  }
 
   return control_signal;
 }
