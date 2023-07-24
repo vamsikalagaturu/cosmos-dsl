@@ -2,14 +2,14 @@
   {%- for coord in coords -%}
   {%- if "FrameCoordinate" in coords[coord]["type"] and coords[coord]["unit"] == "http://qudt.org/vocab/unit/M" %}
   std::string {{coords[coord]["f1"]}} = "{{coords[coord]["f1"]}}";
-  KDL::Frame {{coords[coord]["f1"]}}_coord_frame;
+  KDL::Frame {{coord}}_frame;
   {%- if "VectorXYZ" in coords[coord]["type"] +%}
-  {{coords[coord]["f1"]}}_coord_frame.p = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
+  {{coord}}_frame.p = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
   {%+ else %}
   if (utils->checkLinkInChain(robot_chain, {{coords[coord]["f1"]}}))
   {
     int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coord]["f1"]}});
-    {{coords[coord]["f1"]}}_coord_frame = solver_utils->computeFKFrame(&robot_chain, q, seg_n);
+    {{coord}}_frame = solver_utils->computeFKFrame(&robot_chain, q, seg_n);
   }
   else
   {

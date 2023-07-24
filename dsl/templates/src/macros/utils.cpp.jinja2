@@ -21,7 +21,7 @@
   std::vector<KDL::Vector> target_positions;
   for (int i = 0; i < positions.size(); i++)
   {
-    target_positions.push_back(target_link_coord_position.p);
+    target_positions.push_back(target_link_coord_frame.p);
   }
 
   std::vector<KDL::Vector> target_velocities;
