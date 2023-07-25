@@ -31,7 +31,7 @@ public:
    * @param dt The time step or time difference.
    * @return The computed control signal as a tuple (u_x, u_y, u_z).
    */
-  std::vector<double>  computeControlSignal(
+  std::vector<double>  computeControlSignal_3d(
       const std::array<double, 3>& current_value, const std::array<double, 3>& target_value,
       double dt);
 
@@ -42,8 +42,26 @@ public:
    * @param dt The time step or time difference.
    * @return The computed control signal as a kdl JntArray.
    */
-  KDL::JntArray computeControlSignal(const KDL::Vector& current_value,
+  KDL::JntArray computeControlSignal_3d(const KDL::Vector& current_value,
                                    const KDL::Vector& target_value, double dt);
+
+  /**
+   * @brief Computes the control signal based on the current and target values.
+   * @param current_value The current values of the system kdl vector.
+   * @param target_value The desired target values kdl vector.
+   * @param dt The time step or time difference.
+   * @return The computed control signal as a double value
+   */
+  double computeControlSignal_1d(const  KDL::Vector& current_value, const  KDL::Vector& target_value, double dt);
+
+  /**
+   * @brief Computes the control signal based on the current and target values.
+   * @param current_value a single value (double)
+   * @param target_value a single value (double)
+   * @param dt The time step or time difference.
+   * @return The computed control signal as a double value
+   */
+  double computeControlSignal_1d(const double& current_value, const double& target_value, double dt);
 
 private:
   /**
@@ -65,6 +83,15 @@ private:
    */
   KDL::Vector calc_error(const KDL::Vector& v1, const KDL::Vector& v2);
 
+  /**
+   * @brief Calculates the error between two vectors.
+   *
+   * @param v1 The first double.
+   * @param v2 The second double.
+   * @return The error as a doble.
+   */
+  double calc_error(const double& v1, const double& v2);
+
   double Kp;            // Proportional gain
   double Ki;            // Integral gain
   double Kd;            // Derivative gain
@@ -74,6 +101,9 @@ private:
   double last_error_x;  // Previous error in the x-axis
   double last_error_y;  // Previous error in the y-axis
   double last_error_z;  // Previous error in the z-axis
+
+  double error_sum_1d;   // Accumulated error in 1 axis
+  double last_error_1d;  // Previous error in 1 axis
 
   KDL::Vector error_sum;  // Accumulated error
   KDL::Vector last_error; // Previous error
