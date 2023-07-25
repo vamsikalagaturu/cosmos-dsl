@@ -50,6 +50,24 @@
             "unit": "M-PER-SEC"
         },
         {
+            "@id": "rob:bracelet_link_target_link_vel_xy_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_xy",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_xz_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_xz",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_yz_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_yz",
+            "unit": "M-PER-SEC"
+        },
+        {
             "@id": "rob:bracelet_link_target_link_vel_xyz_coord",
             "@type": "VelocityCoordinate",
             "of-velocity": "rob:bracelet_link_target_link_vel_xyz",

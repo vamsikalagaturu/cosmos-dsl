@@ -54,10 +54,43 @@
             "quantity-kind": "Velocity"
         },
         {
+            "@id": "rob:bracelet_link_target_link_vel_xy",
+            "@type": [
+                "CartesianVelocity",
+                "OneDimensionalVelocity"
+            ],
+            "dimension": [0.7071, 0.7071, 0, 0, 0, 0],
+            "of-frame": "rob:bracelet_link",
+            "wrt-frame": "rob:target_link",
+            "quantity-kind": "Velocity"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_xz",
+            "@type": [
+                "CartesianVelocity",
+                "OneDimensionalVelocity"
+            ],
+            "dimension": [0.7071, 0.0, 0.7071, 0, 0, 0],
+            "of-frame": "rob:bracelet_link",
+            "wrt-frame": "rob:target_link",
+            "quantity-kind": "Velocity"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_yz",
+            "@type": [
+                "CartesianVelocity",
+                "OneDimensionalVelocity"
+            ],
+            "dimension": [0.0, 0.7071, 0.7071, 0, 0, 0],
+            "of-frame": "rob:bracelet_link",
+            "wrt-frame": "rob:target_link",
+            "quantity-kind": "Velocity"
+        },
+        {
             "@id": "rob:bracelet_link_target_link_vel_xyz",
             "@type": [
                 "CartesianVelocity",
-                "LinearVelocity"
+                "OneDimensionalVelocity"
             ],
             "of-frame": "rob:bracelet_link",
             "wrt-frame": "rob:target_link",

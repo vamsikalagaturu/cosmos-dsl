@@ -58,6 +58,24 @@
             "unit": "M-PER-SEC"
         },
         {
+            "@id": "rob:bracelet_link_target_link_controller_vel_xy_threshold",
+            "@type": "Threshold",
+            "threshold-value": 0.1,
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_controller_vel_xz_threshold",
+            "@type": "Threshold",
+            "threshold-value": 0.1,
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_controller_vel_yz_threshold",
+            "@type": "Threshold",
+            "threshold-value": 0.1,
+            "unit": "M-PER-SEC"
+        },
+        {
             "@id": "rob:bracelet_link_target_link_controller_vel_xyz_threshold",
             "@type": "Threshold",
             "threshold-value": 0.01,
@@ -101,6 +119,27 @@
             "threshold": "rob:bracelet_link_target_link_controller_vel_z_threshold",
             "operator": "rob:eq",
             "coord": "rob:bracelet_link_target_link_vel_z_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_xy_constraint",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:bracelet_link_target_link_controller_vel_xy_threshold",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_target_link_vel_xy_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_xz_constraint",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:bracelet_link_target_link_controller_vel_xz_threshold",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_target_link_vel_xz_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_yz_constraint",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:bracelet_link_target_link_controller_vel_yz_threshold",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_target_link_vel_yz_coord"
         },
         {
             "@id": "rob:bracelet_link_target_link_vel_x_constraint_pre",

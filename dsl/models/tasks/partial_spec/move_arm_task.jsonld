@@ -11,9 +11,9 @@
             "@id": "rob:move_arm_xyz_task",
             "@type": "BaseTask",
             "motion-specifications": [
-                "rob:move_arm_vel_xy_1d",
-                "rob:move_arm_vel_xz_1d",
-                "rob:move_arm_vel_yz_1d"
+                "rob:move_arm_vel_xy_1d_1d",
+                "rob:move_arm_vel_xz_1d_1d",
+                "rob:move_arm_vel_yz_1d_1d"
             ]
         }
     ]
