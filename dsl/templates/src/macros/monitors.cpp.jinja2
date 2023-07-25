@@ -3,29 +3,29 @@
   {% with constraint = constraints[pre_cond["constraint"]] -%}
   Monitor pre_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}", 
                           {{constraint["thresh_val"]}}, 
-                          "{{constraint["thresh_unit"]}}",
+                          "{{constraint["thresh_unit"]}}"
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
-                          &{{coords[constraint["coord"]]["f1_coord"]}}_frame);
+                          ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-                          &{{coords[constraint["coord"]]["f1_coord"]}}_twist);
+                          );
                           {% endif -%}
 
   {% endwith %}
-  {%- endfor -%}
+  {% endfor -%}
 
   {# post conditions #}
   {% for post_cond in post_conds -%}
   {% with constraint = constraints[post_cond["constraint"]] -%}
   Monitor post_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}",
                           {{constraint["thresh_val"]}}, 
-                          "{{constraint["thresh_unit"]}}",
+                          "{{constraint["thresh_unit"]}}"
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
-                          &{{coords[constraint["coord"]]["f1_coord"]}}_frame);
+                          ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-                          &{{coords[constraint["coord"]]["f1_coord"]}}_twist);
+                          );
                           {% endif -%}
   {% endwith %}
-  {%- endfor -%}
+  {% endfor -%}
   {%- endmacro -%}
 
   {%- macro pre_cond_checks(pre_conds, constraints, coords) -%}
@@ -57,34 +57,34 @@
     {% with -%}
     {%- set constraint = constraints[post_cond["constraint"]] -%}
     {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
-    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
+    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
     {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
     {% set cp = coords[constraint["coord"]]["f2_coord"] + "_frame" %}
-    KDL::Frame {{cp}} = frames[seg_n];
-    positions.push_back({{cp}}.p);
-    logger->logInfo("{{cp}}: %s", {{cp}}.p);
+    KDL::Frame {{cp}}_{{loop.index}} = frames[seg_n_{{loop.index}}];
+    positions.push_back({{cp}}_{{loop.index}}.p);
+    logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.p);
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
     {% set cp = coords[constraint["coord"]]["f2_coord"] + "_twist" %}
-    KDL::Twist {{cp}} = twists[seg_n];
-    velocities.push_back({{cp}}.vel);
-    logger->logInfo("{{cp}}: %s", {{cp}}.vel);
+    KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
+    velocities.push_back({{cp}}_{{loop.index}}.vel);
+    logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);
     {%- endif -%}
     {% else -%}
-    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
+    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
     {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
     {% set cp = coords[constraint["coord"]]["f1_coord"] + "_frame" %}
-    KDL::Frame {{cp}} = frames[seg_n];
-    positions.push_back({{cp}}.p);
-    logger->logInfo("{{cp}}: %s", {{cp}}.p);
+    KDL::Frame {{cp}}_{{loop.index}} = frames[seg_n_{{loop.index}}];
+    positions.push_back({{cp}}_{{loop.index}}.p);
+    logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.p);
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
     {% set cp = coords[constraint["coord"]]["f1_coord"] + "_twist" %}
-    KDL::Twist {{cp}} = twists[seg_n];
-    velocities.push_back({{cp}}.vel);
-    logger->logInfo("{{cp}}: %s", {{cp}}.vel);
+    KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
+    velocities.push_back({{cp}}_{{loop.index}}.vel);
+    logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);
     {%- endif -%}
     {% endif %}
     
-    if (post_monitor_{{loop.index}}.checkAll({{cp}}))
+    if (post_monitor_{{loop.index}}.checkAll({{cp}}_{{loop.index}}))
     {
       logger->logInfo("Post-condition {{loop.index}} met");
       break;
