@@ -124,7 +124,7 @@ bool Monitor::_checkAll(std::vector<double> error)
 {
   if (_comp_op == "lt")
   {
-    if (std::all_of(error.begin(), error.end(), [&](double e) { return e < _thresh_val; }))
+    if (std::all_of(error.begin(), error.end(), [&](double e) { return abs(e) < _thresh_val; }))
     {
       return true;
     }
@@ -135,7 +135,7 @@ bool Monitor::_checkAll(std::vector<double> error)
   }
   else if (_comp_op == "gt")
   {
-    if (std::all_of(error.begin(), error.end(), [&](double e) { return e > _thresh_val; }))
+    if (std::all_of(error.begin(), error.end(), [&](double e) { return abs(e) > _thresh_val; }))
     {
       return true;
     }
@@ -167,7 +167,7 @@ bool Monitor::_checkAny(std::vector<double> error)
 {
   if (_comp_op == "lt")
   {
-    if (std::any_of(error.begin(), error.end(), [&](double e) { return e < _thresh_val; }))
+    if (std::any_of(error.begin(), error.end(), [&](double e) { return abs(e) < _thresh_val; }))
     {
       return true;
     }
@@ -178,7 +178,7 @@ bool Monitor::_checkAny(std::vector<double> error)
   }
   else if (_comp_op == "gt")
   {
-    if (std::any_of(error.begin(), error.end(), [&](double e) { return e > _thresh_val; }))
+    if (std::any_of(error.begin(), error.end(), [&](double e) { return abs(e) > _thresh_val; }))
     {
       return true;
     }
@@ -210,7 +210,7 @@ bool Monitor::_checkAll(KDL::Vector error)
 {
   if (_comp_op == "lt")
   {
-    if (std::all_of(error.data, error.data + 3, [&](double e) { return e < _thresh_val; }))
+    if (std::all_of(error.data, error.data + 3, [&](double e) { return abs(e) < _thresh_val; }))
     {
       return true;
     }
@@ -221,7 +221,7 @@ bool Monitor::_checkAll(KDL::Vector error)
   }
   else if (_comp_op == "gt")
   {
-    if (std::all_of(error.data, error.data + 3, [&](double e) { return e > _thresh_val; }))
+    if (std::all_of(error.data, error.data + 3, [&](double e) { return abs(e) > _thresh_val; }))
     {
       return true;
     }
@@ -253,7 +253,7 @@ bool Monitor::_checkAny(KDL::Vector error)
 {
   if (_comp_op == "lt")
   {
-    if (std::any_of(error.data, error.data + 3, [&](double e) { return e < _thresh_val; }))
+    if (std::any_of(error.data, error.data + 3, [&](double e) { return abs(e) < _thresh_val; }))
     {
       return true;
     }
@@ -264,7 +264,7 @@ bool Monitor::_checkAny(KDL::Vector error)
   }
   else if (_comp_op == "gt")
   {
-    if (std::any_of(error.data, error.data + 3, [&](double e) { return e > _thresh_val; }))
+    if (std::any_of(error.data, error.data + 3, [&](double e) { return abs(e) > _thresh_val; }))
     {
       return true;
     }
