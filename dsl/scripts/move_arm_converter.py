@@ -100,6 +100,17 @@ class Convert:
                 big_data['coords'][coord_data['f1_coord']] = f1_coord_data
                 big_data['coords'][coord_data['f2_coord']] = f2_coord_data
 
+            if coord_data['type'] == 'VelocityCoordinate':
+                f1_coord = coord_data['f1_coord']
+                f2_coord = coord_data['f2_coord']
+
+                big_data['coords'][f1_coord+'_twist'] = {
+                    'type': ['TwistCoordinate']}
+                
+                big_data['coords'][f2_coord+'_twist'] = {
+                    'type': ['TwistCoordinate']}
+
+
         return big_data
 
     def test(self, g: rdflib.ConjunctiveGraph):
