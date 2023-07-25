@@ -142,7 +142,7 @@ void GNUPlotter::plotXYZ(const std::vector<std::array<double, 3>>& positions,
 
 // use with KDL
 void GNUPlotter::saveDataToCSV(const std::vector<KDL::Vector>& current_val,
-                               const std::vector<KDL::Vector>& target_val, std::string logname)
+                               const KDL::Vector& target_val, std::string logname)
 {
   // get the filefilename
   std::string filename = getNewFileName(logname);
@@ -154,15 +154,15 @@ void GNUPlotter::saveDataToCSV(const std::vector<KDL::Vector>& current_val,
   for (size_t i = 0; i < current_val.size(); ++i)
   {
     file << i << "," << current_val[i].x() << "," << current_val[i].y() << ","
-         << current_val[i].z() << "," << target_val[i].x() << "," << target_val[i].y() << ","
-         << target_val[i].z() << "\n";
+         << current_val[i].z() << "," << target_val.x() << "," << target_val.y() << ","
+         << target_val.z() << "\n";
   }
 
   file.close();
 }
 
 void GNUPlotter::plotXYZ(const std::vector<KDL::Vector>& current_val,
-                         const std::vector<KDL::Vector>& target_val, std::string title,
+                         const KDL::Vector& target_val, std::string title,
                          double ytick)
 {
   std::vector<double> x_values, y_values, z_values;
@@ -178,11 +178,13 @@ void GNUPlotter::plotXYZ(const std::vector<KDL::Vector>& current_val,
     y_values.push_back(curr.y());
     z_values.push_back(curr.z());
   }
-  for (const auto& target : target_val)
+
+  // Prepare target_pos data
+  for (size_t i = 0; i < current_val.size(); ++i)
   {
-    target_x.push_back(target.x());
-    target_y.push_back(target.y());
-    target_z.push_back(target.z());
+    target_x.push_back(target_val.x());
+    target_y.push_back(target_val.y());
+    target_z.push_back(target_val.z());
   }
 
   Gnuplot gp;
@@ -211,7 +213,7 @@ void GNUPlotter::plotXYZ(const std::vector<KDL::Vector>& current_val,
   gp << "set origin 0,0\n";
   gp << "set size 1,0.33\n";
   gp << "set ylabel 'Z'\n";
-  gp << "set ytics " << ytick << "\n";
+  gp << "set ytics " << "0.05" << "\n";
   gp << "plot '-' with lines title 'Z values', '-' with lines title '" << title << "Z'\n";
   gp.send1d(z_values);
   gp.send1d(target_z);

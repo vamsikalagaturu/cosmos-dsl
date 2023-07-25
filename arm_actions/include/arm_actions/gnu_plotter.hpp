@@ -41,9 +41,9 @@ public:
   // KDL::Vector contain - value.x(),value.y(),value.z()
 
   void plotXYZ(const std::vector<KDL::Vector>& current_val,
-               const std::vector<KDL::Vector>& target_val, std::string title, double ytick = 0.01);
+               const KDL::Vector& target_val, std::string title, double ytick = 0.01);
   void saveDataToCSV(const std::vector<KDL::Vector>& current_val,
-                     const std::vector<KDL::Vector>& target_val, std::string logname);
+                     const KDL::Vector& target_val, std::string logname);
 
 private:
   // plot data
