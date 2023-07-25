@@ -177,6 +177,57 @@
             "solver-input": [
                 "rob:pid_pos_xyz_controller_io_output"
             ]
+        },
+        {
+            "@id": "rob:controller_solver_mappings_xy_1d",
+            "@type": "ControllerSolver",
+            "interface": {
+                "@id": "rob:acc_energy",
+                "@type": "AccEnegery"
+            },
+            "controller-mappings": [
+                "rob:pid_vel_x_controller_mappings",
+                "rob:pid_vel_y_controller_mappings"
+            ],
+            "solver": "rob:vereshchagin_solver",
+            "solver-input": [
+                "rob:pid_vel_x_controller_io_output",
+                "rob:pid_vel_y_controller_io_output"
+            ]
+        },
+        {
+            "@id": "rob:controller_solver_mappings_xz_1d",
+            "@type": "ControllerSolver",
+            "interface": {
+                "@id": "rob:acc_energy",
+                "@type": "AccEnegery"
+            },
+            "controller-mappings": [
+                "rob:pid_vel_x_controller_mappings",
+                "rob:pid_vel_z_controller_mappings"
+            ],
+            "solver": "rob:vereshchagin_solver",
+            "solver-input": [
+                "rob:pid_vel_x_controller_io_output",
+                "rob:pid_vel_z_controller_io_output"
+            ]
+        },
+        {
+            "@id": "rob:controller_solver_mappings_yz_1d",
+            "@type": "ControllerSolver",
+            "interface": {
+                "@id": "rob:acc_energy",
+                "@type": "AccEnegery"
+            },
+            "controller-mappings": [
+                "rob:pid_vel_y_controller_mappings",
+                "rob:pid_vel_z_controller_mappings"
+            ],
+            "solver": "rob:vereshchagin_solver",
+            "solver-input": [
+                "rob:pid_vel_y_controller_io_output",
+                "rob:pid_vel_z_controller_io_output"
+            ]
         }
     ]
 }

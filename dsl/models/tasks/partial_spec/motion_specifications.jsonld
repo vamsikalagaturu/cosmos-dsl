@@ -50,6 +50,57 @@
             "post-conditions": [
                 "rob:bracelet_link_target_link_constraint_post"
             ]
+        },
+        {
+            "@id": "rob:move_arm_vel_xy_1d",
+            "@type": "MoveArm",
+            "mappings": "rob:controller_solver_mappings_xy_1d",
+            "pre-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint_pre",
+                "rob:bracelet_link_target_link_vel_y_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint",
+                "rob:bracelet_link_target_link_vel_y_constraint"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint_post",
+                "rob:bracelet_link_target_link_vel_y_constraint_post"
+            ]
+        },
+        {
+            "@id": "rob:move_arm_vel_xz_1d",
+            "@type": "MoveArm",
+            "mappings": "rob:controller_solver_mappings_xz_1d",
+            "pre-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint_pre",
+                "rob:bracelet_link_target_link_vel_z_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint",
+                "rob:bracelet_link_target_link_vel_z_constraint"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_vel_x_constraint_post",
+                "rob:bracelet_link_target_link_vel_z_constraint_post"
+            ]
+        },
+        {
+            "@id": "rob:move_arm_vel_yz_1d",
+            "@type": "MoveArm",
+            "mappings": "rob:controller_solver_mappings_yz_1d",
+            "pre-conditions": [
+                "rob:bracelet_link_target_link_vel_y_constraint_pre",
+                "rob:bracelet_link_target_link_vel_z_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_target_link_vel_y_constraint",
+                "rob:bracelet_link_target_link_vel_z_constraint"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_vel_y_constraint_post",
+                "rob:bracelet_link_target_link_vel_z_constraint_post"
+            ]
         }
     ]
 }

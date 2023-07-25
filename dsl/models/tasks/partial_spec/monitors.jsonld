@@ -17,6 +17,36 @@
             "@id": "rob:dist_bracelet_link_target_link_monitor_post",
             "@type": "Monitor",
             "constraint": "rob:bracelet_link_target_link_constraint_post"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_x_monitor_pre",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link_target_link_vel_x_constraint_pre"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_y_monitor_pre",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link_target_link_vel_y_constraint_pre"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_z_monitor_pre",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link_target_link_vel_z_constraint_pre"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_x_monitor_post",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link_target_link_vel_x_constraint_post"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_y_monitor_post",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link_target_link_vel_y_constraint_post"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_z_monitor_post",
+            "@type": "Monitor",
+            "constraint": "rob:bracelet_link_target_link_vel_z_constraint_post"
         }
     ]
 }
