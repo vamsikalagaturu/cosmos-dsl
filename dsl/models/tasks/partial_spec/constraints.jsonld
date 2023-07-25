@@ -46,6 +46,12 @@
             "unit": "M-PER-SEC"
         },
         {
+            "@id": "rob:dist_bracelet_link_target_link_threshold_per",
+            "@type": "Threshold",
+            "threshold-value": 0.0025,
+            "unit": "M"
+        },
+        {
             "@id": "rob:dist_bracelet_link_target_link_threshold_pre",
             "@type": "Threshold",
             "threshold-value": 0.0025,
@@ -84,6 +90,13 @@
             "threshold": "rob:bracelet_link_target_link_controller_vel_xyz_threshold",
             "operator": "rob:eq",
             "coord": "rob:bracelet_link_target_link_vel_xyz_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_pos_xyz_constraint",
+            "@type": ["Constraint", "DistanceConstraint"],
+            "threshold": "rob:dist_bracelet_link_target_link_threshold_per",
+            "operator": "rob:eq",
+            "coord": "rob:dist_bracelet_link_target_link_coord"
         },
         {
             "@id": "rob:bracelet_link_target_link_constraint_pre",

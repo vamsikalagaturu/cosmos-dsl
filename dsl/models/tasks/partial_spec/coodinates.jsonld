@@ -21,9 +21,9 @@
             "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
             "of-frame": "rob:target_link",
             "unit": "M",
-            "x": -0.3044,
-            "y": -0.0149,
-            "z": 0.8056
+            "x": -0.30436,
+            "y": -0.0148534,
+            "z": 0.54964
         },
         {
             "@id": "rob:dist_bracelet_link_target_link_coord",

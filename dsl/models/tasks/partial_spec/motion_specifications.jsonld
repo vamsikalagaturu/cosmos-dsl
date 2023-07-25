@@ -36,6 +36,20 @@
             "post-conditions": [
                 "rob:bracelet_link_target_link_constraint_post"
             ]
+        },
+        {
+            "@id": "rob:move_arm_pos_xyz",
+            "@type": "MoveArm",
+            "mappings": "rob:pos_controller_solver_mappings_xyz",
+            "pre-conditions": [
+                "rob:bracelet_link_target_link_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_target_link_pos_xyz_constraint"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_constraint_post"
+            ]
         }
     ]
 }

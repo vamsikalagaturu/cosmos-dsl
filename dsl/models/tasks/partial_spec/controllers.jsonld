@@ -35,6 +35,15 @@
             "constraint": "rob:bracelet_link_target_link_vel_z_constraint"
         },
         {
+            "@id": "rob:pid_pos_xyz_controller",
+            "@type": "PIDController",
+            "p-gain": 20.0,
+            "i-gain": 0.9,
+            "d-gain": 0.0,
+            "time-step": 0.01,
+            "constraint": "rob:bracelet_link_target_link_pos_xyz_constraint"
+        },
+        {
             "@id": "rob:pid_vel_xyz_controller",
             "@type": "PIDController",
             "p-gain": 20.0,
