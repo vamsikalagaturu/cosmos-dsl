@@ -86,7 +86,6 @@
       
       // get the current tool cartesian velocity
       KDL::Twist {{con_data["input"]}}_twist = twists[seg_n];
-      velocities.push_back({{con_data["input"]}}_twist.vel);
 
       auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")}} };
 
@@ -99,14 +98,39 @@
         }
       }
 
-      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal({{con_data["input"]}}_twist.vel, 
+      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal_3d({{con_data["input"]}}_twist.vel, 
           control_twist.vel, {{controllers[con_data["controller"]]["dt"]}});
 
-      auto cod = std::vector<int>{ {{con_data["output-dimension"]|join(",")}} };
+      {%- elif coords[con_cons["coord"]]["type"] == "DistanceCoordinate" -%}
+
+      // get the current tool cartesian position
+      KDL::Frame {{con_data["input"]}}_frame = frames[seg_n];
+
+      auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")}} };
+
+      KDL::Frame control_frame;
+
+      for (int j = 0; j < cid.size(); j++)
+      {
+        if (cid[j] == 1){
+          {% if coords[con_cons["coord"]]["f1_coord"] != con_data["input"] -%}
+          control_frame.p(j) = {{coords[con_cons["coord"]]["f1_coord"]}}_frame.p(j);
+          {% else -%}
+          control_frame.p(j) = {{coords[con_cons["coord"]]["f2_coord"]}}_frame.p(j);
+          {% endif -%}
+        }
+      }
+
+      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal_3d({{con_data["input"]}}_frame.p, 
+          control_frame.p, {{controllers[con_data["controller"]]["dt"]}});
 
       {%- endif -%}
       {%- endwith -%}
 
+      {#+ output dimension #}
+      auto cod = std::vector<int>{ {{con_data["output-dimension"]|join(",")}} };
+
+      {#- solver input #}
       {%- for sol_inp in data["mappings"]["solver-input"] -%}
       {%- if sol_inp == con_data["output"] %}
       for (int j = 0; j < cod.size(); j++)

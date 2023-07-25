@@ -59,12 +59,12 @@
     {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
     int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
     {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
-    {%- set cp = coords[constraint["coord"]]["f2_coord"] + "_frame" -%}
+    {% set cp = coords[constraint["coord"]]["f2_coord"] + "_frame" %}
     KDL::Frame {{cp}} = frames[seg_n];
     positions.push_back({{cp}}.p);
     logger->logInfo("{{cp}}: %s", {{cp}}.p);
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-    {%- set cp = coords[constraint["coord"]]["f2_coord"] + "_twist" -%}
+    {% set cp = coords[constraint["coord"]]["f2_coord"] + "_twist" %}
     KDL::Twist {{cp}} = twists[seg_n];
     velocities.push_back({{cp}}.vel);
     logger->logInfo("{{cp}}: %s", {{cp}}.vel);
@@ -72,12 +72,12 @@
     {% else -%}
     int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
     {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
-    {%- set cp = coords[constraint["coord"]]["f1_coord"] + "_frame" -%}
+    {% set cp = coords[constraint["coord"]]["f1_coord"] + "_frame" %}
     KDL::Frame {{cp}} = frames[seg_n];
     positions.push_back({{cp}}.p);
     logger->logInfo("{{cp}}: %s", {{cp}}.p);
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-    {%- set cp = coords[constraint["coord"]]["f1_coord"] + "_twist" -%}
+    {% set cp = coords[constraint["coord"]]["f1_coord"] + "_twist" %}
     KDL::Twist {{cp}} = twists[seg_n];
     velocities.push_back({{cp}}.vel);
     logger->logInfo("{{cp}}: %s", {{cp}}.vel);
