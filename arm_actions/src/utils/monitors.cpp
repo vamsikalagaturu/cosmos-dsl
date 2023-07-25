@@ -28,6 +28,18 @@ Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thr
   _utils = std::make_shared<Utils>(logger);
 };
 
+Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
+          std::string thresh_unit)
+{
+  _comp_op = comp_op;
+  _thresh_val = thresh_val;
+  _thresh_unit = thresh_unit;
+
+  _logger = logger;
+
+  _utils = std::make_shared<Utils>(logger);
+};
+
 Monitor::~Monitor() {}
 
 // std::array's
