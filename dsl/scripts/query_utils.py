@@ -155,14 +155,14 @@ class QueryUtils:
         # check coord type is velocity coordinate
         elif (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
             query = f"""
-                SELECT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord
+                SELECT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord ?vel_type
                 WHERE {{
                     ?vel_coord a coord:VelocityCoordinate ;
                         coord:of-velocity ?vel ;
                         qudt-schema:unit ?vu .
                     {{
                         ?vel a kinematics:CartesianVelocity ;
-                            a kinematics:LinearVelocity ;
+                            a ?vel_type ;
                             qudt-schema:hasQuantityKind ?qk ;
                             kinematics:of-frame ?f1 ;
                             kinematics:wrt-frame ?f2 .
@@ -170,11 +170,12 @@ class QueryUtils:
                     UNION
                     {{
                         ?vel a kinematics:CartesianVelocity ;
-                            a kinematics:OneDimensionalVelocity ;
+                            a ?vel_type ;
                             qudt-schema:hasQuantityKind ?qk ;
                             kinematics:of-frame ?f1 ;
                             kinematics:wrt-frame ?f2 .
                     }}
+                    VALUES (?vel_type) {{ (kinematics:LinearVelocity) (kinematics:OneDimensionalVelocity) }}
                     FILTER (?f1 != ?f2)
                     ?f1 a frame:Frame .
                     ?f2 a frame:Frame .
@@ -198,7 +199,8 @@ class QueryUtils:
                     'unit': str(row[1]),
                     'quant_kind': row[2],
                     'f1_coord': str(row[3]).replace(self.ns, ''),
-                    'f2_coord': str(row[4]).replace(self.ns, '')
+                    'f2_coord': str(row[4]).replace(self.ns, ''),
+                    'vel_type': str(row[5]).split('#')[1],
                 }
 
         # check coord type is FrameCoordinate
@@ -381,11 +383,29 @@ class QueryUtils:
                 dimension_node = self.graph.value(
                     of_vel, QueryUtils.KINEMATICS["dimension"])
                 
+                # TODO: if dimension is not present, throw an error
+                # calculate alpha based on of-frame and wrt-frame in cpp
+                # check if dimension is present
+                if dimension_node is None:
+                    raise Exception("Dimension is not present")
+                
                 dimension = Collection(self.graph, dimension_node)
 
                 alpha = [float(d) for d in dimension]
 
                 return alpha
+        elif (coord, RDF.type, QueryUtils.COORD["DistanceCoordinate"]) in self.graph:
+            of_dist = self.graph.value(coord, QueryUtils.COORD["of-distance"])
+
+            if (of_dist, RDF.type, QueryUtils.KINEMATICS["EuclideanDistance"]) in self.graph:
+                alpha = [[1, 0, 0, 0, 0, 0],
+                         [0, 1, 0, 0, 0, 0],
+                         [0, 0, 1, 0, 0, 0]]
+
+                return alpha
+            
+            else:
+                raise Exception("Distance type is not supported")
 
     def construct_abc(self, alpha_in):
         """
