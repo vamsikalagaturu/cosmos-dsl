@@ -1,4 +1,4 @@
-  {# initialization code #}
+  {%- macro init_config() -%}
   // get current file path
   std::filesystem::path path = __FILE__;
 
@@ -26,6 +26,12 @@
   std::string base_link = "base_link";
   std::string tool_link = "bracelet_link";
 
+  {%- endmacro -%}
+
+
+
+  {%- macro init_chain() -%}
+
   // define the robot chain
   KDL::Chain robot_chain;
 
@@ -49,3 +55,5 @@
 
   // number of segments
   int n_segments = robot_chain.getNrOfSegments();
+
+  {%- endmacro -%}
