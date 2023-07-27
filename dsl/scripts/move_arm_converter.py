@@ -16,14 +16,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 class Convert:
-    def __init__(self, debug=True):
+    def __init__(self, debug=True, no_render=False, debug_graph=False):
         self.debug = debug
+        self.no_render = no_render
+        self.debug_graph = debug_graph
 
         self.utils = Utils()
 
         # relative paths to models
         root_path = os.path.join(os.path.dirname(__file__), '..')
-        # self.models = f'{root_path}/models/tasks/xyz_motion/'
         self.models = f'{root_path}/models/tasks/partial_spec/'
 
         self.templates_env = Environment(
@@ -43,43 +44,39 @@ class Convert:
 
         return g
 
-    def print_graph(self):
-        g = self.parse_models(convert.model_names)
-
-        # print the graph
-        print(g.serialize(format='turtle'))
-
-        print("-"*20)
-
     def main(self):
 
         g = self.parse_models(convert.model_names)
 
-        # print the graph
-        if self.debug:
-            self.print_graph()
+        if self.debug_graph:
+            print(g.serialize(format='turtle'))
+            print("-"*20)
 
-        template = self.templates_env.get_template(
+        data = self._get_tasks(g)
+
+        if self.debug:
+            print(json.dumps(data, indent=2))
+            print("-"*20)
+
+        if not self.no_render:
+
+            template = self.templates_env.get_template(
             'src/move_arm_template.cpp.jinja2')
 
-        data = self.test(g)
+            ns = "http://example.com/rob#"
 
-        if True or self.debug:
-            print(json.dumps(data, indent=2))
+            for task in data["tasks"]:
+                result = template.render({
+                    "motion_specs": data["tasks"][task]["motion_specs"],
+                    "coords": data["coords"],
+                    "constraints": data["constraints"],
+                    "controllers": data["controllers"],
+                    "ns": ns
+                })
 
-        ns = "http://example.com/rob#"
+                self.utils.write_to_file(result, task_name=task)
 
-        result = template.render({
-            "motion_specs": data["tasks"]["move_arm_xyz_task"]["motion_specs"],
-            "coords": data["coords"],
-            "constraints": data["constraints"],
-            "controllers": data["controllers"],
-            "ns": ns
-        })
-
-        self.utils.write_to_file(result, template.name)
-
-    def update_coords_data(self, cond, big_data):
+    def _update_coords_data(self, cond, big_data):
         coord = cond['coord']
 
         if coord not in big_data['coords']:
@@ -113,7 +110,7 @@ class Convert:
 
         return big_data
 
-    def test(self, g: rdflib.ConjunctiveGraph):
+    def _get_tasks(self, g: rdflib.ConjunctiveGraph):
 
         ROB = "http://example.com"
         BASETASK = rdflib.Namespace(ROB + "/base_task#")
@@ -167,7 +164,7 @@ class Convert:
                             pre_condition, {'constraint': pre_condition})
                         big_data["constraints"][pcr['constraint']
                                                 ] = ci[pcr['constraint']]
-                        big_data = self.update_coords_data(
+                        big_data = self._update_coords_data(
                             ci[pcr['constraint']], big_data)
                         pre_conditions_d.append(pcr)
 
@@ -181,7 +178,7 @@ class Convert:
                         post_conditions_d.append(pcr)
                         big_data["constraints"][pcr['constraint']
                                                 ] = ci[pcr['constraint']]
-                        big_data = self.update_coords_data(
+                        big_data = self._update_coords_data(
                             ci[pcr['constraint']], big_data)
 
                     motion_spec['post_conditions'] = post_conditions_d
@@ -196,7 +193,7 @@ class Convert:
                         per_conditions_d.append(pcr)
                         big_data["constraints"][pcr['constraint']
                                                 ] = ci[pcr['constraint']]
-                        big_data = self.update_coords_data(
+                        big_data = self._update_coords_data(
                             ci[pcr['constraint']], big_data)
                         cont_info = self.query_utils.get_pid_controller_info(
                             pcr['controller'])
@@ -233,9 +230,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Print debug information')
+    parser.add_argument('-dg', '--debug-graph', action='store_true',
+                        help='Print the RDF graph')
+    parser.add_argument('-nr', '--no-render', action='store_true',
+                        help='Do not render the result to a file')
     args = parser.parse_args()
 
     # create a new instance of the class
-    convert = Convert(args.debug)
+    convert = Convert(args.debug, args.no_render, args.debug_graph)
     convert.main()
-    # convert.print_graph()
