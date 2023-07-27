@@ -12,6 +12,8 @@ Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thr
   _logger = logger;
 
   _utils = std::make_shared<Utils>(logger);
+
+  _math_utils = std::make_shared<MathUtils>(0.0001);
 };
 
 Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
@@ -23,21 +25,79 @@ Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thr
 
   _target_frame = target;
 
+  // set threshold_frame
+  std::fill(_threshold_twist.vel.data, _threshold_twist.vel.data + 3, thresh_val);
+
+  // TODO: handle orientation
+
   _logger = logger;
 
   _utils = std::make_shared<Utils>(logger);
+
+  _math_utils = std::make_shared<MathUtils>(0.0001);
 };
 
 Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-          std::string thresh_unit)
+          std::string thresh_unit, KDL::Frame *target, std::vector<double> dimensions)
 {
   _comp_op = comp_op;
   _thresh_val = thresh_val;
   _thresh_unit = thresh_unit;
 
+  _target_frame = target;
+
+  _dimensions = dimensions;
+
+  // fill _threshold_frame with thresh_val based on non-zero dimensions
+  std::transform(_dimensions.begin(), _dimensions.begin() + 3, _threshold_twist.vel.data,
+                 [&](double d) { return d == 0.0 ? 0.0 : thresh_val; });
+
+  // TODO: handle orientation
+
+  _logger = logger;
+
+  _math_utils = std::make_shared<MathUtils>(0.0001);
+};
+
+Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
+                 std::string thresh_unit)
+{
+  _comp_op = comp_op;
+  _thresh_val = thresh_val;
+  _thresh_unit = thresh_unit;
+
+  // set _threshold_twist with thresh_val
+  std::fill(_threshold_twist.vel.data, _threshold_twist.vel.data + 3, thresh_val);
+  
+  // TODO: handle orientation
+
   _logger = logger;
 
   _utils = std::make_shared<Utils>(logger);
+
+  _math_utils = std::make_shared<MathUtils>(0.0001);
+};
+
+Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
+                 std::string thresh_unit, std::vector<double> dimensions)
+{
+  _comp_op = comp_op;
+  _thresh_val = thresh_val;
+  _thresh_unit = thresh_unit;
+
+  _dimensions = dimensions;
+
+  // fill _threshold_twist with thresh_val based on non-zero dimensions
+  std::transform(_dimensions.begin(), _dimensions.begin() + 3, _threshold_twist.vel.data,
+                 [&](double d) { return d == 0.0 ? 0.0 : thresh_val; });
+
+  // TODO: handle orientation
+
+  _logger = logger;
+
+  _utils = std::make_shared<Utils>(logger);
+
+  _math_utils = std::make_shared<MathUtils>(0.0001);
 };
 
 Monitor::~Monitor() {}
@@ -51,7 +111,8 @@ bool Monitor::checkAll(std::array<double, 3> current_position)
   return _checkAll(error);
 }
 
-bool Monitor::checkAll(std::array<double, 3> current_position, std::array<double, 3> target_position)
+bool Monitor::checkAll(std::array<double, 3> current_position,
+                       std::array<double, 3> target_position)
 {
   auto error = _utils->calc_error(current_position, target_position);
 
@@ -65,7 +126,8 @@ bool Monitor::checkAny(std::array<double, 3> current_position)
   return _checkAny(error);
 }
 
-bool Monitor::checkAny(std::array<double, 3> current_position, std::array<double, 3> target_position)
+bool Monitor::checkAny(std::array<double, 3> current_position,
+                       std::array<double, 3> target_position)
 {
   auto error = _utils->calc_error(current_position, target_position);
 
@@ -76,60 +138,52 @@ bool Monitor::checkAny(std::array<double, 3> current_position, std::array<double
 
 bool Monitor::checkAll(KDL::Frame current)
 {
-  KDL::Vector current_position = current.p;
+  auto error = KDL::diff(current, *_target_frame);
 
-  KDL::Vector target_position = _target_frame->p;
-
-  auto error = _utils->calc_error(current_position, target_position);
+  // make the angular error 0
+  std::fill(error.rot.data, error.rot.data + 3, 0.0);
 
   return _checkAll(error);
 }
 
 bool Monitor::checkAll(KDL::Frame current, KDL::Frame target)
 {
-  KDL::Vector current_position = current.p;
+  auto error = KDL::diff(current, target);
 
-  KDL::Vector target_position = target.p;
-
-  auto error = _utils->calc_error(current_position, target_position);
+  // make the angular error 0
+  std::fill(error.rot.data, error.rot.data + 3, 0.0);
 
   return _checkAll(error);
 }
 
 bool Monitor::checkAny(KDL::Frame current)
 {
-  KDL::Vector current_position = current.p;
+  auto error = KDL::diff(current, *_target_frame);
 
-  KDL::Vector target_position = _target_frame->p;
-
-  auto error = _utils->calc_error(current_position, target_position);
+  // make the angular error 0
+  std::fill(error.rot.data, error.rot.data + 3, 0.0);
 
   return _checkAny(error);
 }
 
 bool Monitor::checkAny(KDL::Frame current, KDL::Frame target)
 {
-  KDL::Vector current_position = current.p;
+  auto error = KDL::diff(current, target);
 
-  KDL::Vector target_position = target.p;
-
-  auto error = _utils->calc_error(current_position, target_position);
+  // make the angular error 0
+  std::fill(error.rot.data, error.rot.data + 3, 0.0);
 
   return _checkAny(error);
 }
 
 bool Monitor::checkAll(KDL::Twist current)
 {
-  KDL::Vector current_velocity = current.vel;
-
-  return _checkAll(current_velocity);
+  return _checkAll(current);
 }
 
 bool Monitor::checkAny(KDL::Twist current)
 {
-  KDL::Vector current_velocity = current.vel;
-
-  return _checkAny(current_velocity);
+  return _checkAny(current);
 }
 
 bool Monitor::_checkAll(std::vector<double> error)
@@ -158,7 +212,8 @@ bool Monitor::_checkAll(std::vector<double> error)
   }
   else if (_comp_op == "eq")
   {
-    if (std::all_of(error.begin(), error.end(), [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
+    if (std::all_of(error.begin(), error.end(),
+                    [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
     {
       return true;
     }
@@ -201,7 +256,8 @@ bool Monitor::_checkAny(std::vector<double> error)
   }
   else if (_comp_op == "eq")
   {
-    if (std::any_of(error.begin(), error.end(), [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
+    if (std::any_of(error.begin(), error.end(),
+                    [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
     {
       return true;
     }
@@ -244,7 +300,8 @@ bool Monitor::_checkAll(KDL::Vector error)
   }
   else if (_comp_op == "eq")
   {
-    if (std::all_of(error.data, error.data + 3, [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
+    if (std::all_of(error.data, error.data + 3,
+                    [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
     {
       return true;
     }
@@ -287,7 +344,8 @@ bool Monitor::_checkAny(KDL::Vector error)
   }
   else if (_comp_op == "eq")
   {
-    if (std::any_of(error.data, error.data + 3, [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
+    if (std::any_of(error.data, error.data + 3,
+                    [&](double e) { return fabs(e - _thresh_val) < 0.0001; }))
     {
       return true;
     }
@@ -303,4 +361,20 @@ bool Monitor::_checkAny(KDL::Vector error)
     return false;
   }
 }
+
+bool Monitor::_checkAny(KDL::Twist error)
+{
+  auto result = _math_utils->compare(error, _threshold_twist, _comp_op);
+
+  return std::any_of(result.begin(), result.end(), [&](bool b) { return b; });
+}
+
+bool Monitor::_checkAll(KDL::Twist error)
+{
+  auto result = _math_utils->compare(error, _threshold_twist, _comp_op);
+
+  return std::all_of(result.begin(), result.end(), [&](bool b) { return b; });
+}
+
+
 

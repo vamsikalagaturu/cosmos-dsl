@@ -7,7 +7,11 @@
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
                           ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
+                          {% if coords[constraint["coord"]]["vel_type"] == "OneDimensionalVelocity" %}
+                          ,{ {{coords[constraint["coord"]]["vel_dim"]|join(", ")}} });
+                          {% else %}
                           );
+                          {% endif %}
                           {% endif -%}
 
   {% endwith %}
@@ -22,7 +26,11 @@
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
                           ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
+                          {% if coords[constraint["coord"]]["vel_type"] == "OneDimensionalVelocity" %}
+                          ,{ {{coords[constraint["coord"]]["vel_dim"]|join(", ")}} });
+                          {% else %}
                           );
+                          {% endif %}
                           {% endif -%}
   {% endwith %}
   {% endfor -%}

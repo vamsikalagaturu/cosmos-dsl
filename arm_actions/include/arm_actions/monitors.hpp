@@ -1,9 +1,13 @@
 #ifndef MONITOR_HPP
 #define MONITOR_HPP
 
+#include <functional>
+#include <map>
 #include <string>
+#include <vector>
 
 #include "arm_actions/logger.hpp"
+#include "arm_actions/math_utils.hpp"
 #include "arm_actions/utils.hpp"
 #include "frames.hpp"
 
@@ -17,7 +21,13 @@ public:
           std::string thresh_unit, KDL::Frame *target);
 
   Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
+          std::string thresh_unit, KDL::Frame *target, std::vector<double> dimensions);
+
+  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
           std::string thresh_unit);
+
+  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
+          std::string thresh_unit, std::vector<double> dimensions);
 
   ~Monitor();
 
@@ -104,9 +114,27 @@ private:
    */
   bool _checkAny(KDL::Vector error);
 
+  /**
+   * @brief takes in error and compares against threshold
+   * @param error kdl twist
+   */
+  bool _checkAny(KDL::Twist error);
+
+  /**
+   * @brief takes in error and compares against threshold
+   * @param error kdl twist
+   */
+  bool _checkAll(KDL::Twist error);
+
   std::string _comp_op;
   double _thresh_val;
   std::string _thresh_unit;
+
+  std::vector<double> _thresholds;
+  std::vector<double> _dimensions;
+
+  KDL::Frame _threshold_frame;
+  KDL::Twist _threshold_twist;
 
   std::array<double, 3> *_target;
 
@@ -115,6 +143,8 @@ private:
   std::shared_ptr<Logger> _logger;
 
   std::shared_ptr<Utils> _utils;
+
+  std::shared_ptr<MathUtils> _math_utils;
 };
 
 #endif  // MONITOR_HPP

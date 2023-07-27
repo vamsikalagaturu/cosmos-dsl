@@ -60,19 +60,19 @@
         {
             "@id": "rob:bracelet_link_target_link_controller_vel_xy_threshold",
             "@type": "Threshold",
-            "threshold-value": 0.1,
+            "threshold-value": 0.01,
             "unit": "M-PER-SEC"
         },
         {
             "@id": "rob:bracelet_link_target_link_controller_vel_xz_threshold",
             "@type": "Threshold",
-            "threshold-value": 0.1,
+            "threshold-value": 0.01,
             "unit": "M-PER-SEC"
         },
         {
             "@id": "rob:bracelet_link_target_link_controller_vel_yz_threshold",
             "@type": "Threshold",
-            "threshold-value": 0.1,
+            "threshold-value": 0.01,
             "unit": "M-PER-SEC"
         },
         {
