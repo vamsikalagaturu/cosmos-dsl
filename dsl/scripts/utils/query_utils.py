@@ -155,7 +155,7 @@ class QueryUtils:
         # check coord type is velocity coordinate
         elif (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
             query = f"""
-                SELECT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord ?vel_type
+                SELECT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord ?vel ?vel_type
                 WHERE {{
                     ?vel_coord a coord:VelocityCoordinate ;
                         coord:of-velocity ?vel ;
@@ -194,13 +194,18 @@ class QueryUtils:
             qres = self.graph.query(query, initBindings=init_bindings)
 
             for row in qres:
+                vel = self.graph.value(row[5], RDF.type)
+                dim_node = self.graph.value(row[5], QueryUtils.KINEMATICS["dimension"])
+                dim = Collection(self.graph, dim_node)
+                dim = [float(d) for d in dim]
                 coord_info = {
                     'type': 'VelocityCoordinate',
                     'unit': str(row[1]),
                     'quant_kind': row[2],
                     'f1_coord': str(row[3]).replace(self.ns, ''),
                     'f2_coord': str(row[4]).replace(self.ns, ''),
-                    'vel_type': str(row[5]).split('#')[1],
+                    'vel_type': str(row[6]).split('#')[1],
+                    'vel_dim': dim
                 }
 
         # check coord type is FrameCoordinate

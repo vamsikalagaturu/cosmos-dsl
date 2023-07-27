@@ -23,9 +23,17 @@ class Utils:
             # File doesn't exist, return the original file name
             return file_name
 
-    def write_to_file(self, result: str, template_name: str):
-        fname = template_name.split('/')[-1]
-        fname = fname.strip('.jinja2')
+    def write_to_file(self, result: str, template_name: str = None, task_name: str = None):
+        if template_name is not None and template_name.endswith('.jinja2'):
+            fname = template_name.split('/')[-1]
+            fname = fname.strip('.jinja2')
+            
+        elif task_name is not None and task_name != '':
+            fname = task_name + '.cpp'
+
+        else:
+            fname = 'arm_actions.cpp'
+
         fname = self.ws + self.get_unique_file_name(fname, self.ws)
 
         with open(fname, 'w+') as f:

@@ -8,7 +8,7 @@ from rdflib.namespace import OWL, RDF, RDFS, XSD
 
 from jinja2 import Environment, FileSystemLoader
 
-from utils import Utils
+from dsl.scripts.utils.utils import Utils
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
