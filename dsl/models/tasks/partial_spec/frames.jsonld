@@ -16,7 +16,23 @@
             "@type": "Frame"
         },
         {
-            "@id": "rob:target_link",
+            "@id": "rob:target_link_bf",
+            "@type": "Frame"
+        },
+        {
+            "@id": "rob:target_link_ef",
+            "@type": "Frame"
+        },
+        {
+            "@id": "rob:target_link_ef_xy",
+            "@type": "Frame"
+        },
+        {
+            "@id": "rob:target_link_ef_xz",
+            "@type": "Frame"
+        },
+        {
+            "@id": "rob:target_link_ef_yz",
             "@type": "Frame"
         }
     ]

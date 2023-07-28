@@ -28,6 +28,11 @@
             "@type": "@id"
         },
 
+        "measured-in-frame": {
+            "@id": "kinematics:measured-in-frame",
+            "@type": "@id"
+        },
+
         "dimension": {
             "@id": "kinematics:dimension",
             "@type": "xsd:integer",

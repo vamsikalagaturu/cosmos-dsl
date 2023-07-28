@@ -11,66 +11,126 @@
 
     "@graph": [
         {
-            "@id": "rob:bracelet_link_coord",
+            "@id": "rob:base_link_coord",
             "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
-            "of-frame": "rob:bracelet_link",
+            "of-frame": "rob:base_link",
             "unit": "M"
         },
         {
-            "@id": "rob:target_link_coord",
+            "@id": "rob:bracelet_link_coord",
             "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
-            "of-frame": "rob:target_link",
+            "of-frame": "rob:bracelet_link",
+            "as-seen-by": "rob:base_link",
+            "unit": "M"
+        },
+        {
+            "@id": "rob:target_link_coord_bf",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link_bf",
+            "as-seen-by": "rob:base_link",
             "unit": "M",
             "x": -0.30436,
             "y": -0.0148534,
             "z": 0.54964
         },
         {
-            "@id": "rob:dist_bracelet_link_target_link_coord",
+            "@id": "rob:target_link_coord_ef",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link_ef",
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "M",
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.1
+        },
+        {
+            "@id": "rob:target_link_coord_ef_xy",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link",
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "M",
+            "x": 0.1,
+            "y": 0.1,
+            "z": 0.0
+        },
+        {
+            "@id": "rob:target_link_coord_ef_xz",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link_ef_xy",
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "M",
+            "x": 0.1,
+            "y": 0.0,
+            "z": 0.1
+        },
+        {
+            "@id": "rob:target_link_coord_ef_yz",
+            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
+            "of-frame": "rob:target_link_ef_yz",
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "M",
+            "x": 0.0,
+            "y": 0.1,
+            "z": 0.1
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_dist_coord_ef",
             "@type": "DistanceCoordinate",
-            "of-distance": "rob:dist_bracelet_link_target_link",
+            "of-distance": "rob:dist_bracelet_link_target_link_ef",
             "unit": "M"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_x_coord",
+            "@id": "rob:bracelet_link_vel_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_x",
+            "of-velocity": "rob:bracelet_link_vel",
             "unit": "M-PER-SEC"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_y_coord",
+            "@id": "rob:bracelet_link_vel_x_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_y",
+            "of-velocity": "rob:bracelet_link_vel_x",
             "unit": "M-PER-SEC"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_z_coord",
+            "@id": "rob:bracelet_link_vel_y_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_z",
+            "of-velocity": "rob:bracelet_link_vel_y",
             "unit": "M-PER-SEC"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_xy_coord",
+            "@id": "rob:bracelet_link_vel_z_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_xy",
+            "of-velocity": "rob:bracelet_link_vel_z",
             "unit": "M-PER-SEC"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_xz_coord",
+            "@id": "rob:bracelet_link_target_link_vel_bf_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_xz",
+            "of-velocity": "rob:bracelet_link_target_link_vel_bf",
             "unit": "M-PER-SEC"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_yz_coord",
+            "@id": "rob:bracelet_link_target_link_vel_ef_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_yz",
+            "of-velocity": "rob:bracelet_link_target_link_vel_ef",
             "unit": "M-PER-SEC"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_xyz_coord",
+            "@id": "rob:bracelet_link_target_link_vel_ef_xy_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_target_link_vel_xyz",
+            "of-velocity": "rob:bracelet_link_target_link_vel_ef_xy",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_ef_xz_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_ef_xz",
+            "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_ef_yz_coord",
+            "@type": "VelocityCoordinate",
+            "of-velocity": "rob:bracelet_link_target_link_vel_ef_yz",
             "unit": "M-PER-SEC"
         }
     ]

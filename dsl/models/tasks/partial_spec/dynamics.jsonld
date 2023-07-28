@@ -1,0 +1,19 @@
+{
+    "@context": [
+        "../../../metamodels/mechanics/dynamics.jsonld",
+        "https://comp-rob2b.github.io/metamodels/qudt.json",
+        {
+            "rob": "http://example.com/rob#"
+        }
+    ],
+    "@id": "rob:dynamics_instance",
+    "@graph": [
+        {
+            "@id": "rob:bracelet_link_table_link_force",
+            "@type": ["Force", "ContactForce"],
+            "applied-by": "rob:bracelet_link",
+            "applied-to": "rob:table_link",
+            "quantity-kind": "Force"
+        }
+    ]
+}

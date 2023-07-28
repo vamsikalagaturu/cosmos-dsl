@@ -8,33 +8,31 @@
     "@id": "rob:motion_specifications",
     "@graph": [
         {
-            "@id": "rob:move_arm_vel_xyz_1d",
+            "@id": "rob:move_arm_dist",
             "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_1d",
+            "mappings": "rob:bracelet_link_dist_csm",
             "pre-conditions": [
-                "rob:bracelet_link_target_link_constraint_pre"
+                "rob:bracelet_link_dist_constraint_pre"
             ],
             "per-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint",
-                "rob:bracelet_link_target_link_vel_y_constraint",
-                "rob:bracelet_link_target_link_vel_z_constraint"
+                "rob:bracelet_link_dist_constraint_per"
             ],
             "post-conditions": [
-                "rob:bracelet_link_target_link_constraint_post"
+                "rob:bracelet_link_dist_constraint_post"
             ]
         },
         {
             "@id": "rob:move_arm_vel_xyz",
             "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_xyz",
+            "mappings": "rob:bracelet_link_vel_csm",
             "pre-conditions": [
-                "rob:bracelet_link_target_link_constraint_pre"
+                "rob:bracelet_link_vel_constraint_pre"
             ],
             "per-conditions": [
-                "rob:bracelet_link_target_link_vel_xyz_constraint"
+                "rob:bracelet_link_vel_constraint_per"
             ],
             "post-conditions": [
-                "rob:bracelet_link_target_link_constraint_post"
+                "rob:bracelet_link_vel_constraint_post"
             ]
         },
         {

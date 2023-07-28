@@ -1,99 +1,120 @@
 {
     "@context": [
-        "../../../metamodels/relations/kinematics.jsonld",
+        "../../../metamodels/mechanics/kinematics.jsonld",
         "https://comp-rob2b.github.io/metamodels/qudt.json",
         {
             "rob": "http://example.com/rob#"
         }
     ],
-    "@id": "rob:distance_instance",
+    "@id": "rob:kinematics_instance",
     "@graph": [
         {
-            "@id": "rob:dist_bracelet_link_target_link",
+            "@id": "rob:dist_bracelet_link_target_link_ef",
             "@type": [
                 "EuclideanDistance",
                 "FramePointToPointDistance"
             ],
             "between-entities": [
                 "rob:bracelet_link",
-                "rob:target_link"
+                "rob:target_link_ef"
             ],
             "quantity-kind": "Length"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_x",
+            "@id": "rob:bracelet_link_vel",
+            "@type": [
+                "CartesianVelocity",
+                "LinearVelocity"
+            ],
+            "of-frame": "rob:bracelet_link",
+            "wrt-frame": "rob:base_link",
+            "measured-in-frame": "rob:bracelet_link",
+            "quantity-kind": "Velocity"
+        },
+        {
+            "@id": "rob:bracelet_link_vel_x",
             "@type": [
                 "CartesianVelocity",
                 "OneDimensionalVelocity"
             ],
             "dimension": [1, 0, 0, 0, 0, 0],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:base_link",
+            "measured-in-frame": "rob:bracelet_link",
             "quantity-kind": "Velocity"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_y",
+            "@id": "rob:bracelet_link_vel_y",
             "@type": [
                 "CartesianVelocity",
                 "OneDimensionalVelocity"
             ],
             "dimension": [0, 1, 0, 0, 0, 0],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:base_link",
+            "measured-in-frame": "rob:bracelet_link",
             "quantity-kind": "Velocity"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_z",
+            "@id": "rob:bracelet_link_vel_z",
             "@type": [
                 "CartesianVelocity",
                 "OneDimensionalVelocity"
             ],
             "dimension": [0, 0, 1, 0, 0, 0],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:base_link",
+            "measured-in-frame": "rob:bracelet_link",
             "quantity-kind": "Velocity"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_xy",
+            "@id": "rob:bracelet_link_target_link_vel_bf",
             "@type": [
-                "CartesianVelocity",
-                "OneDimensionalVelocity"
+                "CartesianVelocity"
             ],
-            "dimension": [0.7071, 0.7071, 0, 0, 0, 0],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:target_link_bf",
+            "measured-in-frame": "rob:base_link",
             "quantity-kind": "Velocity"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_xz",
+            "@id": "rob:bracelet_link_target_link_vel_ef",
             "@type": [
-                "CartesianVelocity",
-                "OneDimensionalVelocity"
+                "CartesianVelocity"
             ],
-            "dimension": [0.7071, 0.0, 0.7071, 0, 0, 0],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:target_link_ef",
+            "measured-in-frame": "rob:bracelet_link",
             "quantity-kind": "Velocity"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_yz",
+            "@id": "rob:bracelet_link_target_link_vel_ef_xy",
             "@type": [
-                "CartesianVelocity",
-                "OneDimensionalVelocity"
+                "CartesianVelocity"
             ],
-            "dimension": [0.0, 0.7071, 0.7071, 0, 0, 0],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:target_link_ef_xy",
+            "measured-in-frame": "rob:bracelet_link",
             "quantity-kind": "Velocity"
         },
         {
-            "@id": "rob:bracelet_link_target_link_vel_xyz",
+            "@id": "rob:bracelet_link_target_link_vel_ef_xz",
             "@type": [
-                "CartesianVelocity",
-                "OneDimensionalVelocity"
+                "CartesianVelocity"
             ],
             "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:target_link",
+            "wrt-frame": "rob:target_link_ef_xz",
+            "measured-in-frame": "rob:bracelet_link",
+            "quantity-kind": "Velocity"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_vel_ef_yz",
+            "@type": [
+                "CartesianVelocity"
+            ],
+            "of-frame": "rob:bracelet_link",
+            "wrt-frame": "rob:target_link_ef_yz",
+            "measured-in-frame": "rob:bracelet_link",
             "quantity-kind": "Velocity"
         }
     ]
