@@ -50,7 +50,7 @@ private:
     template <typename T>
     bool operator()(T const &a, T const &b) const
     {
-      return a < b;
+      return fabs(a) < fabs(b);
     }
   };
 
@@ -64,7 +64,7 @@ private:
     template <typename T>
     bool operator()(T const &a, T const &b) const
     {
-      return a > b;
+      return fabs(a) > fabs(b);
     }
   };
 

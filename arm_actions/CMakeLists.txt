@@ -35,6 +35,10 @@ target_link_libraries(solver_utils ${orocos_kdl_LIBRARIES} logger)
 add_library(math_utils src/utils/math_utils.cpp)
 target_link_libraries(math_utils ${orocos_kdl_LIBRARIES} logger orocos-kdl)
 
+# add tf_utils.cpp as library
+add_library(tf_utils src/utils/tf_utils.cpp)
+target_link_libraries(tf_utils ${orocos_kdl_LIBRARIES} logger orocos-kdl)
+
 add_library(monitor src/utils/monitors.cpp)
 target_link_libraries(monitor ${orocos_kdl_LIBRARIES} logger utils math_utils)
 
@@ -54,7 +58,7 @@ foreach(source ${SOURCES})
     add_executable(${name} ${source})
     TARGET_LINK_LIBRARIES(${name} 
       orocos-kdl boost_filesystem boost_system boost_iostreams 
-      pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils
+      pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
       /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a)
 endforeach(source ${SOURCES})
 

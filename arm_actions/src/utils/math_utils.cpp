@@ -2,7 +2,6 @@
 
 MathUtils::MathUtils(double eq_tol): _eq_tol(eq_tol)
 {
-    std::cout << "mu eq_tol: " << _eq_tol << std::endl;
 };
 
 MathUtils::~MathUtils(){};

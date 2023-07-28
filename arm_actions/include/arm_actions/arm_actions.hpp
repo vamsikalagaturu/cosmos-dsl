@@ -9,6 +9,7 @@
 #include "arm_actions/pid_controller.hpp"
 #include "arm_actions/solver_utils.hpp"
 #include "arm_actions/utils.hpp"
+#include "arm_actions/tf_utils.hpp"
 #include "arm_actions/monitors.hpp"
 #include "chain.hpp"
 #include "chainhdsolver_vereshchagin.hpp"
