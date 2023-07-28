@@ -155,7 +155,7 @@ class QueryUtils:
         # check coord type is velocity coordinate
         elif (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
             query = f"""
-                SELECT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord ?vel ?vel_type
+                SELECT DISTINCT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord ?f3_coord ?vel ?vel_type
                 WHERE {{
                     ?vel_coord a coord:VelocityCoordinate ;
                         coord:of-velocity ?vel ;
@@ -165,7 +165,8 @@ class QueryUtils:
                             a ?vel_type ;
                             qudt-schema:hasQuantityKind ?qk ;
                             kinematics:of-frame ?f1 ;
-                            kinematics:wrt-frame ?f2 .
+                            kinematics:wrt-frame ?f2 ;
+                            kinematics:measured-in-frame ?f3 .
                     }}
                     UNION
                     {{
@@ -173,7 +174,8 @@ class QueryUtils:
                             a ?vel_type ;
                             qudt-schema:hasQuantityKind ?qk ;
                             kinematics:of-frame ?f1 ;
-                            kinematics:wrt-frame ?f2 .
+                            kinematics:wrt-frame ?f2 ;
+                            kinematics:measured-in-frame ?f3 .
                     }}
                     VALUES (?vel_type) {{ (kinematics:LinearVelocity) (kinematics:OneDimensionalVelocity) }}
                     FILTER (?f1 != ?f2)
@@ -185,6 +187,9 @@ class QueryUtils:
                     ?f2_coord a coord:FrameCoordinate ;
                         a coord:FrameReference ;
                         coord:of-frame ?f2 .
+                    ?f3_coord a coord:FrameCoordinate ;
+                        a coord:FrameReference ;
+                        coord:of-frame ?f3 .
                 }}
             """
 
@@ -194,8 +199,7 @@ class QueryUtils:
             qres = self.graph.query(query, initBindings=init_bindings)
 
             for row in qres:
-                vel = self.graph.value(row[5], RDF.type)
-                dim_node = self.graph.value(row[5], QueryUtils.KINEMATICS["dimension"])
+                dim_node = self.graph.value(row[6], QueryUtils.KINEMATICS["dimension"])
                 dim = Collection(self.graph, dim_node)
                 dim = [float(d) for d in dim]
                 coord_info = {
@@ -204,20 +208,26 @@ class QueryUtils:
                     'quant_kind': row[2],
                     'f1_coord': str(row[3]).replace(self.ns, ''),
                     'f2_coord': str(row[4]).replace(self.ns, ''),
-                    'vel_type': str(row[6]).split('#')[1],
+                    'f3_coord': str(row[5]).replace(self.ns, ''),
+                    'vel_type': str(row[7]).split('#')[1],
                     'vel_dim': dim
                 }
 
         # check coord type is FrameCoordinate
         elif (coord, RDF.type, QueryUtils.COORD["FrameCoordinate"]) in self.graph:
             query = f"""
-                SELECT ?frame_coord ?f1 ?unit ?x ?y ?z
+                SELECT ?f1 ?f2 ?unit ?x ?y ?z
                 WHERE {{
                     ?frame_coord a coord:FrameCoordinate ;
                         a coord:FrameReference ;
                         coord:of-frame ?f1 ;
                         qudt-schema:unit ?unit .
                     ?f1 a frame:Frame .
+
+                    OPTIONAL {{
+                        ?frame_coord a coord:FrameReference ;
+                            coord:as-seen-by ?f2 .
+                    }}
 
                     OPTIONAL {{
                         ?frame_coord a coord:VectorXYZ ;
@@ -236,7 +246,8 @@ class QueryUtils:
             for row in qres:
                 coord_info = {
                     'type': ['FrameCoordinate'],
-                    'f1': str(row[1]).replace(self.ns, ''),
+                    'f1': str(row[0]).replace(self.ns, ''),
+                    'f2': str(row[1]).replace(self.ns, ''),
                     'unit': str(row[2])
                 }
 

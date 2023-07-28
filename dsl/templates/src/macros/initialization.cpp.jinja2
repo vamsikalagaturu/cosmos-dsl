@@ -18,6 +18,9 @@
   // initialize solver utils
   std::shared_ptr<SolverUtils> solver_utils = std::make_shared<SolverUtils>(logger);
 
+  // initialize tf utils
+  std::shared_ptr<TfUtils> tf_utils = std::make_shared<TfUtils>(logger);
+
   // get the robot urdf path
   std::string robot_urdf =
       (path.parent_path().parent_path() / "urdf" / "gen3_robotiq_2f_85.urdf").string();
@@ -54,6 +57,9 @@
   int n_joints = robot_chain.getNrOfJoints();
 
   // number of segments
-  int n_segments = robot_chain.getNrOfSegments();
+  int n_segments = robot_chain.getNrOfSegments(); 
+
+  // set chain for the tf utils
+  tf_utils->setChain(&robot_chain);
 
   {%- endmacro -%}

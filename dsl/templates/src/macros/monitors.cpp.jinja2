@@ -37,55 +37,58 @@
   {%- endmacro -%}
 
   {%- macro pre_cond_checks(pre_conds, constraints, coords) -%}
-  {%- for pre_cond in pre_conds %}
-  {%- with constraint = constraints[pre_cond["constraint"]] %}
-  {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
-  {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_frame))
-  {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_twist))
-  {%- endif -%}
-  {% else -%}
-  {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_frame))
-  {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_twist))
-  {% endif -%}
-  {% endif -%}
-  {
-    logger->logError("Pre-condition {{loop.index}} not met");
-    return -1;
-  }
-  {%- endwith %}
-  {%- endfor %}
+    {%- for pre_cond in pre_conds %}
+      {%- with constraint = constraints[pre_cond["constraint"]] %}
+        {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
+          {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] +%}
+          if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_frame))
+          {% else +%}
+          if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_frame))
+          {% endif -%}
+        {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
+          {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f1_coord"]]["type"] +%}
+          if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_twist))
+          {% else +%}
+          if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_twist))
+          {% endif -%}
+        {% endif -%}
+      {
+        logger->logError("Pre-condition {{loop.index}} not met");
+        return -1;
+      }
+      {%- endwith %}
+    {%- endfor %}
   {%- endmacro -%}
 
     {%- macro post_cond_checks(post_conds, constraints, coords) -%}
     {%- for post_cond in post_conds %}
     {% with -%}
     {%- set constraint = constraints[post_cond["constraint"]] -%}
+    {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
     {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] -%}
     int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
-    {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
     {% set cp = coords[constraint["coord"]]["f2_coord"] + "_frame" %}
     KDL::Frame {{cp}}_{{loop.index}} = frames[seg_n_{{loop.index}}];
     positions.push_back({{cp}}_{{loop.index}}.p);
     logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.p);
-    {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-    {% set cp = coords[constraint["coord"]]["f2_coord"] + "_twist" %}
-    KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
-    velocities.push_back({{cp}}_{{loop.index}}.vel);
-    logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);
-    {%- endif -%}
     {% else -%}
     int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
-    {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
     {% set cp = coords[constraint["coord"]]["f1_coord"] + "_frame" %}
     KDL::Frame {{cp}}_{{loop.index}} = frames[seg_n_{{loop.index}}];
     positions.push_back({{cp}}_{{loop.index}}.p);
     logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.p);
+    {%- endif -%}
+
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
+    {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f1_coord"]]["type"] -%}
+    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
     {% set cp = coords[constraint["coord"]]["f1_coord"] + "_twist" %}
+    KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
+    velocities.push_back({{cp}}_{{loop.index}}.vel);
+    logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);
+    {%- else -%}
+    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
+    {% set cp = coords[constraint["coord"]]["f2_coord"] + "_twist" %}
     KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
     velocities.push_back({{cp}}_{{loop.index}}.vel);
     logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);

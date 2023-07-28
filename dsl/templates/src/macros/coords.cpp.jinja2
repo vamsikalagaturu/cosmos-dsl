@@ -1,15 +1,19 @@
   {%- macro spawn_coords(coords) -%}
   {%- for coord in coords -%}
   {%- if "FrameCoordinate" in coords[coord]["type"] and coords[coord]["unit"] == "http://qudt.org/vocab/unit/M" %}
+  {% if coords[coord]["f1"] != "base_link" -%}
   std::string {{coords[coord]["f1"]}} = "{{coords[coord]["f1"]}}";
   KDL::Frame {{coord}}_frame;
   {%- if "VectorXYZ" in coords[coord]["type"] +%}
   {{coord}}_frame.p = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
+  {% if coords[coord]["f2"] != "base_link" and coords[coord]["f2"] == "bracelet_link" -%}
+  tf_utils->transformFrame({{coord}}_frame, &q, CoordinateSystem::EE, CoordinateSystem::BASE);
+  {%+ endif -%}
   {%+ else %}
   if (utils->checkLinkInChain(robot_chain, {{coords[coord]["f1"]}}))
   {
     int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coord]["f1"]}});
-    {{coord}}_frame = solver_utils->computeFKFrame(&robot_chain, q, seg_n);
+    {{coord}}_frame = solver_utils->computeFKFrame(&robot_chain, q, seg_n+1);
   }
   else
   {
@@ -17,6 +21,7 @@
     return -1;
   }
   {%+ endif -%}
+  {% endif %}
   {%+ elif "TwistCoordinate" in coords[coord]["type"] %}
   // TODO: for now, we assume initial twist is zero
   KDL::Twist {{coord}};

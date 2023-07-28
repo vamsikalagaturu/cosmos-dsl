@@ -9,8 +9,8 @@ from rdflib.namespace import RDF
 
 from jinja2 import Environment, FileSystemLoader
 
-from utils import Utils
-from query_utils import QueryUtils
+from utils.utils import Utils
+from utils.query_utils import QueryUtils
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
