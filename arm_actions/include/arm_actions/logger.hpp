@@ -47,6 +47,10 @@ public:
 
   void logInfo(const KDL::Vector& vector);
 
+  void logInfo(const KDL::Twist& twist);
+
+  void logInfo(const KDL::Jacobian& jacobian);
+
   template <typename... Args>
   void logInfo(const char* format, Args... args);
 
@@ -59,6 +63,10 @@ public:
   void logInfo(const char* format, const KDL::JntArray& jnt_array);
 
   void logInfo(const char* format, const KDL::Vector& vector);
+
+  void logInfo(const char* format, const KDL::Twist& twist);
+
+  void logInfo(const char* format, const KDL::Jacobian& jacobian);
 
   // logwarning
   template <typename... Args>
@@ -122,7 +130,7 @@ private:
   std::string currentTimestamp();
 
   template <typename... Args>
-  void logFormattedMessage(Logger::LogLevel level, const char* format, Args... args);
+  void logFormattedMessage(LogLevel level, const std::string& format, Args... args);
 
   void logMessage(Logger::LogLevel level, const std::string& msg);
 };

@@ -175,6 +175,9 @@ void Logger::test()
 
   KDL::Vector target_position_kdl(0.0, 0.0, 0.0);
   logInfo("Target position kdl: %s", target_position_kdl);
+
+  std::vector<bool> preconditions = {true, false, true};
+  logInfo("Preconditions: %s", preconditions);
 }
 
 template <typename T, size_t N>
@@ -209,6 +212,35 @@ void Logger::logInfo(const KDL::Vector& vec)
   logMessage(INFO, oss.str().c_str());
 }
 
+void Logger::logInfo(const KDL::Twist& twist)
+{
+  // convert to string
+  std::ostringstream oss;
+  oss << "[" << twist.vel.x() << ", " << twist.vel.y() << ", " << twist.vel.z() << ", "
+      << twist.rot.x() << ", " << twist.rot.y() << ", " << twist.rot.z() << "]";
+
+  logMessage(INFO, oss.str().c_str());
+}
+
+void Logger::logInfo(const KDL::Jacobian& jacobian)
+{
+  // print each row
+  for (int i = 0; i < jacobian.columns(); i++)
+  {
+    // extract the velocity and rotation components of the column
+    const auto& vel = jacobian.getColumn(i).vel;
+    const auto& rot = jacobian.getColumn(i).rot;
+
+    // combine the components into a single vector
+    std::vector<double> col;
+    col.insert(col.end(), vel.data, vel.data + 3);
+    col.insert(col.end(), rot.data, rot.data + 3);
+
+    // log the vector as a formatted message
+    logInfo("Jacobian: %s", LoggerUtil::containerToString(col).c_str());
+  }
+}
+
 template <typename... Args>
 void Logger::logInfo(const char* format, Args... args)
 {
@@ -240,6 +272,35 @@ void Logger::logInfo(const char* format, const KDL::Vector& vec)
   oss << "[" << vec.x() << ", " << vec.y() << ", " << vec.z() << "]";
 
   logFormattedMessage(INFO, format, oss.str().c_str());
+}
+
+void Logger::logInfo(const char* format, const KDL::Twist& twist)
+{
+  // convert to string
+  std::ostringstream oss;
+  oss << "[" << twist.vel.x() << ", " << twist.vel.y() << ", " << twist.vel.z() << ", "
+      << twist.rot.x() << ", " << twist.rot.y() << ", " << twist.rot.z() << "]";
+
+  logFormattedMessage(INFO, format, oss.str().c_str());
+}
+
+void Logger::logInfo(const char* format, const KDL::Jacobian& jacobian)
+{
+  // print each row
+  for (int i = 0; i < jacobian.columns(); i++)
+  {
+    // extract the velocity and rotation components of the column
+    const auto& vel = jacobian.getColumn(i).vel;
+    const auto& rot = jacobian.getColumn(i).rot;
+
+    // combine the components into a single vector
+    std::vector<double> col;
+    col.insert(col.end(), vel.data, vel.data + 3);
+    col.insert(col.end(), rot.data, rot.data + 3);
+
+    // log the vector as a formatted message
+    logFormattedMessage(INFO, format, LoggerUtil::containerToString(col).c_str());
+  }
 }
 
 // Logger::logWarning
@@ -335,7 +396,7 @@ void Logger::logError(const char* format, const std::array<T, N>& arr)
 
 void Logger::logError(const char* format, const KDL::JntArray& jnt_array)
 {
-  logFormattedMessage(ERROR, format, LoggerUtil::jntArrayToString(jnt_array).c_str());
+  logFormattedMessage(ERROR, format, LoggerUtil::jntArrayToString(jnt_array));
 }
 
 std::string Logger::currentTimestamp()
@@ -357,12 +418,11 @@ std::string Logger::currentTimestamp()
 }
 
 template <typename... Args>
-void Logger::logFormattedMessage(LogLevel level, const char* format, Args... args)
+void Logger::logFormattedMessage(LogLevel level, const std::string& format, Args... args)
 {
   constexpr size_t buf_size = 1024;
   char buffer[buf_size];
-  std::snprintf(buffer, buf_size, "%s", format);  // Use a string literal to fix the warning
-  std::snprintf(buffer, buf_size, format, args...);
+  std::snprintf(buffer, buf_size, format.c_str(), args...);
   logMessage(level, buffer);
 }
 
