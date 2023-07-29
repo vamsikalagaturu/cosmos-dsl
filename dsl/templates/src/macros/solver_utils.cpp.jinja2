@@ -38,6 +38,8 @@
   std::vector<KDL::Vector> positions;
   std::vector<KDL::Vector> velocities;
 
+  std::vector<KDL::Twist> twists(n_segments);
+
   {%- endmacro -%}
     
     {# call cart_to_joint method #}
@@ -51,11 +53,7 @@
       return -1;
     }  
     // update the joint positions and velocities by integrating the accelerations
-    for (int j = 0; j < n_joints; j++)
-    {
-      q(j) = q(j) + qd(j) * dt + 0.5 * qdd(j) * dt * dt;
-      qd(j) = qd(j) + qdd(j) * dt;
-    }  
+    solver_utils->updateQandQd(q, qd, &qdd, dt);  
     // get the current link cartesian poses
     std::vector<KDL::Frame> frames(n_segments);
     vereshchagin_solver.getLinkCartesianPose(frames);  
@@ -63,10 +61,12 @@
     std::vector<KDL::Twist> twists(n_segments);
     vereshchagin_solver.getLinkCartesianVelocity(twists);  
     // print the joint positions, velocities, aceelerations and constraint torques
-    logger->logInfo("Joint accelerations: %s", qdd);
-    logger->logInfo("Joint torques: %s", constraint_tau);
-    logger->logInfo("Joint velocities: %s", qd);
-    logger->logInfo("Joint positions: %s", q);
+    if (_debug) {
+      logger->logInfo("Joint accelerations: %s", qdd);
+      logger->logInfo("Joint torques: %s", constraint_tau);
+      logger->logInfo("Joint velocities: %s", qd);
+      logger->logInfo("Joint positions: %s", q);
+    }
     {%- endmacro -%}
 
     {# update beta and controllers #}
@@ -152,7 +152,7 @@
       beta_energy(j) = solver_beta_weights[j] + control_accelerations(j);
     }
 
-    logger->logInfo("Beta energy: %s", beta_energy);
+    if (_debug) logger->logInfo("Beta energy: %s", beta_energy);
 
     {%- endif %}
     {%- endmacro -%}

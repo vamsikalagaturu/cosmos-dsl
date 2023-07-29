@@ -2,6 +2,6 @@
   {% for per_cond in per_conds +%}
   {%- with con_data = controllers[per_cond["controller"]] -%}
   PIDController {{per_cond["controller"]}}({{con_data["kp"]}}, {{con_data["ki"]}}, {{con_data["kd"]}});
-  {% endwith %}
-  {% endfor %}
+  {%- endwith -%}
+  {%- endfor -%}
   {%- endmacro -%}

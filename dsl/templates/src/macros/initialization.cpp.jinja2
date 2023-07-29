@@ -1,4 +1,6 @@
   {%- macro init_config() -%}
+  bool _debug = true;
+
   // get current file path
   std::filesystem::path path = __FILE__;
 
@@ -39,7 +41,7 @@
   KDL::Chain robot_chain;
 
   // define the initial joint angles
-  std::vector initial_joint_angles = {0.0, 0.0, 0.0, -M_PI_2, 0.0, -M_PI_2, 0.0};
+  std::vector initial_joint_angles = {0.0, 0.0, 0.0, M_PI_2, 0.0, M_PI_2, 0.0};
 
   // define the joint angles
   KDL::JntArray q;
