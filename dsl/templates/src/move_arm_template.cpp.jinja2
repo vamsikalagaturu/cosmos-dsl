@@ -20,7 +20,7 @@ int main()
   {{ macro_init.init_chain() }}
 
   // coords
-  {{- macro_coord.spawn_coords(coords) }}
+  {{ macro_coord.spawn_coords(coords) }}
 
   {%- with motion_spec_data = motion_specs[motion_spec] %}
   
@@ -39,11 +39,11 @@ int main()
   // start loop
   {{ macro_utils.start_loop() }}
 
-    // compute the inverse dynamics
-    {{ macro_solver_utils.jnt2cart() }}
-
     // update the beta energy and controllers
     {{- macro_solver_utils.updateBetaAndContr(motion_spec_data, constraints, coords, controllers) }}
+
+    // compute the inverse dynamics
+    {{ macro_solver_utils.jnt2cart() }}
 
     // check if post-conditions are met
     {{- macro_mons.post_cond_checks(motion_spec_data["post_conditions"], constraints, coords) }}
