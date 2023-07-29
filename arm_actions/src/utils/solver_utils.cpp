@@ -145,13 +145,13 @@ void SolverUtils::updateBetaEnergy(KDL::JntArray &beta_energy,
   beta_energy(5) = control_ae[5];
 }
 
-void SolverUtils::updateQandQd(KDL::JntArray &q, KDL::JntArray &qd, const KDL::JntArray &qdd,
+void SolverUtils::updateQandQd(KDL::JntArray &q, KDL::JntArray &qd, const KDL::JntArray *qdd,
                                double dt)
 {
   // update the joint positions
-  for (int i = 0; i < qdd.rows(); i++)
+  for (int i = 0; i < qdd->rows(); i++)
   {
-    qd(i) = qd(i) + qdd(i) * dt;
+    qd(i) = qd(i) + qdd->data(i) * dt;
     q(i) = q(i) + qd(i) * dt;
   }
 }

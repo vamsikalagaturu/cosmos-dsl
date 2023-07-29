@@ -92,7 +92,7 @@ public:
    * @param qdd The KDL::JntArray object representing the joint accelerations.
    * @param dt The time step.
    */
-  static void updateQandQd(KDL::JntArray &q, KDL::JntArray &qd, const KDL::JntArray &qdd,
+  static void updateQandQd(KDL::JntArray &q, KDL::JntArray &qd, const KDL::JntArray *qdd,
                            double dt);
 
 private:
