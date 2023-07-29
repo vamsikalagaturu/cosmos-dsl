@@ -206,9 +206,9 @@ class QueryUtils:
                     'type': 'VelocityCoordinate',
                     'unit': str(row[1]),
                     'quant_kind': row[2],
-                    'f1_coord': str(row[3]).replace(self.ns, ''),
-                    'f2_coord': str(row[4]).replace(self.ns, ''),
-                    'f3_coord': str(row[5]).replace(self.ns, ''),
+                    'of_coord': str(row[3]).replace(self.ns, ''),
+                    'wrt_coord': str(row[4]).replace(self.ns, ''),
+                    'mi_coord': str(row[5]).replace(self.ns, ''),
                     'vel_type': str(row[7]).split('#')[1],
                     'vel_dim': dim
                 }

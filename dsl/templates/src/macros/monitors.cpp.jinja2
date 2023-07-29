@@ -44,12 +44,8 @@
   {% else +%}
   if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_frame))
   {% endif -%}
-  {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-  {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f1_coord"]]["type"] +%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_twist))
-  {% else +%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_twist))
-  {% endif -%}
+  {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" %}
+  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["of_coord"]}}_twist))
   {% endif -%}
   {
     logger->logError("Pre-condition {{loop.index}} not met");
@@ -79,19 +75,11 @@
     {%- endif -%}
 
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-    {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f1_coord"]]["type"] -%}
-    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f1_coord"]]["f1"]}});
-    {% set cp = coords[constraint["coord"]]["f1_coord"] + "_twist" %}
+    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["of_coord"]]["f1"]}});
+    {% set cp = coords[constraint["coord"]]["of_coord"] + "_twist" %}
     KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
     velocities.push_back({{cp}}_{{loop.index}}.vel);
     if (_debug) logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);
-    {%- else -%}
-    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["f2_coord"]]["f1"]}});
-    {% set cp = coords[constraint["coord"]]["f2_coord"] + "_twist" %}
-    KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
-    velocities.push_back({{cp}}_{{loop.index}}.vel);
-    if (_debug) logger->logInfo("{{cp}}_{{loop.index}}: %s", {{cp}}_{{loop.index}}.vel);
-    {%- endif -%}
     {% endif %}
     
     if (post_monitor_{{loop.index}}.checkAll({{cp}}_{{loop.index}}))

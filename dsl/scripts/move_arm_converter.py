@@ -84,8 +84,7 @@ class Convert:
 
             big_data['coords'][coord] = coord_data
 
-            if coord_data['type'] == 'DistanceCoordinate' or \
-                    coord_data['type'] == 'VelocityCoordinate':
+            if coord_data['type'] == 'DistanceCoordinate':
 
                 f1_coord_data = self.query_utils.get_coord_info(
                     coord_data
@@ -98,15 +97,21 @@ class Convert:
                 big_data['coords'][coord_data['f2_coord']] = f2_coord_data
 
             if coord_data['type'] == 'VelocityCoordinate':
-                f1_coord = coord_data['f1_coord']
-                f2_coord = coord_data['f2_coord']
-
-                big_data['coords'][f1_coord+'_twist'] = {
-                    'type': ['TwistCoordinate']}
+                of_coord_data = self.query_utils.get_coord_info(
+                    coord_data['of_coord'])
                 
-                big_data['coords'][f2_coord+'_twist'] = {
-                    'type': ['TwistCoordinate']}
+                wrt_coord_data = self.query_utils.get_coord_info(
+                    coord_data['wrt_coord'])
+                
+                mi_coord_data = self.query_utils.get_coord_info(
+                    coord_data['mi_coord'])
+                
+                big_data['coords'][coord_data['of_coord']] = of_coord_data
+                big_data['coords'][coord_data['wrt_coord']] = wrt_coord_data
+                big_data['coords'][coord_data['mi_coord']] = mi_coord_data
 
+                big_data['coords'][coord_data['of_coord']+'_twist'] = {
+                    'type': ['TwistCoordinate']}
 
         return big_data
 
