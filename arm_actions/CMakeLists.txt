@@ -13,6 +13,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_
 # create logs folder in outputs folder if not exists
 file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/logs)
 
+set(MUJOCO_PATH "/home/batsy/.mujoco/mujoco-2.3.7")
+
+include_directories(${MUJOCO_PATH}/include)
+link_directories(${MUJOCO_PATH}/bin)
+
+find_package(glfw3 REQUIRED)
+include_directories(${GLFW3_INCLUDE_DIRS})
+
 # include all hpp files in include folder
 include_directories(include)
 
@@ -59,7 +67,8 @@ foreach(source ${SOURCES})
     TARGET_LINK_LIBRARIES(${name} 
       orocos-kdl boost_filesystem boost_system boost_iostreams 
       pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
-      /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a)
+      /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a
+      /home/batsy/.mujoco/mujoco-2.3.7/lib/libmujoco.so glfw)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder
