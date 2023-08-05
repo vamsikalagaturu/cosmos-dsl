@@ -83,13 +83,33 @@
             "@id": "rob:bracelet_link_vel_coord",
             "@type": "VelocityCoordinate",
             "of-velocity": "rob:bracelet_link_vel",
-            "unit": "M-PER-SEC"
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "M-PER-SEC",
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.1
         },
+        {
+            "@id": "rob:bracelet_link_dir_x_coord",
+            "@type": [ "VectorCoordinate", "VectorXYZ" ],
+            "of-direction": "rob:bracelet_link_dir_x",
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "M",
+            "x": 1.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        {
+            "@id": "rob:bracelet_link_speed_x_coord",
+            "@type": "SpeedCoordinate",
+            "of-speed": "rob:bracelet_link_speed_x",
+            "unit": "M-PER-SEC",
+            "value": 0.1
+        },        
         {
             "@id": "rob:bracelet_link_vel_x_coord",
             "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_vel_x",
-            "unit": "M-PER-SEC"
+            "of-velocity": "rob:bracelet_link_vel_x"
         },
         {
             "@id": "rob:bracelet_link_vel_y_coord",
@@ -129,9 +149,20 @@
         },
         {
             "@id": "rob:bracelet_link_target_link_vel_ef_yz_coord",
-            "@type": "VelocityCoordinate",
+            "@type": ["VelocityCoordinate", "Direction"],
             "of-velocity": "rob:bracelet_link_target_link_vel_ef_yz",
-            "unit": "M-PER-SEC"
+            "unit": "M-PER-SEC",
+            "direction": [0, 1, 1, 0, 0, 0]
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_force_ef_coord",
+            "@type": ["ForceCoordinate", "VectorXYZ"],
+            "of-force": "rob:bracelet_link_target_link_force_ef",
+            "as-seen-by": "rob:bracelet_link",
+            "unit": "N",
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0
         }
     ]
 }

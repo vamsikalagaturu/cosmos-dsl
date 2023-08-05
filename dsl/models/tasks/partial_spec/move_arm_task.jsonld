@@ -8,10 +8,10 @@
     "@id": "rob:task_specifications",
     "@graph": [
         {
-            "@id": "rob:move_arm_vel_xyz_task",
+            "@id": "rob:move_arm_vel_x_task",
             "@type": "BaseTask",
             "motion-specifications": [
-                "rob:move_arm_vel_xyz"
+                "rob:move_arm_vel_x"
             ]
         }
     ]

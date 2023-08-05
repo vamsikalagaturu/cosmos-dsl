@@ -30,7 +30,7 @@
         {
             "@id": "rob:vel_threshold_per",
             "@type": "Threshold",
-            "threshold-value": 0.01,
+            "threshold-value": 0.0,
             "unit": "M-PER-SEC"
         },
         {
@@ -55,6 +55,24 @@
             "@id": "rob:dist_threshold_post",
             "@type": "Threshold",
             "threshold-value": 0.0025,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:force_threshold_pre",
+            "@type": "Threshold",
+            "threshold-value": 5.0,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:force_threshold_per",
+            "@type": "Threshold",
+            "threshold-value": 10.0,
+            "unit": "M"
+        },
+        {
+            "@id": "rob:force_threshold_post",
+            "@type": "Threshold",
+            "threshold-value": 15.0,
             "unit": "M"
         },
         {
@@ -266,6 +284,27 @@
             "threshold": "rob:vel_threshold_post",
             "operator": "rob:gt",
             "coord": "rob:bracelet_link_target_link_vel_ef_yz_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_force_ef_constraint_pre",
+            "@type": ["Constraint", "ForceConstraint"],
+            "threshold": "rob:force_threshold_pre",
+            "operator": "rob:lt",
+            "coord": "rob:bracelet_link_target_link_force_ef_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_force_ef_constraint_per",
+            "@type": ["Constraint", "ForceConstraint"],
+            "threshold": "rob:force_threshold_per",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_target_link_force_ef_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_force_ef_constraint_post",
+            "@type": ["Constraint", "ForceConstraint"],
+            "threshold": "rob:force_threshold_post",
+            "operator": "rob:gt",
+            "coord": "rob:bracelet_link_target_link_force_ef_coord"
         }
     ]
 }
