@@ -16,12 +16,6 @@
         "applied-to": {
             "@id": "dynamics:applied-to",
             "@type": "@id"
-        },
-
-        "applied-dimension": {
-            "@id": "dynamics:applied-dimension",
-            "@type": "xsd:int",
-            "@container": "@list"
         }
     }
 }
