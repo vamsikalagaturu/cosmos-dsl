@@ -20,48 +20,69 @@ public:
    * @param Kp The proportional gain.
    * @param Ki The integral gain.
    * @param Kd The derivative gain.
+   * @param dt The time step or time difference.
    */
-  PIDController(double Kp, double Ki, double Kd);
+  PIDController(double Kp, double Ki, double Kd, double dt);
+
+  /**
+   * @brief Constructs a PIDController object with the specified gains.
+   *
+   * @param Kp The proportional gain.
+   * @param Ki The integral gain.
+   * @param Kd The derivative gain.
+   * @param dt The time step or time difference.
+   * @param threshold The threshold for the error.
+   * @param operator The operator to use for the threshold.
+   */
+  PIDController(double Kp, double Ki, double Kd, double dt, double threshold, std::string op);
+
+  /**
+   * @brief Constructs a PIDController object with the specified gains.
+   *
+   * @param Kp The proportional gain.
+   * @param Ki The integral gain.
+   * @param Kd The derivative gain.
+   * @param dt The time step or time difference.
+   * @param threshold The threshold for the error.
+   * @param operator The operator to use for the threshold.
+   */
+  PIDController(double Kp, double Ki, double Kd, double dt, KDL::Vector threshold, std::string op);
 
   /**
    * @brief Computes the control signal based on the current and target values.
    *
    * @param current_value The current values of the system (x, y, z).
    * @param target_value The desired target values (x, y, z).
-   * @param dt The time step or time difference.
    * @return The computed control signal as a tuple (u_x, u_y, u_z).
    */
-  std::vector<double>  computeControlSignal_3d(
-      const std::array<double, 3>& current_value, const std::array<double, 3>& target_value,
-      double dt);
+  std::vector<double> computeControlSignal_3d(const std::array<double, 3>& current_value,
+                                              const std::array<double, 3>& target_value);
 
   /**
    * @brief Computes the control signal based on the current and target values.
    * @param current_value The current values of the system kdl vector.
    * @param target_value The desired target values kdl vector.
-   * @param dt The time step or time difference.
    * @return The computed control signal as a kdl JntArray.
    */
   KDL::JntArray computeControlSignal_3d(const KDL::Vector& current_value,
-                                   const KDL::Vector& target_value, double dt);
+                                        const KDL::Vector& target_value);
 
   /**
    * @brief Computes the control signal based on the current and target values.
    * @param current_value The current values of the system kdl vector.
    * @param target_value The desired target values kdl vector.
-   * @param dt The time step or time difference.
    * @return The computed control signal as a double value
    */
-  double computeControlSignal_1d(const  KDL::Vector& current_value, const  KDL::Vector& target_value, double dt);
+  double computeControlSignal_1d(const KDL::Vector& current_value,
+                                 const KDL::Vector& target_value);
 
   /**
    * @brief Computes the control signal based on the current and target values.
    * @param current_value a single value (double)
    * @param target_value a single value (double)
-   * @param dt The time step or time difference.
    * @return The computed control signal as a double value
    */
-  double computeControlSignal_1d(const double& current_value, const double& target_value, double dt);
+  double computeControlSignal_1d(const double& current_value, const double& target_value);
 
 private:
   /**
@@ -92,9 +113,16 @@ private:
    */
   double calc_error(const double& v1, const double& v2);
 
-  double Kp;            // Proportional gain
-  double Ki;            // Integral gain
-  double Kd;            // Derivative gain
+  double Kp;  // Proportional gain
+  double Ki;  // Integral gain
+  double Kd;  // Derivative gain
+  double dt;  // Time step
+
+  std::string op;   // Operator to use for the threshold
+  double threshold = 0.0; // Threshold for the error
+
+  KDL::Vector threshoold_vec; // Threshold for the error
+
   double error_sum_x;   // Accumulated error in the x-axis
   double error_sum_y;   // Accumulated error in the y-axis
   double error_sum_z;   // Accumulated error in the z-axis
@@ -105,8 +133,8 @@ private:
   double error_sum_1d;   // Accumulated error in 1 axis
   double last_error_1d;  // Previous error in 1 axis
 
-  KDL::Vector error_sum;  // Accumulated error
-  KDL::Vector last_error; // Previous error
+  KDL::Vector error_sum;   // Accumulated error
+  KDL::Vector last_error;  // Previous error
 };
 
 #endif /* PID_CONTROLLER_HPP */
