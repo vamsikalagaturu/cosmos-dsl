@@ -9,6 +9,9 @@
 #include <filesystem>
 #include <iostream>
 
+#include <jntarray.hpp>
+#include <vector>
+
 class RobotSimulation
 {
 private:
@@ -54,7 +57,7 @@ public:
 
   static RobotSimulation* instance;
   
-  int run();
+  int run(std::vector<KDL::JntArray> joint_angles, std::vector<KDL::JntArray> joint_velocities, std::vector<KDL::JntArray> joint_taus);
 };
 
 #endif  // MUJOCO_HPP

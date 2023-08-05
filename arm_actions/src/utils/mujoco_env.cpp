@@ -9,7 +9,7 @@ RobotSimulation::RobotSimulation()
   // Get current file path
   path = __FILE__;
   // Get the robot urdf path
-  robot_urdf = (path.parent_path().parent_path() / "urdf" / "gen3.urdf").string();
+  robot_urdf = (path.parent_path().parent_path().parent_path() / "urdf" / "gen3.urdf").string();
   // Load the robot urdf into mujoco
   error = nullptr;
   model = mj_loadXML(robot_urdf.c_str(), nullptr, error, 1000);
@@ -73,7 +73,9 @@ void RobotSimulation::mouse_move(GLFWwindow* window, double xpos, double ypos)
   mjv_moveCamera(model, action, dx / height, dy / height, &scn, &cam);
 }
 
-int RobotSimulation::run()
+int RobotSimulation::run(std::vector<KDL::JntArray> joint_angles,
+                         std::vector<KDL::JntArray> joint_velocities,
+                         std::vector<KDL::JntArray> joint_taus)
 {
   instance = this;
 
@@ -98,13 +100,15 @@ int RobotSimulation::run()
   // init MuJoCo rendering, get OpenGL info
   mjv_defaultScene(&scn);
 
-  // set the camera position
-  cam.lookat[0] = 0.0;
-  cam.lookat[1] = 0.0;
-  cam.lookat[2] = 0.0;
-  cam.distance = 5.0;
-  cam.azimuth = 0.0;
-  cam.elevation = -0.5;
+  // set viwer camera position
+  cam.type = mjCAMERA_FREE;
+  cam.distance = 111.5;
+  cam.azimuth = 10;
+  cam.elevation = -10;
+  cam.lookat[0] = 10.0;
+  cam.lookat[1] = 20.0;
+  cam.lookat[2] = 10.0;
+
   mjv_defaultCamera(&cam);
 
   mjv_makeScene(model, &scn, 1000);
@@ -117,34 +121,46 @@ int RobotSimulation::run()
   double counter = 0.0;
   double rotation_speed = 0.1;
 
-  // run main loop, target real-time simulation and 60 fps rendering
-  while (!glfwWindowShouldClose(window))
+  std::vector initial_joint_angles = {0.0, 0.0, 0.0, M_PI_2, 0.0, M_PI_2, 0.0};
+
+  // make the robot stay still
+  for (int i = 0; i < model->nq; i++)
   {
+    data->qpos[i] = initial_joint_angles[i];
+    data->qvel[i] = 0.0;
+  }
+
+  // run main loop, target real-time simulation and 60 fps rendering
+  while (!glfwWindowShouldClose(window) && joint_angles.size() > 0)
+  {
+    // pop from front of vector
+    KDL::JntArray joint_angle = joint_angles.front();
+    // remove from front of vector
+    joint_angles.erase(joint_angles.begin());
+    KDL::JntArray joint_velocity = joint_velocities.front();
+    joint_velocities.erase(joint_velocities.begin());
+    KDL::JntArray joint_tau = joint_taus.front();
+    joint_taus.erase(joint_taus.begin());
+
     // make the robot stay still
     for (int i = 0; i < model->nq; i++)
     {
-      data->qpos[i] = 0.0;
-      data->qvel[i] = 0.0;
+      data->qpos[i] = joint_angle(i);
+      data->qvel[i] = joint_velocity(i);
+      // data->ctrl[i] = joint_tau(i);
     }
-
-    // Let's say the id of the joint you want to rotate is 0
-    int joint_id = 0;
-
-    // Increment the counter and use it to calculate control input for the joint
-    counter += rotation_speed;
-    data->ctrl[joint_id] = counter;
 
     // advance simulation
     mjtNum simstart = data->time;
     while (data->time - simstart < 1.0 / 60.0)
       mj_step(model, data);
 
-    // get all joint positions
-    std::cout << *data->qpos << std::endl;
-
     // get framebuffer viewport
     mjrRect viewport = {0, 0, 0, 0};
     glfwGetFramebufferSize(window, &viewport.width, &viewport.height);
+
+    // visualize frames
+    opt.frame = mjtFrame::mjFRAME_GEOM;
 
     // update scene and render
     mjv_updateScene(model, data, &opt, NULL, &cam, mjCAT_ALL, &scn);
@@ -160,8 +176,8 @@ int RobotSimulation::run()
   return 0;
 }
 
-int main()
-{
-  RobotSimulation simulation;
-  return simulation.run();
-}
+// int main()
+// {
+//   RobotSimulation simulation;
+//   return simulation.run();
+// }
