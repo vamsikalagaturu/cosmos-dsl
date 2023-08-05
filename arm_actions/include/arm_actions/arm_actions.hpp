@@ -11,6 +11,7 @@
 #include "arm_actions/utils.hpp"
 #include "arm_actions/tf_utils.hpp"
 #include "arm_actions/monitors.hpp"
+#include "arm_actions/mujoco_env.hpp"
 #include "chain.hpp"
 #include "chainhdsolver_vereshchagin.hpp"
 #include "chainidsolver.hpp"

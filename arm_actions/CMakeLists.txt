@@ -56,6 +56,9 @@ target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams 
 add_library(kinova_mediator src/utils/kinova_mediator.cpp)
 target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} logger)
 
+add_library(mujoco_env src/utils/mujoco_env.cpp)
+target_link_libraries(mujoco_env /home/batsy/.mujoco/mujoco-2.3.7/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
+
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
 # file(GLOB SOURCES "src/utils/*.cpp")
@@ -65,10 +68,10 @@ foreach(source ${SOURCES})
     get_filename_component(name ${source} NAME_WE)
     add_executable(${name} ${source})
     TARGET_LINK_LIBRARIES(${name} 
-      orocos-kdl boost_filesystem boost_system boost_iostreams 
+      orocos-kdl boost_filesystem boost_system boost_iostreams
       pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
       /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a
-      /home/batsy/.mujoco/mujoco-2.3.7/lib/libmujoco.so glfw)
+      mujoco_env)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder
