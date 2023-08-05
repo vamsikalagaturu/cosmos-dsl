@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import json
+import time
 import rdflib
 from rdflib.namespace import RDF
 
@@ -82,10 +83,11 @@ class Convert:
         if coord not in big_data['coords']:
             coord_data = self.query_utils.get_coord_info(coord)
 
+            assert coord_data, f"coord_data is empty for {coord}"
+
             big_data['coords'][coord] = coord_data
 
             if coord_data['type'] == 'DistanceCoordinate':
-
                 f1_coord_data = self.query_utils.get_coord_info(
                     coord_data
                     ['f1_coord'])
@@ -103,12 +105,12 @@ class Convert:
                 wrt_coord_data = self.query_utils.get_coord_info(
                     coord_data['wrt_coord'])
                 
-                mi_coord_data = self.query_utils.get_coord_info(
-                    coord_data['mi_coord'])
+                asb_coord_data = self.query_utils.get_coord_info(
+                    coord_data['asb_coord'])
                 
                 big_data['coords'][coord_data['of_coord']] = of_coord_data
                 big_data['coords'][coord_data['wrt_coord']] = wrt_coord_data
-                big_data['coords'][coord_data['mi_coord']] = mi_coord_data
+                big_data['coords'][coord_data['asb_coord']] = asb_coord_data
 
                 big_data['coords'][coord_data['of_coord']+'_twist'] = {
                     'type': ['TwistCoordinate']}
@@ -161,12 +163,13 @@ class Convert:
                         motion_spec_iri, MOTIONSPEC["per-conditions"])
                     post_conditions = g.objects(
                         motion_spec_iri, MOTIONSPEC["post-conditions"])
-
+                    
                     pre_conditions_d = []
                     for pre_condition in pre_conditions:
-
+                        
                         pcr, ci = self.query_utils.get_pre_post_condition_info(
                             pre_condition, {'constraint': pre_condition})
+                        
                         big_data["constraints"][pcr['constraint']
                                                 ] = ci[pcr['constraint']]
                         big_data = self._update_coords_data(
@@ -189,10 +192,8 @@ class Convert:
                     motion_spec['post_conditions'] = post_conditions_d
 
                     alphas = []
-
                     per_conditions_d = []
                     for per_condition in per_conditions:
-
                         pcr, ci = self.query_utils.get_per_condition_info(
                             per_condition, {'constraint': per_condition})
                         per_conditions_d.append(pcr)
@@ -203,6 +204,7 @@ class Convert:
                         cont_info = self.query_utils.get_pid_controller_info(
                             pcr['controller'])
                         big_data["controllers"][pcr['controller']] = cont_info
+
                         alpha = self.query_utils.get_alpha(pcr['constraint'])
                         if isinstance(alpha[0], list):
                             for a in alpha:
