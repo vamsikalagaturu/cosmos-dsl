@@ -41,7 +41,18 @@ public:
    * @param target_cs enum for the target coordinate system
    * @param segment_nr The segment number of the desired link. If not specified, the last segment of the chain is used.
    */
-  void transformFrame(KDL::Frame &source_frame, KDL::JntArray *q,
+  void transform(KDL::Frame &source_frame, KDL::JntArray *q,
+                    CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
+
+  /**
+   * @brief Converts a KDL::Twist from EE frame to base frame.
+   * @param source_twist The KDL::Twist to convert.
+   * @param q A pointer to a KDL::JntArray object representing the robot's joint positions.
+   * @param source_cs enum for the source coordinate system
+   * @param target_cs enum for the target coordinate system
+   * @param segment_nr The segment number of the desired link. If not specified, the last segment of the chain is used.
+   */
+  void transform(KDL::Twist &source_twist, KDL::JntArray *q,
                     CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
 
   /**
@@ -52,7 +63,7 @@ public:
    * @param target_cs enum for the target coordinate system
    * @param segment_nr The segment number of the desired link. If not specified, the last segment of the chain is used.
    */
-  void transformJacobian(KDL::Jacobian &source_jacobian, KDL::JntArray *q,
+  void transform(KDL::Jacobian &source_jacobian, KDL::JntArray *q,
                        CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
 
   /**
@@ -63,7 +74,7 @@ public:
    * @param target_cs enum for the target coordinate system
    * @param segment_nr The segment number of the desired link. If not specified, the last segment of the chain is used.
    */
-  void transformJntArray(KDL::JntArray &source_jnt_array, KDL::JntArray *q,
+  void transform(KDL::JntArray &source_jnt_array, KDL::JntArray *q,
                        CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
 
 private:

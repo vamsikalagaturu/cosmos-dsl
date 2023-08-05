@@ -19,7 +19,7 @@ void TfUtils::setChain(KDL::Chain *chain)
   _fksolver = new KDL::ChainFkSolverPos_recursive(*chain);
 }
 
-void TfUtils::transformFrame(KDL::Frame &source_frame, KDL::JntArray *q,
+void TfUtils::transform(KDL::Frame &source_frame, KDL::JntArray *q,
                            CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr)
 {
   KDL::Frame target_frame;
@@ -52,7 +52,40 @@ void TfUtils::transformFrame(KDL::Frame &source_frame, KDL::JntArray *q,
   }
 }
 
-void TfUtils::transformJacobian(KDL::Jacobian &source_jacobian, KDL::JntArray *q,
+void TfUtils::transform(KDL::Twist &source_twist, KDL::JntArray *q,
+                    CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr)
+{
+  KDL::Frame target_frame;
+  switch (source_cs)
+  {
+    case CoordinateSystem::BASE:
+      switch (target_cs)
+      {
+        case CoordinateSystem::BASE:
+          break;
+        case CoordinateSystem::EE:
+          _logger->logInfo("Converting from base to ee frame");
+          _fksolver->JntToCart(*q, target_frame, segment_nr);
+          source_twist = target_frame.Inverse() * source_twist;
+          break;
+      }
+      break;
+    case CoordinateSystem::EE:
+      switch (target_cs)
+      {
+        case CoordinateSystem::BASE:
+          _logger->logInfo("Converting from ee to base frame");
+          _fksolver->JntToCart(*q, target_frame, segment_nr);
+          source_twist = target_frame * source_twist;
+          break;
+        case CoordinateSystem::EE:
+          break;
+      }
+      break;
+  }
+}
+
+void TfUtils::transform(KDL::Jacobian &source_jacobian, KDL::JntArray *q,
                        CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr)
 {
   KDL::Frame target_frame;
@@ -91,7 +124,7 @@ void TfUtils::transformJacobian(KDL::Jacobian &source_jacobian, KDL::JntArray *q
   }
 }
 
-void TfUtils::transformJntArray(KDL::JntArray &source_jnt_array, KDL::JntArray *q,
+void TfUtils::transform(KDL::JntArray &source_jnt_array, KDL::JntArray *q,
                        CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr)
 {
   KDL::Frame target_frame;
