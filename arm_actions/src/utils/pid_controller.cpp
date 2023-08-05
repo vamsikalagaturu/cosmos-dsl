@@ -1,9 +1,10 @@
 #include "arm_actions/pid_controller.hpp"
 
-PIDController::PIDController(double Kp, double Ki, double Kd)
+PIDController::PIDController(double Kp, double Ki, double Kd, double dt)
     : Kp(Kp),
       Ki(Ki),
       Kd(Kd),
+      dt(dt),
       error_sum_x(0),
       error_sum_y(0),
       error_sum_z(0),
@@ -15,9 +16,46 @@ PIDController::PIDController(double Kp, double Ki, double Kd)
 {
 }
 
+PIDController::PIDController(double Kp, double Ki, double Kd, double dt, double threshold,
+                             std::string op)
+    : Kp(Kp),
+      Ki(Ki),
+      Kd(Kd),
+      dt(dt),
+      error_sum_x(0),
+      error_sum_y(0),
+      error_sum_z(0),
+      last_error_x(0),
+      last_error_y(0),
+      last_error_z(0),
+      error_sum_1d(0),
+      last_error_1d(0),
+      threshold(threshold),
+      op(op)
+{
+}
+
+PIDController::PIDController(double Kp, double Ki, double Kd, double dt, KDL::Vector threshold,
+                             std::string op)
+    : Kp(Kp),
+      Ki(Ki),
+      Kd(Kd),
+      dt(dt),
+      error_sum_x(0),
+      error_sum_y(0),
+      error_sum_z(0),
+      last_error_x(0),
+      last_error_y(0),
+      last_error_z(0),
+      error_sum_1d(0),
+      last_error_1d(0),
+      op(op)
+{
+  threshoold_vec = threshold;
+}
+
 std::vector<double> PIDController::computeControlSignal_3d(
-    const std::array<double, 3>& current_value, const std::array<double, 3>& target_value,
-    double dt)
+    const std::array<double, 3>& current_value, const std::array<double, 3>& target_value)
 {
   auto [error_x, error_y, error_z] = calc_error(current_value, target_value);
 
@@ -50,7 +88,7 @@ std::vector<double> PIDController::computeControlSignal_3d(
 }
 
 KDL::JntArray PIDController::computeControlSignal_3d(const KDL::Vector& current_value,
-                                   const KDL::Vector& target_value, double dt)
+                                                     const KDL::Vector& target_value)
 {
   KDL::Vector error = calc_error(current_value, target_value);
 
@@ -73,10 +111,20 @@ KDL::JntArray PIDController::computeControlSignal_3d(const KDL::Vector& current_
     control_signal(i) = proportional_term(i) + integral_term(i) + derivative_term(i);
   }
 
+  // check if any of target val is inf and if so, set the control signal to 0
+  for (int i = 0; i < 3; i++)
+  {
+    if (std::isinf(target_value(i)))
+    {
+      control_signal(i) = 0;
+    }
+  }
+
   return control_signal;
 }
 
-double PIDController::computeControlSignal_1d(const  KDL::Vector& current_value, const  KDL::Vector& target_value, double dt)
+double PIDController::computeControlSignal_1d(const KDL::Vector& current_value,
+                                              const KDL::Vector& target_value)
 {
   KDL::Vector error = calc_error(current_value, target_value);
 
@@ -109,7 +157,8 @@ double PIDController::computeControlSignal_1d(const  KDL::Vector& current_value,
   return sum;
 }
 
-double PIDController::computeControlSignal_1d(const double& current_value, const double& target_value, double dt)
+double PIDController::computeControlSignal_1d(const double& current_value,
+                                              const double& target_value)
 {
   double error = calc_error(current_value, target_value);
 
@@ -142,11 +191,10 @@ std::tuple<double, double, double> PIDController::calc_error(const std::array<do
 
 KDL::Vector PIDController::calc_error(const KDL::Vector& v1, const KDL::Vector& v2)
 {
-  return v2 - v1;
+  return v2 - v1 - threshoold_vec;
 }
 
 double PIDController::calc_error(const double& v1, const double& v2)
 {
-  return v2 - v1;
+  return v2 - v1 - threshold;
 }
-

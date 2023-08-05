@@ -1,18 +1,18 @@
   {%- macro spawn_coords(coords) -%}
   {%- for coord in coords -%}
-  {%- if "FrameCoordinate" in coords[coord]["type"] and coords[coord]["unit"] == "http://qudt.org/vocab/unit/M" %}
-  {%- if coords[coord]["f1"] != "base_link" -%}
-  std::string {{coords[coord]["f1"]}} = "{{coords[coord]["f1"]}}";
+  {%- if "FrameCoordinate" in coords[coord]["type"] %}
+  {%- if coords[coord]["of"] != "base_link" -%}
+  std::string {{coords[coord]["of"]}} = "{{coords[coord]["of"]}}";
   KDL::Frame {{coord}}_frame;
   {%- if "VectorXYZ" in coords[coord]["type"] +%}
   {{coord}}_frame.p = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
-  {%- if coords[coord]["f2"] != "base_link" and coords[coord]["f2"] == "bracelet_link" -%}
+  {%- if coords[coord]["asb"] != "base_link" and coords[coord]["asb"] == coords[coord]["of"] -%}
   tf_utils->transformFrame({{coord}}_frame, &q, CoordinateSystem::EE, CoordinateSystem::BASE);
   {%+ endif -%}
   {%+ else %}
-  if (utils->checkLinkInChain(robot_chain, {{coords[coord]["f1"]}}))
+  if (utils->checkLinkInChain(robot_chain, {{coords[coord]["of"]}}))
   {
-    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coord]["f1"]}});
+    int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[coord]["of"]}});
     {{coord}}_frame = solver_utils->computeFKFrame(&robot_chain, q, seg_n+1);
   }
   else

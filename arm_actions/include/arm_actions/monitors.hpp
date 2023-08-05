@@ -6,28 +6,31 @@
 #include <string>
 #include <vector>
 
+#include "arm_actions/fixed_size_queue.hpp"
 #include "arm_actions/logger.hpp"
 #include "arm_actions/math_utils.hpp"
 #include "arm_actions/utils.hpp"
 #include "frames.hpp"
 
+// enum
+
 class Monitor
 {
 public:
-  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
+  enum MonitorType
+  {
+    PRE,
+    POST
+  };
+
+  Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
           std::string thresh_unit, std::array<double, 3> *target);
 
-  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-          std::string thresh_unit, KDL::Frame *target);
+  Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op, std::string thresh_unit,
+          double thresh_val, KDL::Frame *target);
 
-  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-          std::string thresh_unit, KDL::Frame *target, std::vector<double> dimensions);
-
-  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-          std::string thresh_unit);
-
-  Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-          std::string thresh_unit, std::vector<double> dimensions);
+  Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op, std::string thresh_unit,
+          double thresh_val, KDL::Twist target);
 
   ~Monitor();
 
@@ -126,12 +129,20 @@ private:
    */
   bool _checkAll(KDL::Twist error);
 
+  /**
+   * @brief takes in error and compares against threshold
+   * @param avg current twist
+   * @param target twist
+   */
+  bool _checkAll(KDL::Twist avg_current, KDL::Twist target);
+
+	MonitorType _mt;
+
   std::string _comp_op;
   double _thresh_val;
   std::string _thresh_unit;
 
   std::vector<double> _thresholds;
-  std::vector<double> _dimensions;
 
   KDL::Frame _threshold_frame;
   KDL::Twist _threshold_twist;
@@ -139,6 +150,10 @@ private:
   std::array<double, 3> *_target;
 
   KDL::Frame *_target_frame;
+  KDL::Twist _target_twist;
+
+  FixedSizeQueue<KDL::Frame, 10> _current_frames;
+  FixedSizeQueue<KDL::Twist, 10> _current_twists;
 
   std::shared_ptr<Logger> _logger;
 

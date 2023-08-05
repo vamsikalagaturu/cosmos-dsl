@@ -1,6 +1,8 @@
+import time
 from rdflib import RDF, Graph, URIRef
 from rdflib.collection import Collection
 import rdflib
+import numpy as np
 
 
 class QueryUtils:
@@ -12,6 +14,7 @@ class QueryUtils:
     MAPPINGS = rdflib.Namespace(ROB + "/mappings#")
     CONTROLLERMAPPING = rdflib.Namespace(ROB + "/controller_mapping#")
     CONTROLLERIO = rdflib.Namespace(ROB + "/controller_io#")
+    QUDT = rdflib.Namespace("http://qudt.org/schema/qudt#")
 
     def __init__(self, graph: Graph):
         self.graph = graph
@@ -34,12 +37,21 @@ class QueryUtils:
 
         qres = self.graph.query(query, initBindings=init_bindings)
 
+        qb = qres.bindings
+
+        assert len(
+            qb) > 0, f'Pre-condition {pre_condition} is not properly defined'
+
         pre_condition_info = {}
 
-        for row in qres:
-            ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
-            pre_condition_info['monitor'] = str(row[0]).replace(self.ns, '')
-            pre_condition_info['constraint'] = str(row[1]).replace(self.ns, '')
+        ci = self.get_constraint_info(
+            init_bindings={'constraint': qb[0]['constraint']})
+        pre_condition_info['monitor'] = str(
+            qb[0]['monitor']).replace(
+            self.ns, '')
+        pre_condition_info['constraint'] = str(
+            qb[0]['constraint']).replace(
+            self.ns, '')
 
         return pre_condition_info, ci
 
@@ -62,12 +74,26 @@ class QueryUtils:
 
         qres = self.graph.query(query, initBindings=init_bindings)
 
+        qb = qres.bindings
+
+        assert len(
+            qb) > 0, f'Per-condition {per_condition} is not properly defined'
+
         per_condition_info = {}
 
-        for row in qres:
-            ci = self.get_constraint_info(init_bindings={'constraint': row[1]})
-            per_condition_info['controller'] = str(row[0]).replace(self.ns, '')
-            per_condition_info['constraint'] = str(row[1]).replace(self.ns, '')
+        ci = self.get_constraint_info(
+            init_bindings={'constraint': qb[0]['constraint']})
+        
+        con_name = str(qb[0]['constraint']).replace(self.ns, '')
+
+        assert ci[con_name]['operator'] == "eq", f"Operator {ci[con_name]['operator']} is not supported for per-condition"
+
+        per_condition_info['controller'] = str(
+            qb[0]['controller']).replace(
+            self.ns, '')
+        per_condition_info['constraint'] = str(
+            qb[0]['constraint']).replace(
+            self.ns, '')
 
         return per_condition_info, ci
 
@@ -77,7 +103,7 @@ class QueryUtils:
         """
 
         query = f"""
-            SELECT ?constraint ?operator ?tv ?tu ?coord
+            SELECT ?operator ?tv ?tu ?coord
             WHERE {{
                 ?constraint a constraint-ns:Constraint ;
                     constraint-ns:operator ?operator ;
@@ -89,18 +115,26 @@ class QueryUtils:
             }}
         """
 
+        assert init_bindings is not None, "init_bindings cannot be None"
+
         qres = self.graph.query(query, initBindings=init_bindings)
+
+        qb = qres.bindings
+
+        constriant_name = str(qb[0]['constraint']).replace(self.ns, '')
+
+        assert len(
+            qb) > 0, f'Constraint {constriant_name} is not properly defined'
 
         constraint = {}
 
-        for row in qres:
-            constraint_info = {}
-            constraint_info['operator'] = str(row[1]).replace(self.ns, '')
-            constraint_info['thresh_val'] = float(row[2])
-            constraint_info['thresh_unit'] = str(row[3])
-            constraint_info['coord'] = str(row[4]).replace(self.ns, '')
+        constraint_info = {}
+        constraint_info['operator'] = str(qb[0]['operator']).split('#')[1]
+        constraint_info['thresh_val'] = float(qb[0]['tv'])
+        constraint_info['thresh_unit'] = str(qb[0]['tu']).split('/')[-1]
+        constraint_info['coord'] = str(qb[0]['coord']).replace(self.ns, '')
 
-            constraint[str(row[0]).replace(self.ns, '')] = constraint_info
+        constraint[constriant_name] = constraint_info
 
         return constraint
 
@@ -108,6 +142,9 @@ class QueryUtils:
         """
         Returns a dictionary of coordinate information for a given set of bindings.
         """
+
+        assert coord is not None or init_bindings is not None, "Either coord or init_bindings should be provided"
+
         coord_info = {}
 
         if (self.ns not in str(coord)):
@@ -117,15 +154,19 @@ class QueryUtils:
         if (coord, RDF.type, QueryUtils.COORD["DistanceCoordinate"]) in self.graph:
 
             query = f"""
-                SELECT ?dist_coord ?du ?qk ?f1_coord ?f2_coord
+                SELECT ?du ?qk ?f1_coord ?f2_coord ?dist_type_1 ?dist_type_2
                 WHERE {{
                     ?dist_coord a coord:DistanceCoordinate ;
                         coord:of-distance ?dist ;
                         qudt-schema:unit ?du .
                     ?dist a kinematics:EuclideanDistance ;
-                        a kinematics:FramePointToPointDistance ;
+                        a kinematics:FrameToFrameDistance ;
+                        a ?type_1 ;
+                        a ?type_2 ;
                         qudt-schema:hasQuantityKind ?qk ;
                         kinematics:between-entities ?f1, ?f2 .
+                    VALUES ?type_1 {{ kinematics:LinearDistance kinematics:AngularDistance }}
+                    VALUES ?type_2 {{ kinematics:1D kinematics:2D kinematics:3D }}
                     FILTER (?f1 != ?f2)
                     ?f1 a frame:Frame .
                     ?f2 a frame:Frame .
@@ -143,75 +184,196 @@ class QueryUtils:
 
             qres = self.graph.query(query, initBindings=init_bindings)
 
-            for row in qres:
-                coord_info = {
-                    'type': 'DistanceCoordinate',
-                    'unit': str(row[1]),
-                    'quant_kind': row[2],
-                    'f1_coord': str(row[3]).replace(self.ns, ''),
-                    'f2_coord': str(row[4]).replace(self.ns, '')
-                }
+            qb = qres.bindings
+
+            assert len(qb) > 0, "Distance type is not supported"
+
+            coord_info = {
+                'type': 'DistanceCoordinate',
+                'unit': str(qb[0]['du']).split('/')[-1],
+                'quant_kind': str(qb[0]['qk']),
+                'f1_coord': str(qb[0]['f1_coord']).replace(self.ns, ''),
+                'f2_coord': str(qb[0]['f2_coord']).replace(self.ns, '')
+            }
 
         # check coord type is velocity coordinate
         elif (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
-            query = f"""
-                SELECT DISTINCT ?vel_coord ?vu ?qk ?f1_coord ?f2_coord ?f3_coord ?vel ?vel_type
-                WHERE {{
-                    ?vel_coord a coord:VelocityCoordinate ;
-                        coord:of-velocity ?vel ;
-                        qudt-schema:unit ?vu .
-                    {{
-                        ?vel a kinematics:CartesianVelocity ;
-                            a ?vel_type ;
-                            qudt-schema:hasQuantityKind ?qk ;
-                            kinematics:of-frame ?f1 ;
-                            kinematics:wrt-frame ?f2 ;
-                            kinematics:measured-in-frame ?f3 .
+
+            vel = self.graph.value(coord, QueryUtils.COORD["of-velocity"])
+
+            # check velocity type: CartesianVelocity, OneDimensionalVelocity, TwoDimensionalVelocity
+            if (vel, RDF.type, QueryUtils.KINEMATICS["CartesianVelocity"]) in self.graph:
+                # check velocity type: LinearVelocity, AngularVelocity
+                vel_type = ['CartesianVelocity']
+                if (vel, RDF.type, QueryUtils.KINEMATICS["LinearVelocity"]) in self.graph:
+                    vel_type.append('LinearVelocity')
+                elif (vel, RDF.type, QueryUtils.KINEMATICS["AngularVelocity"]) in self.graph:
+                    vel_type.append('AngularVelocity')
+                else:
+                    raise Exception("Velocity type is not supported")
+
+                of_frame = self.graph.value(
+                    vel, QueryUtils.KINEMATICS["of-frame"])
+                wrt_frame = self.graph.value(
+                    vel, QueryUtils.KINEMATICS["wrt-frame"])
+                qk = self.graph.value(vel, QueryUtils.QUDT["hasQuantityKind"])
+
+                # check if of-frame and wrt-frame are different
+                if of_frame == wrt_frame:
+                    raise Exception("of-frame and wrt-frame cannot be the same")
+
+                query = f"""
+                    SELECT DISTINCT ?f3_coord ?vu ?v_x ?v_y ?v_z
+                    WHERE {{
+                        ?vel_coord a coord:VelocityCoordinate ;
+                            a coord:VectorXYZ ;
+                            coord:of-velocity ?vel ;
+                            coord:as-seen-by ?f3 ;
+                            qudt-schema:unit ?vu ;
+                            coord:x ?v_x ;
+                            coord:y ?v_y ;
+                            coord:z ?v_z .
+                        
+                        ?f3 a frame:Frame .
+
+                        ?f3_coord a coord:FrameCoordinate ;
+                            a coord:FrameReference ;
+                            coord:of-frame ?f3 .
                     }}
-                    UNION
-                    {{
-                        ?vel a kinematics:CartesianVelocity ;
-                            a ?vel_type ;
-                            qudt-schema:hasQuantityKind ?qk ;
-                            kinematics:of-frame ?f1 ;
-                            kinematics:wrt-frame ?f2 ;
-                            kinematics:measured-in-frame ?f3 .
-                    }}
-                    VALUES (?vel_type) {{ (kinematics:LinearVelocity) (kinematics:OneDimensionalVelocity) }}
-                    FILTER (?f1 != ?f2)
-                    ?f1 a frame:Frame .
-                    ?f2 a frame:Frame .
-                    ?f1_coord a coord:FrameCoordinate ;
-                        a coord:FrameReference ;
-                        coord:of-frame ?f1 .
-                    ?f2_coord a coord:FrameCoordinate ;
-                        a coord:FrameReference ;
-                        coord:of-frame ?f2 .
-                    ?f3_coord a coord:FrameCoordinate ;
-                        a coord:FrameReference ;
-                        coord:of-frame ?f3 .
-                }}
-            """
+                """
 
-            if init_bindings is None:
-                init_bindings = {'vel_coord': coord}
+                init_bindings = {'vel': vel}
 
-            qres = self.graph.query(query, initBindings=init_bindings)
+                qres = self.graph.query(query, initBindings=init_bindings)
 
-            for row in qres:
-                dim_node = self.graph.value(row[6], QueryUtils.KINEMATICS["dimension"])
-                dim = Collection(self.graph, dim_node)
-                dim = [float(d) for d in dim]
+                vals = qres.bindings
+
+                assert len(vals) > 0, "Velocity type is not supported"
+
+                vel_sp = vals[0]['vel_sp']
+                vu = vals[0]['vu']
+                f3_coord = vals[0]['f3_coord']
+
                 coord_info = {
                     'type': 'VelocityCoordinate',
-                    'unit': str(row[1]),
-                    'quant_kind': row[2],
-                    'of_coord': str(row[3]).replace(self.ns, ''),
-                    'wrt_coord': str(row[4]).replace(self.ns, ''),
-                    'mi_coord': str(row[5]).replace(self.ns, ''),
-                    'vel_type': str(row[7]).split('#')[1],
-                    'vel_dim': dim
+                    'of_coord': str(f3_coord).replace(self.ns, ''),
+                    'wrt_coord': str(wrt_frame).replace(self.ns, ''),
+                    'asb_coord': str(of_frame).replace(self.ns, ''),
+                    'vel_sp': [float(vals[0]['v_x']), float(vals[0]['v_y']), float(vals[0]['v_z'])],
+                    'unit': str(vu).split('/')[-1],
+                    'vel_type': vel_type
                 }
+
+            elif (vel, RDF.type, QueryUtils.KINEMATICS["OneDimensionalVelocity"]) in self.graph:
+                query = f"""
+                    SELECT DISTINCT ?speed ?direction ?vel_type ?vel_type2
+                    WHERE {{
+                        ?vel a kinematics:OneDimensionalVelocity ;
+                            a ?vel_type ;
+                            a ?vel_type2 ;
+                            kinematics:speed ?speed ;
+                            kinematics:direction ?direction .
+
+                        VALUES ?vel_type {{ kinematics:VelocityBoundUnitDirectionSpeed kinematics:VelocityReferencePointDirectionSpeed }}
+                        VALUES ?vel_type2 {{ kinematics:LinearVelocity kinematics:AngularVelocity }}
+                    }}
+                """
+
+                if init_bindings is None:
+                    init_bindings = {'vel': vel}
+
+                qres = self.graph.query(query, initBindings=init_bindings)
+
+                vals = qres.bindings
+
+                assert len(vals) > 0, "Velocity type is not supported"
+
+                speed = vals[0]['speed']
+                direction = vals[0]['direction']
+                vel_type = vals[0]['vel_type']
+                vel_type2 = vals[0]['vel_type2'].split('#')[1]
+
+                if "VelocityBoundUnitDirectionSpeed" in vel_type:
+                    query = f"""
+                        SELECT DISTINCT ?f1 ?f3 ?f1_coord ?f2_coord ?f4_coord ?vel_sp ?vu ?du ?dx ?dy ?dz
+                        WHERE {{
+                            ?speed a kinematics:Speed ;
+                                kinematics:of-frame ?f1 ;
+                                kinematics:wrt-frame ?f2 ;
+                                qudt-schema:hasQuantityKind ?qks .
+
+                            ?direction a kinematics:DirectionVector ;
+                                a kinematics:BoundVector ;
+                                qudt-schema:hasQuantityKind ?qkd ;
+                                kinematics:start ?f3 .
+
+                            FILTER (?f1 != ?f2 && ?f1 = ?f3)
+
+                            ?f1 a frame:Frame .
+                            ?f2 a frame:Frame .
+
+                            ?f1_coord a coord:FrameCoordinate ;
+                                a coord:FrameReference ;
+                                coord:of-frame ?f1 .
+                            ?f2_coord a coord:FrameCoordinate ;
+                                a coord:FrameReference ;
+                                coord:of-frame ?f2 .
+                            
+                            ?speed_coord a coord:SpeedCoordinate ;
+                                coord:of-speed ?speed ;
+                                qudt-schema:unit ?vu ;
+                                qudt-schema:value ?vel_sp .
+
+                            ?direction_coord a coord:VectorCoordinate ;
+                                a coord:VectorXYZ ;
+                                coord:of-direction ?direction ;
+                                coord:as-seen-by ?f4 ;
+                                qudt-schema:unit ?du ;
+                                coord:x ?dx ;
+                                coord:y ?dy ;
+                                coord:z ?dz .
+                                
+                            ?f4 a frame:Frame .
+
+                            ?f4_coord a coord:FrameCoordinate ;
+                                a coord:FrameReference ;
+                                coord:of-frame ?f4 .
+                        }}
+                        LIMIT 1
+                    """
+
+                    init_bindings = {'speed': speed, 'direction': direction}
+
+                    qres = self.graph.query(query, initBindings=init_bindings)
+
+                    qb = qres.bindings
+
+                    assert len(qb) > 0, "Velocity type is not supported"
+
+                    # TODO: dir unit is not used for now. write in report
+
+                    dir = [
+                        float(qb[0]['dx']),
+                        float(qb[0]['dy']),
+                        float(qb[0]['dz'])]
+
+                    dir = [1 if d != 0 else np.inf for d in dir]
+
+                    coord_info = {
+                        'type': 'VelocityCoordinate',
+                        'of_coord': str(qb[0]['f1_coord']).replace(self.ns, ''),
+                        'wrt_coord': str(qb[0]['f2_coord']).replace(self.ns, ''),
+                        'asb_coord': str(qb[0]['f4_coord']).replace(self.ns, ''),
+                        'vel_sp': np.multiply(float(qb[0]['vel_sp']), dir).tolist(),
+                        'unit': str(qb[0]['vu']).split('/')[-1],
+                        'vel_type': ['OneDimensionalVelocity', 'VelocityBoundUnitDirectionSpeed'] + [vel_type2]
+                    }
+
+                else:
+                    raise Exception("Velocity type is not supported")
+
+            elif (vel, RDF.type, QueryUtils.KINEMATICS["TwoDimensionalVelocity"]) in self.graph:
+                raise Exception("TwoDimensionalVelocity is not supported")
 
         # check coord type is FrameCoordinate
         elif (coord, RDF.type, QueryUtils.COORD["FrameCoordinate"]) in self.graph:
@@ -243,19 +405,22 @@ class QueryUtils:
 
             qres = self.graph.query(query, initBindings=init_bindings)
 
-            for row in qres:
-                coord_info = {
-                    'type': ['FrameCoordinate'],
-                    'f1': str(row[0]).replace(self.ns, ''),
-                    'f2': str(row[1]).replace(self.ns, ''),
-                    'unit': str(row[2])
-                }
+            qb = qres.bindings
 
-                if row[3] is not None:
-                    coord_info['type'].append('VectorXYZ')
-                    coord_info['x'] = float(row[3])
-                    coord_info['y'] = float(row[4])
-                    coord_info['z'] = float(row[5])
+            assert len(
+                qb) > 0, f'FrameCoordinate {coord} is not properly defined'
+
+            coord_info = {'type': 'FrameCoordinate',
+                          'of': str(qb[0]['f1']).replace(self.ns, ''),
+                          'asb': str(qb[0]['f2']).replace(self.ns, '')
+                          if 'f2' in qb[0].keys() else None,
+                          'unit': str(qb[0]['unit']).split('/')[-1]}
+
+            # check if qb[0]['x'] is in keys
+            if 'x' in qb[0].keys():
+                coord_info['x'] = float(qb[0]['x'])
+                coord_info['y'] = float(qb[0]['y'])
+                coord_info['z'] = float(qb[0]['z'])
 
         return coord_info
 
@@ -292,7 +457,8 @@ class QueryUtils:
 
         for solver_input in solver_inputs:
             if (solver_input, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
-                mappings_info['solver-input'].append(str(solver_input).replace(self.ns, ''))
+                mappings_info['solver-input'].append(
+                    str(solver_input).replace(self.ns, ''))
 
         # get controller mappings
         controller_mappings = self.graph.objects(
@@ -387,41 +553,171 @@ class QueryUtils:
 
         if (coord, RDF.type, QueryUtils.COORD["VelocityCoordinate"]) in self.graph:
             of_vel = self.graph.value(coord, QueryUtils.COORD["of-velocity"])
+            alpha = np.zeros((6, 6))
+            dir = None
+
+            if (of_vel, RDF.type, QueryUtils.KINEMATICS["CartesianVelocity"]) in self.graph:
+                dir = [1, 1, 1]
+
+            elif (of_vel, RDF.type, QueryUtils.KINEMATICS["VelocityBoundUnitDirectionSpeed"]) in self.graph:
+
+                direction = self.graph.value(
+                    of_vel, QueryUtils.KINEMATICS["direction"])
+
+                query = f"""
+                    SELECT DISTINCT ?dx ?dy ?dz ?dir_type
+                    WHERE {{
+                        ?direction_coord a coord:VectorCoordinate ;
+                            a coord:VectorXYZ ;
+                            coord:of-direction ?direction ;
+                            coord:x ?dx ;
+                            coord:y ?dy ;
+                            coord:z ?dz .
+                        OPTIONAL {{
+                            ?direction a kinematics:BoundVector ;
+                                a ?dir_type .
+                            VALUES ?dir_type {{ kinematics:UnitLength }}
+                        }}
+                    }}
+                """
+
+                init_bindings = {'direction': direction}
+
+                qres = self.graph.query(query, initBindings=init_bindings)
+
+                qb = qres.bindings
+
+                assert len(qb) > 0, "Direction type is not supported"
+
+                dir = {}
+
+                dir["dir_vec"] = [
+                    float(qb[0]['dx']),
+                    float(qb[0]['dy']),
+                    float(qb[0]['dz'])]
+
+                assert None not in dir["dir_vec"], "Direction vector is invalid"
+
+                if qb[0]['dir_type'] is not None:
+                    dir["dir_type"] = str(qb[0]['dir_type']).split('#')[1]
+                else:
+                    dir["dir_type"] = None
+
+                # TODO: calculate alpha based on of-frame and wrt-frame in cpp
+
+                dir_vec = dir["dir_vec"]
+
+                if "UnitLength" in dir["dir_type"]:
+                    if np.linalg.norm(dir_vec) > 1:
+                        raise Exception("Direction vector is not a unit vector")
+                    else:
+                        dir = dir_vec
+                else:
+                    raise Exception("Direction vector type is not supported")
+            else:
+                raise Exception("Velocity type is not supported")
 
             if (of_vel, RDF.type, QueryUtils.KINEMATICS["LinearVelocity"]) in self.graph:
-                alpha = [[1, 0, 0, 0, 0, 0],
-                         [0, 1, 0, 0, 0, 0],
-                         [0, 0, 1, 0, 0, 0]]
+                dir.extend([0, 0, 0])
+            elif (of_vel, RDF.type, QueryUtils.KINEMATICS["AngularVelocity"]) in self.graph:
+                dir = [0, 0, 0] + dir
+            else:
+                raise Exception("Velocity type is not supported")
 
-                return alpha
+            np.fill_diagonal(alpha, dir)
 
-            elif (of_vel, RDF.type, QueryUtils.KINEMATICS["OneDimensionalVelocity"]) in self.graph:
-                dimension_node = self.graph.value(
-                    of_vel, QueryUtils.KINEMATICS["dimension"])
-                
-                # TODO: if dimension is not present, throw an error
-                # calculate alpha based on of-frame and wrt-frame in cpp
-                # check if dimension is present
-                if dimension_node is None:
-                    raise Exception("Dimension is not present")
-                
-                dimension = Collection(self.graph, dimension_node)
+            # remove zero rows
+            alpha = alpha[~np.all(alpha == 0, axis=1)]
 
-                alpha = [float(d) for d in dimension]
+            return alpha.tolist()
 
-                return alpha
         elif (coord, RDF.type, QueryUtils.COORD["DistanceCoordinate"]) in self.graph:
             of_dist = self.graph.value(coord, QueryUtils.COORD["of-distance"])
 
-            if (of_dist, RDF.type, QueryUtils.KINEMATICS["EuclideanDistance"]) in self.graph:
-                alpha = [[1, 0, 0, 0, 0, 0],
-                         [0, 1, 0, 0, 0, 0],
-                         [0, 0, 1, 0, 0, 0]]
+            query = f"""
+                SELECT ?dist_type_1 ?dist_type_2 ?dist_type3
+                WHERE {{
+                    ?dist a kinematics:EuclideanDistance ;
+                        a kinematics:FrameToFrameDistance ;
+                        a ?type_1 ;
+                        a ?type_2 .
+                    VALUES ?type_1 {{ kinematics:LinearDistance kinematics:AngularDistance }}
+                    VALUES ?type_2 {{ kinematics:1D kinematics:2D kinematics:3D }}
 
-                return alpha
-            
+                }}
+            """
+
+            init_bindings = {'dist': of_dist}
+
+            qres = self.graph.query(query, initBindings=init_bindings)
+
+            qb = qres.bindings
+
+            assert len(qb) > 0, "Distance type is not supported"
+
+            dt1 = str(qb[0]['dist_type_1']).split('#')[1]
+            dt2 = str(qb[0]['dist_type_2']).split('#')[1]
+
+            non_3d_coord_type = None
+
+            if dt2 == "3D":
+                # get the type of coordinate
+                query = f"""
+                    SELECT ?coord_type
+                    WHERE {{
+                        OPTIONAL {{
+                            ?dist_coord a coord:DistanceCoordinate ;
+                                a ?coord_type .
+
+                            VALUES ?coord_type {{ coord:AxisX coord:AxisY coord:AxisZ coord:PlaneXY coord:PlaneYZ coord:PlaneZX }}
+                        }}
+                    }}
+                """
+
+                init_bindings = {'dist_coord': coord}
+
+                qres = self.graph.query(query, initBindings=init_bindings)
+
+                qb = qres.bindings
+
+                assert len(qb) > 0, "Coordinate type is not supported"
+
+                if qb[0]['coord_type'] is not None:
+                    non_3d_coord_type = str(qb[0]['coord_type']).split('#')[1]
+
+            alpha = np.zeros((6, 6))
+
+            coord_vectors = {
+                "AxisX": [1, 0, 0],
+                "AxisY": [0, 1, 0],
+                "AxisZ": [0, 0, 1],
+                "PlaneXY": [1, 1, 0],
+                "PlaneYZ": [0, 1, 1],
+                "PlaneZX": [1, 1, 1],
+            }
+
+            if dt2 == "1D" or dt2 == "2D":
+                assert non_3d_coord_type is not None, "Coordinate type is not supported"
+                if dt1 == "LinearDistance":
+                    vec = coord_vectors[non_3d_coord_type]
+                    vec.extend([0, 0, 0])
+                    np.fill_diagonal(alpha, vec)
+                elif dt1 == "AngularDistance":
+                    vec = coord_vectors[non_3d_coord_type]
+                    vec = [0, 0, 0] + vec
+                    np.fill_diagonal(alpha, vec)
+            elif dt2 == "3D":
+                if dt1 == "LinearDistance":
+                    np.fill_diagonal(alpha, [1, 1, 1, 0, 0, 0])
+                elif dt1 == "AngularDistance":
+                    np.fill_diagonal(alpha, [0, 0, 0, 1, 1, 1])
             else:
                 raise Exception("Distance type is not supported")
+
+            # remove zero rows
+            alpha = alpha[~np.all(alpha == 0, axis=1)]
+
+            return alpha.tolist()
 
     def construct_abc(self, alpha_in):
         """
@@ -443,8 +739,7 @@ class QueryUtils:
         # sort alpha
         alpha.sort(reverse=True)
 
-        if not isinstance(alpha[0], list):
-            raise Exception("Alpha is not a list of lists")
+        assert isinstance(alpha[0], list), "Alpha is not a list of lists"
 
         nc = len(alpha)
 

@@ -13,6 +13,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_
 # create logs folder in outputs folder if not exists
 file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/logs)
 
+set(MUJOCO_PATH "/home/batsy/.mujoco/mujoco-2.3.7")
+
+include_directories(${MUJOCO_PATH}/include)
+link_directories(${MUJOCO_PATH}/bin)
+
+find_package(glfw3 REQUIRED)
+include_directories(${GLFW3_INCLUDE_DIRS})
+
 # include all hpp files in include folder
 include_directories(include)
 
@@ -48,6 +56,9 @@ target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams 
 add_library(kinova_mediator src/utils/kinova_mediator.cpp)
 target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} logger)
 
+add_library(mujoco_env src/utils/mujoco_env.cpp)
+target_link_libraries(mujoco_env /home/batsy/.mujoco/mujoco-2.3.7/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
+
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
 # file(GLOB SOURCES "src/utils/*.cpp")
@@ -57,9 +68,10 @@ foreach(source ${SOURCES})
     get_filename_component(name ${source} NAME_WE)
     add_executable(${name} ${source})
     TARGET_LINK_LIBRARIES(${name} 
-      orocos-kdl boost_filesystem boost_system boost_iostreams 
+      orocos-kdl boost_filesystem boost_system boost_iostreams
       pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
-      /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a)
+      /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a
+      mujoco_env)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder

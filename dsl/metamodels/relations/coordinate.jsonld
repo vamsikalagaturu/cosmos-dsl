@@ -13,10 +13,23 @@
         "FrameCoordinate": "coord:FrameCoordinate",
 
         "DistanceCoordinate": "coord:DistanceCoordinate",
+
+        "VectorCoordinate": "coord:VectorCoordinate",
+        "SpeedCoordinate": "coord:SpeedCoordinate",
         "VelocityCoordinate": "coord:VelocityCoordinate",
 
-        "Orientation": "../entities/orientation.jsonld",
+        "ForceCoordinate": "coord:ForceCoordinate",
 
+        "AxisX": "coord:AxisX",
+        "AxisY": "coord:AxisY",
+        "AxisZ": "coord:AxisZ",
+
+        "PlaneXY": "coord:PlaneXY",
+        "PlaneXZ": "coord:PlaneXZ",
+        "PlaneYZ": "coord:PlaneYZ",
+
+        
+        
         "VectorXYZ": "coord:VectorXYZ",
 
         "of-position": {
@@ -44,8 +57,23 @@
             "@type": "@id"
         },
 
+        "of-speed": {
+            "@id": "coord:of-speed",
+            "@type": "@id"
+        },
+
+        "of-direction": {
+            "@id": "coord:of-direction",
+            "@type": "@id"
+        },
+
         "of-velocity": {
             "@id": "coord:of-velocity",
+            "@type": "@id"
+        },
+
+        "of-force": {
+            "@id": "coord:of-force",
             "@type": "@id"
         },
 

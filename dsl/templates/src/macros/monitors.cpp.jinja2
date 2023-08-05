@@ -2,15 +2,14 @@
   // Pre-conditions
   {% for pre_cond in pre_conds -%}
   {% with constraint = constraints[pre_cond["constraint"]] -%}
-  Monitor pre_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}", {{constraint["thresh_val"]}},
-                          "{{constraint["thresh_unit"]}}"
+  Monitor pre_monitor_{{loop.index}}(Monitor::MonitorType::PRE, logger, "{{constraint["operator"]}}", "{{constraint["thresh_unit"]}}", {{constraint["thresh_val"]}}
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
                           ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-                          {% if coords[constraint["coord"]]["vel_type"] == "OneDimensionalVelocity" %}
-                          ,{ {{coords[constraint["coord"]]["vel_dim"]|join(", ")}} });
+                          {%- if "LinearVelocity" in coords[constraint["coord"]]["vel_type"] %}
+                          ,KDL::Twist( { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} }, {INFINITY, INFINITY, INFINITY} ));
                           {%- else -%}
-                          );
+                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} } } ));
                           {%- endif -%}
                           {% endif -%}
 
@@ -20,15 +19,14 @@
   // Post-conditions
   {% for post_cond in post_conds -%}
   {% with constraint = constraints[post_cond["constraint"]] -%}
-  Monitor post_monitor_{{loop.index}}(logger, "{{constraint["operator"]}}", {{constraint["thresh_val"]}},
-                          "{{constraint["thresh_unit"]}}"
+  Monitor post_monitor_{{loop.index}}(Monitor::MonitorType::POST, logger, "{{constraint["operator"]}}", "{{constraint["thresh_unit"]}}", {{constraint["thresh_val"]}}
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
                           ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-                          {% if coords[constraint["coord"]]["vel_type"] == "OneDimensionalVelocity" %}
-                          ,{ {{coords[constraint["coord"]]["vel_dim"]|join(", ")}} });
+                          {%- if "LinearVelocity" in coords[constraint["coord"]]["vel_type"] %}
+                          ,KDL::Twist( { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} }, {INFINITY, INFINITY, INFINITY} ));
                           {%- else -%}
-                          );
+                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} } } ));
                           {%- endif -%}
                           {% endif -%}
   {% endwith -%}
@@ -40,12 +38,12 @@
   {%- with constraint = constraints[pre_cond["constraint"]] %}
   {%- if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
   {% if "VectorXYZ" not in coords[coords[constraint["coord"]]["f2_coord"]]["type"] +%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f2_coord"]}}_frame))
+  if (!pre_monitor_{{loop.index}}.checkAll({{coords[constraint["coord"]]["f2_coord"]}}_frame))
   {% else +%}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["f1_coord"]}}_frame))
+  if (!pre_monitor_{{loop.index}}.checkAll({{coords[constraint["coord"]]["f1_coord"]}}_frame))
   {% endif -%}
   {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" %}
-  if (!pre_monitor_{{loop.index}}.checkAny({{coords[constraint["coord"]]["of_coord"]}}_twist))
+  if (!pre_monitor_{{loop.index}}.checkAll({{coords[constraint["coord"]]["of_coord"]}}_twist))
   {% endif -%}
   {
     logger->logError("Pre-condition {{loop.index}} not met");
@@ -75,7 +73,7 @@
     {%- endif -%}
 
     {%- elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["of_coord"]]["f1"]}});
+    int seg_n_{{loop.index}} = utils->getLinkIdFromChain(robot_chain, {{coords[coords[constraint["coord"]]["of_coord"]]["of"]}});
     {% set cp = coords[constraint["coord"]]["of_coord"] + "_twist" %}
     KDL::Twist {{cp}}_{{loop.index}} = twists[seg_n_{{loop.index}}];
     velocities.push_back({{cp}}_{{loop.index}}.vel);

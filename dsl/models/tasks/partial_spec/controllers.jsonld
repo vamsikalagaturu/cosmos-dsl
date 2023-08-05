@@ -96,6 +96,15 @@
             "d-gain": 0.0,
             "time-step": 0.1,
             "constraint": "rob:bracelet_link_target_link_vel_ef_yz_constraint_per"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_force_ef_controller",
+            "@type": "PIDController",
+            "p-gain": 20.0,
+            "i-gain": 0.9,
+            "d-gain": 0.0,
+            "time-step": 0.001,
+            "constraint": "rob:bracelet_link_target_link_force_ef_constraint_per"
         }
     ]
 }

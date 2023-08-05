@@ -50,6 +50,20 @@
             ]
         },
         {
+            "@id": "rob:move_arm_vel_x",
+            "@type": "MoveArm",
+            "mappings": "rob:bracelet_link_vel_x_csm",
+            "pre-conditions": [
+                "rob:bracelet_link_vel_x_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_vel_x_constraint_per"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_vel_x_constraint_post"
+            ]
+        },
+        {
             "@id": "rob:move_arm_vel_xy_1d",
             "@type": "MoveArm",
             "mappings": "rob:controller_solver_mappings_xy_1d",

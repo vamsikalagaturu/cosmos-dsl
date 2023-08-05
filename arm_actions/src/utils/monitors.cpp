@@ -1,8 +1,9 @@
 #include "arm_actions/monitors.hpp"
 
-Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-                 std::string thresh_unit, std::array<double, 3> *target)
+Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op,
+                 double thresh_val, std::string thresh_unit, std::array<double, 3> *target)
 {
+  _mt = mt;
   _comp_op = comp_op;
   _thresh_val = thresh_val;
   _thresh_unit = thresh_unit;
@@ -16,82 +17,29 @@ Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thr
   _math_utils = std::make_shared<MathUtils>(0.0001);
 };
 
-Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-                 std::string thresh_unit, KDL::Frame *target)
+Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op,
+                 std::string thresh_unit, double thresh_val, KDL::Frame *target)
 {
+  _mt = mt;
   _comp_op = comp_op;
   _thresh_val = thresh_val;
   _thresh_unit = thresh_unit;
 
   _target_frame = target;
 
-  // set threshold_frame
-  std::fill(_threshold_twist.vel.data, _threshold_twist.vel.data + 3, thresh_val);
-
-  // TODO: handle orientation
-
-  _logger = logger;
-
-  _utils = std::make_shared<Utils>(logger);
-
-  _math_utils = std::make_shared<MathUtils>(0.0001);
-};
-
-Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-          std::string thresh_unit, KDL::Frame *target, std::vector<double> dimensions)
-{
-  _comp_op = comp_op;
-  _thresh_val = thresh_val;
-  _thresh_unit = thresh_unit;
-
-  _target_frame = target;
-
-  _dimensions = dimensions;
-
-  // fill _threshold_frame with thresh_val based on non-zero dimensions
-  std::transform(_dimensions.begin(), _dimensions.begin() + 3, _threshold_twist.vel.data,
-                 [&](double d) { return d == 0.0 ? 0.0 : thresh_val; });
-
-  // TODO: handle orientation
-
   _logger = logger;
 
   _math_utils = std::make_shared<MathUtils>(0.0001);
 };
 
-Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-                 std::string thresh_unit)
+Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op,
+                 std::string thresh_unit, double thresh_val, KDL::Twist target)
 {
+  _mt = mt;
   _comp_op = comp_op;
-  _thresh_val = thresh_val;
   _thresh_unit = thresh_unit;
-
-  // set _threshold_twist with thresh_val
-  std::fill(_threshold_twist.vel.data, _threshold_twist.vel.data + 3, thresh_val);
-  
-  // TODO: handle orientation
-
-  _logger = logger;
-
-  _utils = std::make_shared<Utils>(logger);
-
-  _math_utils = std::make_shared<MathUtils>(0.0001);
-};
-
-Monitor::Monitor(std::shared_ptr<Logger> logger, std::string comp_op, double thresh_val,
-                 std::string thresh_unit, std::vector<double> dimensions)
-{
-  _comp_op = comp_op;
   _thresh_val = thresh_val;
-  _thresh_unit = thresh_unit;
-
-  _dimensions = dimensions;
-
-  // fill _threshold_twist with thresh_val based on non-zero dimensions
-  std::transform(_dimensions.begin(), _dimensions.begin() + 3, _threshold_twist.vel.data,
-                 [&](double d) { return d == 0.0 ? 0.0 : thresh_val; });
-
-  // TODO: handle orientation
+  _target_twist = target;
 
   _logger = logger;
 
@@ -139,19 +87,31 @@ bool Monitor::checkAny(std::array<double, 3> current_position,
 bool Monitor::checkAll(KDL::Frame current)
 {
   auto error = KDL::diff(current, *_target_frame);
+  if (_mt == MonitorType::PRE)
+  {
+    return _checkAll(error);
+  }
+  else
+  {
+    _current_twists.push(error);
 
-  // make the angular error 0
-  std::fill(error.rot.data, error.rot.data + 3, 0.0);
+    if (_current_twists.isFull())
+    {
+      // take the average of the queue
+      auto _current_twists_average = _math_utils->computeAverage(&_current_twists);
 
-  return _checkAll(error);
+      return _checkAll(_current_twists_average);
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
 
 bool Monitor::checkAll(KDL::Frame current, KDL::Frame target)
 {
   auto error = KDL::diff(current, target);
-
-  // make the angular error 0
-  std::fill(error.rot.data, error.rot.data + 3, 0.0);
 
   return _checkAll(error);
 }
@@ -160,9 +120,6 @@ bool Monitor::checkAny(KDL::Frame current)
 {
   auto error = KDL::diff(current, *_target_frame);
 
-  // make the angular error 0
-  std::fill(error.rot.data, error.rot.data + 3, 0.0);
-
   return _checkAny(error);
 }
 
@@ -170,20 +127,42 @@ bool Monitor::checkAny(KDL::Frame current, KDL::Frame target)
 {
   auto error = KDL::diff(current, target);
 
-  // make the angular error 0
-  std::fill(error.rot.data, error.rot.data + 3, 0.0);
-
   return _checkAny(error);
 }
 
 bool Monitor::checkAll(KDL::Twist current)
 {
-  return _checkAll(current);
+  if (_mt == MonitorType::PRE)
+  {
+    // auto error = KDL::diff(current, _target_twist);
+    
+    return _checkAll(current, _target_twist);
+  }
+  else
+  {
+    _current_twists.push(current);
+
+    if (_current_twists.isFull())
+    {
+      // take the average of the queue
+      auto _current_twists_average = _math_utils->computeAverage(&_current_twists);
+
+      // auto error = KDL::diff(_current_twists_average, _target_twist);
+
+      return _checkAll(_current_twists_average, _target_twist);
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
 
 bool Monitor::checkAny(KDL::Twist current)
 {
-  return _checkAny(current);
+  auto error = KDL::diff(current, _target_twist);
+
+  return _checkAny(error);
 }
 
 bool Monitor::_checkAll(std::vector<double> error)
@@ -364,17 +343,21 @@ bool Monitor::_checkAny(KDL::Vector error)
 
 bool Monitor::_checkAny(KDL::Twist error)
 {
-  auto result = _math_utils->compare(error, _threshold_twist, _comp_op);
+  auto result = _math_utils->compare(error, _thresh_val, _comp_op);
 
   return std::any_of(result.begin(), result.end(), [&](bool b) { return b; });
 }
 
 bool Monitor::_checkAll(KDL::Twist error)
 {
-  auto result = _math_utils->compare(error, _threshold_twist, _comp_op);
+  auto result = _math_utils->compare(error, _thresh_val, _comp_op);
 
   return std::all_of(result.begin(), result.end(), [&](bool b) { return b; });
 }
 
+bool Monitor::_checkAll(KDL::Twist avg_current, KDL::Twist target)
+{
+  auto result = _math_utils->compare(avg_current, target, _thresh_val, _comp_op);
 
-
+  return std::all_of(result.begin(), result.end(), [&](bool b) { return b; });
+}

@@ -9,12 +9,24 @@
 
 #include "frames.hpp"
 
+#include "arm_actions/fixed_size_queue.hpp"
+
 class MathUtils
 {
 public:
   MathUtils(double eq_tol = 0.0001);
 
   ~MathUtils();
+
+  /**
+   * @brief compare Twists
+   * @param current_twist a KDL::Twist
+   * @param double thresh a threshold value
+   * @param comp_op comparison operator string
+   * @return a vector of bools, one for each element of the twist
+   */
+  std::vector<bool> compare(KDL::Twist current_twist, double thresh,
+                            std::string comp_op);
 
   /**
    * @brief compare Twists
@@ -27,6 +39,17 @@ public:
                             std::string comp_op);
 
   /**
+   * @brief compare Twists
+   * @param current_twist a KDL::Twist
+   * @param target_twist a KDL::Twist
+   * @param thresh a threshold value
+   * @param comp_op comparison operator string
+   * @return a vector of bools, one for each element of the twist
+   */
+  std::vector<bool> compare(KDL::Twist current_twist, KDL::Twist target_twist,
+                            double thresh, std::string comp_op);
+
+  /**
    * @brief compare Frames
    * @param current_frame a KDL::Frame
    * @param target_frame a KDL::Frame
@@ -35,6 +58,13 @@ public:
    */
   std::vector<bool> compare(KDL::Frame current_frame, KDL::Frame target_frame,
                             std::string comp_op);
+
+  /**
+   * @brief Computes average of a queue of KDL::Twists
+   * @param queue a FixedSizeQueue queue of KDL::Twists
+   * @return a KDL::Twist
+   */
+  KDL::Twist computeAverage(FixedSizeQueue<KDL::Twist, 10> *queue);
 
 private:
   double _eq_tol;
