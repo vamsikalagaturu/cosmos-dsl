@@ -1,7 +1,7 @@
   {%- macro init_controllers(per_conds, controllers) -%}
   {% for per_cond in per_conds +%}
   {%- with con_data = controllers[per_cond["controller"]] -%}
-  PIDController {{per_cond["controller"]}}({{con_data["kp"]}}, {{con_data["ki"]}}, {{con_data["kd"]}});
+  PIDController {{per_cond["controller"]}}({{con_data["kp"]}}, {{con_data["ki"]}}, {{con_data["kd"]}}, {{con_data["dt"]}});
   {%- endwith -%}
   {%- endfor -%}
   {%- endmacro -%}

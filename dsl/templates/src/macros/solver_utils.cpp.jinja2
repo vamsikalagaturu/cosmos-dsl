@@ -77,7 +77,7 @@
 
     if (i % {{(1 / controllers[con_data["controller"]]["dt"])|int}} == 0)
     {
-      int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[con_data["input"]]["f1"]}});
+      int seg_n = utils->getLinkIdFromChain(robot_chain, {{coords[con_data["input"]]["of"]}});
       
       {# check controller constraint coord type -#}
       {% with con_cons = constraints[controllers[con_data["controller"]]["constraint"]] -%}
@@ -87,19 +87,47 @@
       // get the current tool cartesian velocity
       KDL::Twist {{con_data["input"]}}_twist = twists[seg_n];
 
-      auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")}} };
+      auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")|replace("inf", "INFINITY")}} };
 
       KDL::Twist control_twist;
+      
+      {%- if "LinearVelocity" in coords[con_cons["coord"]]["vel_type"] %}
 
-      for (int j = 0; j < cid.size(); j++)
+      auto vsp = KDL::Vector{ {{coords[con_cons["coord"]]["vel_sp"]|join(",")|replace("inf", "INFINITY")}} };
+
+      for (int j = 0; j < 3; j++)
       {
         if (cid[j] == 1){
-          control_twist.vel(j) = {{con_cons["thresh_val"]}};
+          control_twist.vel(j) = vsp[j];
         }
       }
 
+      {% if coords[con_cons["coord"]]["of_coord"] != "base_link_coord" -%}
+      tf_utils->transform({{con_data["input"]}}_twist, &q, CoordinateSystem::BASE, CoordinateSystem::EE);
+      {% endif -%}
+
       auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal_3d({{con_data["input"]}}_twist.vel, 
-          control_twist.vel, {{controllers[con_data["controller"]]["dt"]}});
+          control_twist.vel);
+
+      {%- elif "AngularVelocity" in coords[con_cons["coord"]]["vel_type"] %}
+
+      auto vsp = KDL::Vector{ {{coords[con_cons["coord"]]["vel_sp"]|join(",")}} };
+
+      for (int j = 3; j < 6; j++)
+      {
+        if (cid[j] == 1){
+          control_twist.rot(j) = vsp[j];
+        }
+      }
+
+      {% if coords[con_cons["coord"]]["of_coord"] != "base_link_coord" -%}
+      tf_utils->transform({{con_data["input"]}}_twist, &q, CoordinateSystem::BASE, CoordinateSystem::EE);
+      {% endif -%}
+
+      auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal_3d({{con_data["input"]}}_twist.rot, 
+          control_twist.rot);
+
+      {% endif -%}
 
       {%- elif coords[con_cons["coord"]]["type"] == "DistanceCoordinate" -%}
 
@@ -122,7 +150,7 @@
       }
 
       auto {{con_data["output"]}} = {{con_data["controller"]}}.computeControlSignal_3d({{con_data["input"]}}_frame.p, 
-          control_frame.p, {{controllers[con_data["controller"]]["dt"]}});
+          control_frame.p);
 
       {%- endif -%}
       {%- endwith -%}
