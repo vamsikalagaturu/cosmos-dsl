@@ -7,6 +7,7 @@ import json
 import time
 import rdflib
 from rdflib.namespace import RDF
+from rdflib.collection import Collection
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -68,7 +69,7 @@ class Convert:
 
             for task in data["tasks"]:
                 result = template.render({
-                    "motion_specs": data["tasks"][task]["motion_specs"],
+                    "task_spec": data["tasks"][task],
                     "coords": data["coords"],
                     "constraints": data["constraints"],
                     "controllers": data["controllers"],
@@ -134,6 +135,15 @@ class Convert:
         # get monitors
         for task_spec in g.subjects(RDF.type, BASETASK["BaseTask"]):
             data = {}
+
+            # check if q-init is present
+            q_init_iri = g.value(task_spec, BASETASK["q-init"])
+
+            if q_init_iri:
+                qi = Collection(g, q_init_iri)
+                data["q_init"] = [float(q) for q in qi]
+            else:
+                data["q_init"] = [0.0, 0.0, 0.0, 1.57, 0.0, 1.57, 0.0]
 
             # get task_spec data
             motion_specs_iris = g.objects(
@@ -224,7 +234,10 @@ class Convert:
                     }
 
                     motion_specs[str(motion_spec_iri).replace(
-                        ROB + "/rob#", '')] = motion_spec
+                        ROB + "/rob#", '')] = motion_spec     
+                else:
+                    raise Exception(
+                        f"Motion specification {motion_spec_iri} is not supported")
 
             data['motion_specs'] = motion_specs
             big_data['tasks'][str(task_spec).replace(ROB+"/rob#", '')] = data
