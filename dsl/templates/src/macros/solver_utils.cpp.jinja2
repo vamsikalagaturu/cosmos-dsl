@@ -72,7 +72,7 @@
     {# update beta and controllers #}
 
     {%- macro updateBetaAndContr(data, constraints, coords, controllers) -%}
-    {%- if data["mappings"]["interface"] == "acc_energy" -%}
+    {%- if "AccEnegery" in data["mappings"]["interface"] -%}
     {%- for con_data in data["mappings"]["controller-mappings"] %}
 
     if (i % {{(1 / controllers[con_data["controller"]]["dt"])|int}} == 0)
