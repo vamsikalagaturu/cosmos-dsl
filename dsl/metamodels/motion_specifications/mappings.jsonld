@@ -3,7 +3,9 @@
         "mapping": "http://example.com/mappings#",
 
         "ControllerSolver": "mapping:ControllerSolver",
+        
         "AccEnegery": "mapping:AccEnegery",
+        "ExtWrench": "mapping:ExtWrench",
 
         "interface": {
             "@id": "mapping:interface",

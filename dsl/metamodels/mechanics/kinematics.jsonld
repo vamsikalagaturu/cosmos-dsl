@@ -5,6 +5,7 @@
         "EuclideanDistance": "kinematics:EuclideanDistance",
         "PointToPointDistance": "kinematics:PointToPointDistance",
         "FramePointToPointDistance": "kinematics:FrameToFrameDistance",
+        "FrameToFrameDistance": "kinematics:FrameToFrameDistance",
         
         "LinearDistance": "kinematics:LinearDistance",
         "AngularDistance": "kinematics:AngularDistance",

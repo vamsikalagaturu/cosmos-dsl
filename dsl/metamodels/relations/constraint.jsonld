@@ -5,6 +5,7 @@
         "Constraint": "constraint-ns:Constraint",
         "DistanceConstraint": "constraint-ns:DistanceConstraint",
         "VelocityConstraint": "constraint-ns:VelocityConstraint",
+        "ForceConstraint": "constraint-ns:ForceConstraint",
 
         "LessThan": "constraint-ns:LessThan",
         "LessThanOrEqual": "constraint-ns:LessThanOrEqual",
