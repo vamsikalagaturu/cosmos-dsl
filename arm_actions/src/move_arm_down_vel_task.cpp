@@ -34,14 +34,14 @@ int main()
   std::string base_link = "base_link";
   std::string tool_link = "bracelet_link";
 
-  auto move_arm_vel_x = [&]() {
+  auto move_arm_down_vel = [&]() {
 
   // initialize the chain
   // define the robot chain
   KDL::Chain robot_chain;
 
   // define the initial joint angles
-  std::vector initial_joint_angles = {0.0, 0.0, 0.0, M_PI_2, 0.0, M_PI_2, 0.0};
+  std::vector initial_joint_angles = { 0.0, 0.26, 0.0, 2.26, 0.0, -0.95, -1.57 };
 
   // define the joint angles
   KDL::JntArray q;
@@ -83,17 +83,29 @@ int main()
   
   // initialize the monitors
   // Pre-conditions
+  
   Monitor pre_monitor_1(Monitor::MonitorType::PRE, logger, "eq", "M-PER-SEC", 0.0
-                          
-                          ,KDL::Twist( { 0.1, INFINITY, INFINITY }, {INFINITY, INFINITY, INFINITY} ));
+                          ,KDL::Twist( { 0.0, 0.0, 0.0 }, {INFINITY, INFINITY, INFINITY} ));
+  
+  Monitor pre_monitor_2(Monitor::MonitorType::PRE, logger, "eq", "RAD-PER-SEC", 0.0
+                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { 0.0, 0.0, 0.0 } ));
+  
 
   // Post-conditions
-  Monitor post_monitor_1(Monitor::MonitorType::POST, logger, "gt", "M-PER-SEC", 0.01
-                          
-                          ,KDL::Twist( { 0.1, INFINITY, INFINITY }, {INFINITY, INFINITY, INFINITY} ));
+  
+  Monitor post_monitor_1(Monitor::MonitorType::POST, logger, "eq", "M-PER-SEC", 0.001
+                          ,KDL::Twist( { 0.0, 0.0, 0.0 }, {INFINITY, INFINITY, INFINITY} ));
+  
+  Monitor post_monitor_2(Monitor::MonitorType::POST, logger, "eq", "RAD-PER-SEC", 0.001
+                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { 0.0, 0.0, 0.0 } ));
+  
   
   // initialize the PID controllers
-  PIDController pid_vel_x_controller(20.0, 0.9, 0.0, 0.1);
+  
+  PIDController pid_move_arm_down_lin_vel_controller(20.0, 0.9, 0.0, 0.1);
+  
+  PIDController pid_move_arm_down_ang_vel_controller(20.0, 0.9, 0.0, 0.1);
+  
 
   // initialize solver params
   // define unit constraint forces for EE
@@ -110,14 +122,24 @@ int main()
   KDL::Wrenches f_ext;           // external forces at each segment
 
   // initialize the solver weights
-  int solver_nc = 1;
+  int solver_nc = 6;
 
   std::vector<std::vector<double>> solver_alpha_weights;
   
   std::vector<double> solver_alpha_col_1 = { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
   solver_alpha_weights.push_back(solver_alpha_col_1);
+  std::vector<double> solver_alpha_col_2 = { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 };
+  solver_alpha_weights.push_back(solver_alpha_col_2);
+  std::vector<double> solver_alpha_col_3 = { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };
+  solver_alpha_weights.push_back(solver_alpha_col_3);
+  std::vector<double> solver_alpha_col_4 = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 };
+  solver_alpha_weights.push_back(solver_alpha_col_4);
+  std::vector<double> solver_alpha_col_5 = { 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
+  solver_alpha_weights.push_back(solver_alpha_col_5);
+  std::vector<double> solver_alpha_col_6 = { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+  solver_alpha_weights.push_back(solver_alpha_col_6);
 
-  std::vector<double> solver_beta_weights = { 0.0 };
+  std::vector<double> solver_beta_weights = { 0.0, 0.0, 9.81, 0.0, 0.0, 0.0 };
 
   // initialize vereshchagin solver
   KDL::ChainHdSolver_Vereshchagin vereshchagin_solver = solver_utils->initializeVereshchaginSolver(
@@ -142,11 +164,20 @@ int main()
     logger->logError("Pre-condition 1 not met");
     return -1;
   }
+  if (!pre_monitor_2.checkAll(bracelet_link_coord_twist))
+  {
+    logger->logError("Pre-condition 2 not met");
+    return -1;
+  }
 
   // start loop
   // counter
   int i = 0;
   int break_iteration_ = 500;
+
+  std::vector<KDL::JntArray> q_vec;
+  std::vector<KDL::JntArray> qd_vec;
+  std::vector<KDL::JntArray> jnt_tau_vec;
 
   // run the system
   while (true)
@@ -162,11 +193,11 @@ int main()
       // get the current tool cartesian velocity
       KDL::Twist bracelet_link_coord_twist = twists[seg_n];
 
-      auto cid = std::vector<int>{ 1,0,0,0,0,0 };
+      auto cid = std::vector<int>{ 1,1,1,0,0,0 };
 
       KDL::Twist control_twist;
 
-      auto vsp = KDL::Vector{ 0.1,INFINITY,INFINITY };
+      auto vsp = KDL::Vector{ 0.0,0.0,-0.05 };
 
       for (int j = 0; j < 3; j++)
       {
@@ -174,20 +205,55 @@ int main()
           control_twist.vel(j) = vsp[j];
         }
       }
-      tf_utils->transform(bracelet_link_coord_twist, &q, CoordinateSystem::BASE, CoordinateSystem::EE);
-      auto pid_vel_x_controller_io_output = pid_vel_x_controller.computeControlSignal_3d(bracelet_link_coord_twist.vel, 
+
+      auto pid_move_arm_down_lin_vel_controller_io_output = pid_move_arm_down_lin_vel_controller.computeControlSignal_3d(bracelet_link_coord_twist.vel, 
           control_twist.vel);
-      auto cod = std::vector<int>{ 1,0,0,0,0,0 };
+      auto cod = std::vector<int>{ 1,1,1,0,0,0 };
       for (int j = 0; j < cod.size(); j++)
       {
         if (cod[j] == 1){
-          control_accelerations(j) = pid_vel_x_controller_io_output(j);
+          control_accelerations(j) = pid_move_arm_down_lin_vel_controller_io_output(j);
+        }
+      }
+    }
+
+    
+
+    if (i % 10 == 0)
+    {
+      int seg_n = utils->getLinkIdFromChain(robot_chain, bracelet_link);
+      
+      // get the current tool cartesian velocity
+      KDL::Twist bracelet_link_coord_twist = twists[seg_n];
+
+      auto cid = std::vector<int>{ 0,0,0,1,1,1 };
+
+      KDL::Twist control_twist;
+
+      auto vsp = KDL::Vector{ 0.0,0.0,0.0 };
+
+      for (int j = 0; j < 3; j++)
+      {
+        if (cid[j] == 1){
+          control_twist.rot(j) = vsp[j];
+        }
+      }
+
+      auto pid_move_arm_down_ang_vel_controller_io_output = pid_move_arm_down_ang_vel_controller.computeControlSignal_3d(bracelet_link_coord_twist.rot, 
+          control_twist.rot);
+
+      
+      auto cod = std::vector<int>{ 0,0,0,1,1,1 };
+      for (int j = 0; j < cod.size(); j++)
+      {
+        if (cod[j] == 1){
+          control_accelerations(j) = pid_move_arm_down_ang_vel_controller_io_output(j);
         }
       }
     }
 
     // update the default beta values with the controller values
-    std::vector<double> solver_beta_weights = { 0.0 };
+    std::vector<double> solver_beta_weights = { 0.0, 0.0, 9.81, 0.0, 0.0, 0.0 };
     for (int j = 0; j < solver_beta_weights.size(); j++)
     {
       beta_energy(j) = solver_beta_weights[j] + control_accelerations(j);
@@ -210,7 +276,12 @@ int main()
     vereshchagin_solver.getLinkCartesianPose(frames);  
     // get the current link cartesian velocities
     std::vector<KDL::Twist> twists(n_segments);
-    vereshchagin_solver.getLinkCartesianVelocity(twists);  
+    vereshchagin_solver.getLinkCartesianVelocity(twists);
+
+    q_vec.push_back(q);
+    qd_vec.push_back(qd);
+    jnt_tau_vec.push_back(constraint_tau);
+
     // print the joint positions, velocities, aceelerations and constraint torques
     if (_debug) {
       logger->logInfo("Joint accelerations: %s", qdd);
@@ -234,6 +305,20 @@ int main()
     }
 
     std::cout << std::endl;
+    int seg_n_2 = utils->getLinkIdFromChain(robot_chain, bracelet_link);
+    
+    KDL::Twist bracelet_link_coord_twist_2 = twists[seg_n_2];
+    velocities.push_back(bracelet_link_coord_twist_2.vel);
+    if (_debug) logger->logInfo("bracelet_link_coord_twist_2: %s", bracelet_link_coord_twist_2.vel);
+    
+    
+    if (post_monitor_2.checkAll(bracelet_link_coord_twist_2))
+    {
+      logger->logInfo("Post-condition 2 met");
+      break;
+    }
+
+    std::cout << std::endl;
 
     // end loop
     i++;
@@ -242,7 +327,10 @@ int main()
       break;
   }
 
-  // plotter->plotXYZ(positions, target_link_coord_frame.p, "positions");
+  RobotSimulation simulation;
+  simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
+
+  
   plotter->plotXYZ(velocities, KDL::Vector{0.01, 0.01, 0.01}, "velocities");
 
   return 1;
@@ -250,10 +338,10 @@ int main()
   
   // run the motion
   
-  int move_arm_vel_x_status = move_arm_vel_x();
-  if (move_arm_vel_x_status != 1)
+  int move_arm_down_vel_status = move_arm_down_vel();
+  if (move_arm_down_vel_status != 1)
   {
-    std::cout << "Motion move_arm_vel_x failed" << std::endl;
+    std::cout << "Motion move_arm_down_vel failed" << std::endl;
     return 0;
   }
   
