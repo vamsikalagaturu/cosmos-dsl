@@ -24,15 +24,7 @@
             "@type": "Frame"
         },
         {
-            "@id": "rob:target_link_ef_xy",
-            "@type": "Frame"
-        },
-        {
-            "@id": "rob:target_link_ef_xz",
-            "@type": "Frame"
-        },
-        {
-            "@id": "rob:target_link_ef_yz",
+            "@id": "rob:table_link",
             "@type": "Frame"
         }
     ]

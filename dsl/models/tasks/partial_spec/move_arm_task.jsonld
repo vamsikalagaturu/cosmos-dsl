@@ -12,7 +12,7 @@
             "@type": "BaseTask",
             "q-init": [0.0, 0.26, 0.0, 2.26, 0.0, -0.95, -1.57],
             "motion-specifications": [
-                "rob:move_arm_down_vel"
+                "rob:move_arm_forward_force"
             ]
         }
     ]

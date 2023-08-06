@@ -112,6 +112,15 @@
                 "rob:pid_move_arm_down_lin_vel_controller_io_output",
                 "rob:pid_move_arm_down_ang_vel_controller_io_output"
             ]
+        },
+        {
+            "@id": "rob:move_arm_forward_force_csm",
+            "@type": "ControllerSolver",
+            "interface": {
+                "@id": "rob:move_arm_forward_force_interface",
+                "@type": "ExtWrench"
+            },
+            "solver": "rob:vereshchagin_solver"
         }
     ]
 }

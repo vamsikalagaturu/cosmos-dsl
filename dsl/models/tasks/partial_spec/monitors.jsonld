@@ -14,9 +14,9 @@
             "constraint": "rob:bracelet_link_dist_constraint_pre"
         },
         {
-            "@id": "rob:bracelet_link_dist_monitor_post",
+            "@id": "rob:bracelet_link_target_link_ef_dist_monitor_post",
             "@type": "Monitor",
-            "constraint": "rob:bracelet_link_dist_constraint_post"
+            "constraint": "rob:bracelet_link_target_link_ef_dist_constraint_post"
         },
         {
             "@id": "rob:bracelet_link_vel_x_monitor_pre",

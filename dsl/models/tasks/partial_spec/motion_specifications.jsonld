@@ -37,6 +37,21 @@
                 "rob:bracelet_link_lin_vel_constraint_post",
                 "rob:bracelet_link_ang_vel_constraint_post"
             ]
+        },
+        {
+            "@id": "rob:move_arm_forward_force",
+            "@type": "MoveArm",
+            "mappings": "rob:move_arm_forward_force_csm",
+            "pre-conditions": [
+                "rob:bracelet_link_lin_vel_constraint_pre",
+                "rob:bracelet_link_ang_vel_constraint_pre"
+            ],
+            "per-conditions": [
+                "rob:bracelet_link_force_constraint_per"
+            ],
+            "post-conditions": [
+                "rob:bracelet_link_target_link_ef_dist_constraint_post"
+            ]
         }
     ]
 }

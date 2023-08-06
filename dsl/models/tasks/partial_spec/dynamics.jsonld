@@ -9,7 +9,7 @@
     "@id": "rob:dynamics_instance",
     "@graph": [
         {
-            "@id": "rob:bracelet_link_target_link_force_ef",
+            "@id": "rob:bracelet_link_force",
             "@type": ["Force", "ContactForce"],
             "applied-by": "rob:bracelet_link",
             "applied-to": "rob:table_link",

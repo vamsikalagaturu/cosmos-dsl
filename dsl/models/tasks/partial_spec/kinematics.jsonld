@@ -9,10 +9,10 @@
     "@id": "rob:kinematics_instance",
     "@graph": [
         {
-            "@id": "rob:dist_bracelet_link_target_link_ef",
+            "@id": "rob:bracelet_link_target_link_ef_dist",
             "@type": [
                 "EuclideanDistance",
-                "FramePointToPointDistance",
+                "FrameToFrameDistance",
                 "3D", "LinearDistance"
             ],
             "between-entities": [
