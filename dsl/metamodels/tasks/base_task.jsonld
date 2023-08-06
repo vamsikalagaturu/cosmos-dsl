@@ -4,14 +4,10 @@
 
         "BaseTask": "baseTask:BaseTask",
 
-        "debug-config": {
-            "@id": "baseTask:debug-config",
-            "@type": "@id"
-        },
-
-        "robot-config": {
-            "@id": "baseTask:robot-config",
-            "@type": "@id"
+        "q-init": {
+            "@id": "baseTask:q-init",
+            "@type": "xsd:int",
+            "@container": "@list"
         },
 
         "motion-specifications": {
