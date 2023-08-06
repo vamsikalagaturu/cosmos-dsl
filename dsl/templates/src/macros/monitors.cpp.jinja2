@@ -1,35 +1,35 @@
   {%- macro init_monitors(pre_conds, post_conds, constraints, coords) -%}
   // Pre-conditions
   {% for pre_cond in pre_conds -%}
-  {% with constraint = constraints[pre_cond["constraint"]] -%}
+  {% with constraint = constraints[pre_cond["constraint"]] %}
   Monitor pre_monitor_{{loop.index}}(Monitor::MonitorType::PRE, logger, "{{constraint["operator"]}}", "{{constraint["thresh_unit"]}}", {{constraint["thresh_val"]}}
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
                           ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-                          {%- if "LinearVelocity" in coords[constraint["coord"]]["vel_type"] %}
+                          {%- if "LinearVelocity" in coords[constraint["coord"]]["vel_type"] -%}
                           ,KDL::Twist( { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} }, {INFINITY, INFINITY, INFINITY} ));
                           {%- else -%}
-                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} } } ));
+                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} } ));
                           {%- endif -%}
                           {% endif -%}
 
-  {% endwith -%}
+  {% endwith %}
   {% endfor %}
 
   // Post-conditions
   {% for post_cond in post_conds -%}
-  {% with constraint = constraints[post_cond["constraint"]] -%}
+  {% with constraint = constraints[post_cond["constraint"]] %}
   Monitor post_monitor_{{loop.index}}(Monitor::MonitorType::POST, logger, "{{constraint["operator"]}}", "{{constraint["thresh_unit"]}}", {{constraint["thresh_val"]}}
                           {% if coords[constraint["coord"]]["type"] == "DistanceCoordinate" -%}
                           ,&{{coords[constraint["coord"]]["f1_coord"]}}_frame);
                           {% elif coords[constraint["coord"]]["type"] == "VelocityCoordinate" -%}
-                          {%- if "LinearVelocity" in coords[constraint["coord"]]["vel_type"] %}
+                          {%- if "LinearVelocity" in coords[constraint["coord"]]["vel_type"] -%}
                           ,KDL::Twist( { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} }, {INFINITY, INFINITY, INFINITY} ));
                           {%- else -%}
-                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} } } ));
+                          ,KDL::Twist( {INFINITY, INFINITY, INFINITY}, { {{coords[constraint["coord"]]['vel_sp']|join(", ")|replace("inf", "INFINITY")}} } ));
                           {%- endif -%}
                           {% endif -%}
-  {% endwith -%}
+  {% endwith %}
   {% endfor %}
   {%- endmacro -%}
 

@@ -35,13 +35,13 @@
 
 
 
-  {%- macro init_chain() -%}
+  {%- macro init_chain(q_init) -%}
 
   // define the robot chain
   KDL::Chain robot_chain;
 
   // define the initial joint angles
-  std::vector initial_joint_angles = {0.0, 0.0, 0.0, M_PI_2, 0.0, M_PI_2, 0.0};
+  std::vector initial_joint_angles = { {{ q_init | join(', ') }} };
 
   // define the joint angles
   KDL::JntArray q;

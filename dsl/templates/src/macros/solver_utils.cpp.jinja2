@@ -102,7 +102,7 @@
         }
       }
 
-      {% if coords[con_cons["coord"]]["of_coord"] != "base_link_coord" -%}
+      {% if coords[con_cons["coord"]]["asb_coord"] != "base_link_coord" -%}
       tf_utils->transform({{con_data["input"]}}_twist, &q, CoordinateSystem::BASE, CoordinateSystem::EE);
       {% endif -%}
 
@@ -113,14 +113,14 @@
 
       auto vsp = KDL::Vector{ {{coords[con_cons["coord"]]["vel_sp"]|join(",")}} };
 
-      for (int j = 3; j < 6; j++)
+      for (int j = 0; j < 3; j++)
       {
         if (cid[j] == 1){
           control_twist.rot(j) = vsp[j];
         }
       }
 
-      {% if coords[con_cons["coord"]]["of_coord"] != "base_link_coord" -%}
+      {% if coords[con_cons["coord"]]["asb_coord"] != "base_link_coord" -%}
       tf_utils->transform({{con_data["input"]}}_twist, &q, CoordinateSystem::BASE, CoordinateSystem::EE);
       {% endif -%}
 
