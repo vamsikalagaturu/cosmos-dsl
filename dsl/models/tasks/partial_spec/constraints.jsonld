@@ -28,6 +28,12 @@
             "unit": "M-PER-SEC"
         },
         {
+            "@id": "rob:ang_vel_threshold_pre",
+            "@type": "Threshold",
+            "threshold-value": 0.0,
+            "unit": "RAD-PER-SEC"
+        },
+        {
             "@id": "rob:vel_threshold_per",
             "@type": "Threshold",
             "threshold-value": 0.0,
@@ -36,8 +42,14 @@
         {
             "@id": "rob:vel_threshold_post",
             "@type": "Threshold",
-            "threshold-value": 0.01,
+            "threshold-value": 0.001,
             "unit": "M-PER-SEC"
+        },
+        {
+            "@id": "rob:ang_vel_threshold_post",
+            "@type": "Threshold",
+            "threshold-value": 0.001,
+            "unit": "RAD-PER-SEC"
         },
         {
             "@id": "rob:dist_threshold_per",
@@ -76,95 +88,11 @@
             "unit": "M"
         },
         {
-            "@id": "rob:bracelet_link_dist_constraint_pre",
-            "@type": ["Constraint", "DistanceConstraint"],
-            "threshold": "rob:dist_threshold_pre",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_dist_coord_ef"
-        },
-        {
-            "@id": "rob:bracelet_link_dist_constraint_per",
-            "@type": ["Constraint", "DistanceConstraint"],
-            "threshold": "rob:dist_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_dist_coord_ef"
-        },
-        {
-            "@id": "rob:bracelet_link_dist_constraint_post",
-            "@type": ["Constraint", "DistanceConstraint"],
-            "threshold": "rob:dist_threshold_post",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_dist_coord_ef"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_vel_coord"
-        },
-        {
             "@id": "rob:bracelet_link_vel_x_constraint_per",
             "@type": ["Constraint", "VelocityConstraint"],
             "threshold": "rob:vel_threshold_per",
             "operator": "rob:eq",
             "coord": "rob:bracelet_link_vel_x_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_y_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_vel_y_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_z_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_vel_z_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_bf_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_bf_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_xy_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_xy_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_xz_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_xz_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_yz_constraint_per",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_per",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_yz_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_vel_coord"
         },
         {
             "@id": "rob:bracelet_link_vel_x_constraint_pre",
@@ -174,62 +102,6 @@
             "coord": "rob:bracelet_link_vel_x_coord"
         },
         {
-            "@id": "rob:bracelet_link_vel_y_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_vel_y_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_z_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_vel_z_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_bf_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_bf_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_xy_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_xy_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_xz_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_xz_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_yz_constraint_pre",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_pre",
-            "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_vel_ef_yz_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_vel_coord"
-        },
-        {
             "@id": "rob:bracelet_link_vel_x_constraint_post",
             "@type": ["Constraint", "VelocityConstraint"],
             "threshold": "rob:vel_threshold_post",
@@ -237,74 +109,46 @@
             "coord": "rob:bracelet_link_vel_x_coord"
         },
         {
-            "@id": "rob:bracelet_link_vel_y_constraint_post",
+            "@id": "rob:bracelet_link_lin_vel_constraint_pre",
             "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_vel_y_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_z_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_vel_z_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_bf_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_vel_bf_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_vel_ef_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_xy_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_vel_ef_xy_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_xz_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_vel_ef_xz_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_vel_ef_yz_constraint_post",
-            "@type": ["Constraint", "VelocityConstraint"],
-            "threshold": "rob:vel_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_vel_ef_yz_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_force_ef_constraint_pre",
-            "@type": ["Constraint", "ForceConstraint"],
-            "threshold": "rob:force_threshold_pre",
-            "operator": "rob:lt",
-            "coord": "rob:bracelet_link_target_link_force_ef_coord"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_force_ef_constraint_per",
-            "@type": ["Constraint", "ForceConstraint"],
-            "threshold": "rob:force_threshold_per",
+            "threshold": "rob:vel_threshold_pre",
             "operator": "rob:eq",
-            "coord": "rob:bracelet_link_target_link_force_ef_coord"
+            "coord": "rob:bracelet_link_lin_vel_coord_pre"
         },
         {
-            "@id": "rob:bracelet_link_target_link_force_ef_constraint_post",
-            "@type": ["Constraint", "ForceConstraint"],
-            "threshold": "rob:force_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_force_ef_coord"
+            "@id": "rob:bracelet_link_ang_vel_constraint_pre",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:ang_vel_threshold_pre",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_ang_vel_coord_pre"
+        },
+        {
+            "@id": "rob:bracelet_link_lin_vel_constraint_post",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:vel_threshold_post",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_lin_vel_coord_pre"
+        },
+        {
+            "@id": "rob:bracelet_link_ang_vel_constraint_post",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:ang_vel_threshold_post",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_ang_vel_coord_pre"
+        },
+        {
+            "@id": "rob:move_arm_down_bl_lin_vel_constraint_per",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:vel_threshold_post",
+            "operator": "rob:eq",
+            "coord": "rob:move_arm_down_bl_lin_vel_coord_per"
+        },
+        {
+            "@id": "rob:move_arm_down_bl_ang_vel_constraint_per",
+            "@type": ["Constraint", "VelocityConstraint"],
+            "threshold": "rob:ang_vel_threshold_post",
+            "operator": "rob:eq",
+            "coord": "rob:move_arm_down_bl_ang_vel_coord_per"
         }
     ]
 }

@@ -8,48 +8,6 @@
     "@id": "rob:motion_specifications",
     "@graph": [
         {
-            "@id": "rob:move_arm_dist",
-            "@type": "MoveArm",
-            "mappings": "rob:bracelet_link_dist_csm",
-            "pre-conditions": [
-                "rob:bracelet_link_dist_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_dist_constraint_per"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_dist_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_vel_xyz",
-            "@type": "MoveArm",
-            "mappings": "rob:bracelet_link_vel_csm",
-            "pre-conditions": [
-                "rob:bracelet_link_vel_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_vel_constraint_per"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_vel_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_pos_xyz",
-            "@type": "MoveArm",
-            "mappings": "rob:pos_controller_solver_mappings_xyz",
-            "pre-conditions": [
-                "rob:bracelet_link_target_link_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_pos_xyz_constraint"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_constraint_post"
-            ]
-        },
-        {
             "@id": "rob:move_arm_vel_x",
             "@type": "MoveArm",
             "mappings": "rob:bracelet_link_vel_x_csm",
@@ -64,99 +22,20 @@
             ]
         },
         {
-            "@id": "rob:move_arm_vel_xy_1d",
+            "@id": "rob:move_arm_down_vel",
             "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_xy_1d",
+            "mappings": "rob:move_arm_down_vel_csm",
             "pre-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_pre",
-                "rob:bracelet_link_target_link_vel_y_constraint_pre"
+                "rob:bracelet_link_lin_vel_constraint_pre",
+                "rob:bracelet_link_ang_vel_constraint_pre"
             ],
             "per-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint",
-                "rob:bracelet_link_target_link_vel_y_constraint"
+                "rob:move_arm_down_bl_lin_vel_constraint_per",
+                "rob:move_arm_down_bl_ang_vel_constraint_per"
             ],
             "post-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_post",
-                "rob:bracelet_link_target_link_vel_y_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_vel_xz_1d",
-            "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_xz_1d",
-            "pre-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_pre",
-                "rob:bracelet_link_target_link_vel_z_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint",
-                "rob:bracelet_link_target_link_vel_z_constraint"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_post",
-                "rob:bracelet_link_target_link_vel_z_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_vel_yz_1d",
-            "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_yz_1d",
-            "pre-conditions": [
-                "rob:bracelet_link_target_link_vel_y_constraint_pre",
-                "rob:bracelet_link_target_link_vel_z_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_vel_y_constraint",
-                "rob:bracelet_link_target_link_vel_z_constraint"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_vel_y_constraint_post",
-                "rob:bracelet_link_target_link_vel_z_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_vel_xy_1d_1d",
-            "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_xy_1d_1d",
-            "pre-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_pre",
-                "rob:bracelet_link_target_link_vel_y_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_vel_xy_constraint"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_vel_xz_1d_1d",
-            "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_xz_1d_1d",
-            "pre-conditions": [
-                "rob:bracelet_link_target_link_vel_x_constraint_pre",
-                "rob:bracelet_link_target_link_vel_z_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_vel_xz_constraint"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_vel_z_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_vel_yz_1d_1d",
-            "@type": "MoveArm",
-            "mappings": "rob:controller_solver_mappings_yz_1d_1d",
-            "pre-conditions": [
-                "rob:bracelet_link_target_link_vel_y_constraint_pre",
-                "rob:bracelet_link_target_link_vel_z_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_vel_yz_constraint"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_vel_z_constraint_post"
+                "rob:bracelet_link_lin_vel_constraint_post",
+                "rob:bracelet_link_ang_vel_constraint_post"
             ]
         }
     ]

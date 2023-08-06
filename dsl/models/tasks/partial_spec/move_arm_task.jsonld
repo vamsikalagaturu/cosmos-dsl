@@ -8,10 +8,11 @@
     "@id": "rob:task_specifications",
     "@graph": [
         {
-            "@id": "rob:move_arm_vel_x_task",
+            "@id": "rob:move_arm_down_vel_task",
             "@type": "BaseTask",
+            "q-init": [0.0, 0.26, 0.0, 2.26, 0.0, -0.95, -1.57],
             "motion-specifications": [
-                "rob:move_arm_vel_x"
+                "rob:move_arm_down_vel"
             ]
         }
     ]

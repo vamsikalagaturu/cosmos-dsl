@@ -17,15 +17,6 @@
             "constraint": "rob:bracelet_link_dist_constraint_per"
         },
         {
-            "@id": "rob:pid_bracelet_link_vel_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.1,
-            "constraint": "rob:bracelet_link_vel_constraint_per"
-        },
-        {
             "@id": "rob:pid_vel_x_controller",
             "@type": "PIDController",
             "p-gain": 20.0,
@@ -35,76 +26,22 @@
             "constraint": "rob:bracelet_link_vel_x_constraint_per"
         },
         {
-            "@id": "rob:pid_vel_y_controller",
+            "@id": "rob:pid_move_arm_down_lin_vel_controller",
             "@type": "PIDController",
             "p-gain": 20.0,
             "i-gain": 0.9,
             "d-gain": 0.0,
             "time-step": 0.1,
-            "constraint": "rob:bracelet_link_vel_y_constraint_per"
+            "constraint": "rob:move_arm_down_bl_lin_vel_constraint_per"
         },
         {
-            "@id": "rob:pid_vel_z_controller",
+            "@id": "rob:pid_move_arm_down_ang_vel_controller",
             "@type": "PIDController",
             "p-gain": 20.0,
             "i-gain": 0.9,
             "d-gain": 0.0,
             "time-step": 0.1,
-            "constraint": "rob:bracelet_link_vel_z_constraint_per"
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_vel_bf_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.1,
-            "constraint": "rob:bracelet_link_target_link_vel_bf_constraint_per"
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_vel_ef_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.1,
-            "constraint": "rob:bracelet_link_target_link_vel_ef_constraint_per"
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_vel_ef_xy_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.1,
-            "constraint": "rob:bracelet_link_target_link_vel_ef_xy_constraint_per"
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_vel_ef_xz_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.01,
-            "constraint": "rob:bracelet_link_target_link_vel_ef_xz_constraint_per"
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_vel_ef_yz_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.1,
-            "constraint": "rob:bracelet_link_target_link_vel_ef_yz_constraint_per"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_force_ef_controller",
-            "@type": "PIDController",
-            "p-gain": 20.0,
-            "i-gain": 0.9,
-            "d-gain": 0.0,
-            "time-step": 0.001,
-            "constraint": "rob:bracelet_link_target_link_force_ef_constraint_per"
+            "constraint": "rob:move_arm_down_bl_ang_vel_constraint_per"
         }
     ]
 }
