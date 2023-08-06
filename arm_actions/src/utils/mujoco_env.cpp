@@ -73,7 +73,8 @@ void RobotSimulation::mouse_move(GLFWwindow* window, double xpos, double ypos)
   mjv_moveCamera(model, action, dx / height, dy / height, &scn, &cam);
 }
 
-int RobotSimulation::run(std::vector<KDL::JntArray> joint_angles,
+int RobotSimulation::run(std::vector<double> *initial_joint_angles,
+                         std::vector<KDL::JntArray> joint_angles,
                          std::vector<KDL::JntArray> joint_velocities,
                          std::vector<KDL::JntArray> joint_taus)
 {
@@ -121,12 +122,10 @@ int RobotSimulation::run(std::vector<KDL::JntArray> joint_angles,
   double counter = 0.0;
   double rotation_speed = 0.1;
 
-  std::vector initial_joint_angles = {0.0, 0.0, 0.0, M_PI_2, 0.0, M_PI_2, 0.0};
-
   // make the robot stay still
   for (int i = 0; i < model->nq; i++)
   {
-    data->qpos[i] = initial_joint_angles[i];
+    data->qpos[i] = initial_joint_angles->at(i);
     data->qvel[i] = 0.0;
   }
 

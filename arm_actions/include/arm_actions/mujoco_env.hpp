@@ -57,7 +57,7 @@ public:
 
   static RobotSimulation* instance;
   
-  int run(std::vector<KDL::JntArray> joint_angles, std::vector<KDL::JntArray> joint_velocities, std::vector<KDL::JntArray> joint_taus);
+  int run(std::vector<double> *initial_joint_angles, std::vector<KDL::JntArray> joint_angles, std::vector<KDL::JntArray> joint_velocities, std::vector<KDL::JntArray> joint_taus);
 };
 
 #endif  // MUJOCO_HPP
