@@ -79,6 +79,8 @@ class Convert:
                 self.utils.write_to_file(result, task_name=task)
 
     def _update_coords_data(self, cond, big_data):
+        ns = "http://example.com/rob#"
+
         coord = cond['coord']
 
         if coord not in big_data['coords']:
@@ -99,7 +101,7 @@ class Convert:
                 big_data['coords'][coord_data['f1_coord']] = f1_coord_data
                 big_data['coords'][coord_data['f2_coord']] = f2_coord_data
 
-            if coord_data['type'] == 'VelocityCoordinate':
+            elif coord_data['type'] == 'VelocityCoordinate':
                 of_coord_data = self.query_utils.get_coord_info(
                     coord_data['of_coord'])
                 
@@ -115,6 +117,25 @@ class Convert:
 
                 big_data['coords'][coord_data['of_coord']+'_twist'] = {
                     'type': ['TwistCoordinate']}
+                
+            elif coord_data['type'] == 'ForceCoordinate':
+                if coord_data['ab_coord'].replace(ns, '') not in big_data['coords']:
+                    ab_coord_data = self.query_utils.get_coord_info(
+                        coord_data['ab_coord'])
+                    big_data['coords'][coord_data['ab_coord']] = ab_coord_data
+                
+                # if coord_data['at_coord'].replace(ns, '') not in big_data['coords']:
+                #     at_coord_data = self.query_utils.get_coord_info(
+                #         coord_data['at_coord'])
+                #     big_data['coords'][coord_data['at_coord']] = at_coord_data
+                
+                if coord_data['asb_coord'].replace(ns, '') not in big_data['coords']:
+                    asb_coord_data = self.query_utils.get_coord_info(
+                        coord_data['asb_coord'])
+                    big_data['coords'][coord_data['asb_coord']] = asb_coord_data
+
+            else:
+                raise Exception(f"Unknown coordinate type {coord_data['type']}")
 
         return big_data
 
@@ -205,23 +226,33 @@ class Convert:
                     per_conditions_d = []
                     for per_condition in per_conditions:
                         pcr, ci = self.query_utils.get_per_condition_info(
-                            per_condition, {'constraint': per_condition})
+                            per_condition)
                         per_conditions_d.append(pcr)
+                        
                         big_data["constraints"][pcr['constraint']
                                                 ] = ci[pcr['constraint']]
+                        
                         big_data = self._update_coords_data(
                             ci[pcr['constraint']], big_data)
-                        cont_info = self.query_utils.get_pid_controller_info(
-                            pcr['controller'])
-                        big_data["controllers"][pcr['controller']] = cont_info
+                        
+                        if pcr['type'] != 'ForceConstraint':
+                            cont_info = self.query_utils.get_pid_controller_info(
+                                pcr['controller'])
+                            big_data["controllers"][pcr['controller']] = cont_info
 
                         alpha = self.query_utils.get_alpha(pcr['constraint'])
-                        if isinstance(alpha[0], list):
+                        
+                        if alpha is None:
+                            print(f"Alpha is None for {pcr['constraint']}")
+                        elif isinstance(alpha[0], list):
                             for a in alpha:
                                 alphas.append(a)
-                        else:
+                        elif isinstance(alpha[0], float):
                             alphas.append(alpha)
-
+                        else:
+                           raise Exception(
+                                f"Unknown alpha type {type(alpha)}") 
+                            
                     motion_spec['per_conditions'] = per_conditions_d
 
                     # construct alpha, beta and nc

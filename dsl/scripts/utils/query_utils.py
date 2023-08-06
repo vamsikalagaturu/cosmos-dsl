@@ -59,38 +59,71 @@ class QueryUtils:
         """
         Returns the per-condition of a given constraint.
         """
-        query = f"""
-            SELECT DISTINCT ?controller ?constraint ?coord
-            WHERE {{
-                ?controller a pidController:PIDController ;
-                    pidController:constraint ?constraint .
-                FILTER (?constraint = <{per_condition}>)
-                ?constraint a constraint-ns:Constraint ;
-                    constraint-ns:coord ?coord .
-            }}
-        """
-
-        # TODO: modify the init_bindings and percondition. its wrong way
-
-        qres = self.graph.query(query, initBindings=init_bindings)
-
-        qb = qres.bindings
-
-        assert len(
-            qb) > 0, f'Per-condition {per_condition} is not properly defined'
 
         per_condition_info = {}
+        ci = None
+
+        qb = None
+
+        # check constraint type
+        if (per_condition, RDF.type, QueryUtils.CONSTRAINT["ForceConstraint"]) in self.graph:
+            
+            per_condition_info['type'] = 'ForceConstraint'
+
+            query = f"""
+                SELECT DISTINCT ?constraint ?coord
+                WHERE {{
+                    ?constraint a constraint-ns:Constraint ;
+                        constraint-ns:coord ?coord .
+                }}
+                LIMIT 1
+            """
+
+            if init_bindings is None:
+                init_bindings = {'constraint': per_condition}
+
+            qres = self.graph.query(query, initBindings=init_bindings)
+
+            qb = qres.bindings
+
+            assert len(
+                qb) > 0, f'Per-condition {per_condition} is not properly defined'
+
+        else:
+            per_condition_info['type'] = 'OTHER'
+
+            query = f"""
+                SELECT DISTINCT ?controller ?constraint ?coord
+                WHERE {{
+                    ?controller a pidController:PIDController ;
+                        pidController:constraint ?constraint .
+                    FILTER (?constraint = ?per_condition)
+                    ?constraint a constraint-ns:Constraint ;
+                        constraint-ns:coord ?coord .
+                }}
+            """
+
+            if init_bindings is None:
+                init_bindings = {'per_condition': per_condition}
+
+            qres = self.graph.query(query, initBindings=init_bindings)
+
+            qb = qres.bindings
+
+            assert len(
+                qb) > 0, f'Per-condition {per_condition} is not properly defined'
+
+            per_condition_info['controller'] = str(
+                qb[0]['controller']).replace(
+                self.ns, '')
 
         ci = self.get_constraint_info(
             init_bindings={'constraint': qb[0]['constraint']})
-        
+
         con_name = str(qb[0]['constraint']).replace(self.ns, '')
 
         assert ci[con_name]['operator'] == "eq", f"Operator {ci[con_name]['operator']} is not supported for per-condition"
 
-        per_condition_info['controller'] = str(
-            qb[0]['controller']).replace(
-            self.ns, '')
         per_condition_info['constraint'] = str(
             qb[0]['constraint']).replace(
             self.ns, '')
@@ -186,7 +219,8 @@ class QueryUtils:
 
             qb = qres.bindings
 
-            assert len(qb) > 0, "Distance type is not supported"
+            assert len(
+                qb) > 0, f"Distance coord {coord} is not properly defined"
 
             coord_info = {
                 'type': 'DistanceCoordinate',
@@ -216,7 +250,7 @@ class QueryUtils:
                     vel, QueryUtils.KINEMATICS["of-frame"])
                 wrt_frame = self.graph.value(
                     vel, QueryUtils.KINEMATICS["wrt-frame"])
-                
+
                 query = f"""
                     SELECT DISTINCT ?of_coord ?wrt_coord
                     WHERE {{
@@ -272,7 +306,8 @@ class QueryUtils:
 
                 vals = qres.bindings
 
-                assert len(vals) > 0, f"Velocity coord {coord} is not properly defined"
+                assert len(
+                    vals) > 0, f"Velocity coord {coord} is not properly defined"
 
                 vu = vals[0]['vu']
                 asb_coord = vals[0]['asb_coord']
@@ -445,6 +480,71 @@ class QueryUtils:
                 coord_info['y'] = float(qb[0]['y'])
                 coord_info['z'] = float(qb[0]['z'])
 
+        # check coord type is ForceCoordinate
+        elif (coord, RDF.type, QueryUtils.COORD["ForceCoordinate"]) in self.graph:
+            query = f"""
+                SELECT ?ab_coord ?at_coord ?asb_coord ?unit ?fx ?fy ?fz ?qk
+                WHERE {{
+                    ?force_coord a coord:ForceCoordinate ;
+                        a coord:VectorXYZ ;
+                        coord:of-force ?of ;
+                        coord:as-seen-by ?asb ;
+                        qudt-schema:unit ?unit ;
+                        coord:x ?fx ;
+                        coord:y ?fy ;
+                        coord:z ?fz .
+
+                    ?asb a frame:Frame .
+
+                    ?asb_coord a coord:FrameCoordinate ;
+                        a coord:FrameReference ;
+                        coord:of-frame ?asb .
+
+                    ?of a dynamics:Force ;
+                        a dynamics:ContactForce ;
+                        dynamics:applied-by ?ab ;
+                        dynamics:applied-to ?at ;
+                        qudt-schema:hasQuantityKind ?qk .
+
+                    FILTER (?ab != ?at && ?at != ?asb)
+
+                    ?ab a frame:Frame .
+                    ?at a frame:Frame .
+                    
+                    ?ab_coord a coord:FrameCoordinate ;
+                        a coord:FrameReference ;
+                        coord:of-frame ?ab .
+                }}
+            """
+
+            if init_bindings is None:
+                init_bindings = {'force_coord': coord}
+
+            qres = self.graph.query(query, initBindings=init_bindings)
+
+            qb = qres.bindings
+
+            assert len(
+                qb) > 0, f'ForceCoordinate {coord} is not properly defined'
+
+            coord_info = {
+                'type': 'ForceCoordinate',
+                'ab_coord': str(qb[0]['ab_coord']).replace(self.ns, ''),
+                'asb_coord': str(qb[0]['asb_coord']).replace(self.ns, ''),
+                'unit': str(qb[0]['unit']).split('/')[-1],
+                'fx': float(qb[0]['fx']),
+                'fy': float(qb[0]['fy']),
+                'fz': float(qb[0]['fz']),
+                'quant_kind': str(qb[0]['qk']).split('/')[-1]
+            }
+
+        # check coord type is TorqueCoordinate
+        elif (coord, RDF.type, QueryUtils.COORD["TorqueCoordinate"]) in self.graph:
+            pass
+
+        else:
+            raise Exception("Coordinate type is not supported")
+
         return coord_info
 
     def get_mappings_info(self, mappings_iri, init_bindings=None):
@@ -459,7 +559,6 @@ class QueryUtils:
                 ?mappings a mapping:ControllerSolver ;
                     mapping:interface ?interface ;
                     mapping:solver ?solver .
-                ?interface a mapping:AccEnegery .
                 ?solver a vereshchaginSolver:VereshchaginSolver .
             }}
         """
@@ -473,59 +572,74 @@ class QueryUtils:
 
         assert len(qb) > 0, "Mappings is not properly defined"
 
-        mappings_info['interface'] = str(qb[0]['interface']).replace(self.ns, '')
+        mappings_info['interface'] = []
+
+        if (qb[0]['interface'], RDF.type, QueryUtils.MAPPINGS["AccEnegery"]) in self.graph:
+            mappings_info['interface'].append("AccEnegery")
+        elif (qb[0]['interface'], RDF.type, QueryUtils.MAPPINGS["ExtWrench"]) in self.graph:
+            mappings_info['interface'].append("ExtWrench")
+        else:
+            raise Exception("Interface type is not supported")
+
         mappings_info['solver'] = str(qb[0]['solver']).replace(self.ns, '')
 
-        solver_inputs = self.graph.objects(
-            mappings_iri, QueryUtils.MAPPINGS["solver-input"])
+        if "AccEnegery" in mappings_info['interface']:
 
-        mappings_info['solver-input'] = []
+            solver_inputs = self.graph.objects(
+                mappings_iri, QueryUtils.MAPPINGS["solver-input"])
 
-        for solver_input in solver_inputs:
-            if (solver_input, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
-                mappings_info['solver-input'].append(
-                    str(solver_input).replace(self.ns, ''))
+            mappings_info['solver-input'] = []
 
-        # get controller mappings
-        controller_mappings = self.graph.objects(
-            mappings_iri, QueryUtils.MAPPINGS["controller-mappings"])
+            for solver_input in solver_inputs:
+                if (solver_input, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
+                    mappings_info['solver-input'].append(
+                        str(solver_input).replace(self.ns, ''))
 
-        controller_mappings_data = []
+            # get controller mappings
+            controller_mappings = self.graph.objects(
+                mappings_iri, QueryUtils.MAPPINGS["controller-mappings"])
 
-        for controller_mapping_iri in controller_mappings:
-            if (controller_mapping_iri, RDF.type, QueryUtils.CONTROLLERMAPPING["ControllerMapping"]):
-                controller = self.graph.value(
-                    controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
-                    ["controller"])
-                input_iri = self.graph.value(
-                    controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
-                    ["input"])
-                output_iri = self.graph.value(
-                    controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
-                    ["output"])
+            controller_mappings_data = []
 
-                d = {}
+            for controller_mapping_iri in controller_mappings:
+                if (controller_mapping_iri, RDF.type, QueryUtils.CONTROLLERMAPPING["ControllerMapping"]):
+                    controller = self.graph.value(
+                        controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
+                        ["controller"])
+                    input_iri = self.graph.value(
+                        controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
+                        ["input"])
+                    output_iri = self.graph.value(
+                        controller_mapping_iri, QueryUtils.CONTROLLERMAPPING
+                        ["output"])
 
-                d['controller'] = str(controller).replace(self.ns, '')
+                    d = {}
 
-                if (input_iri, RDF.type, QueryUtils.CONTROLLERIO["ControllerInput"]):
-                    d['input'] = self.graph.value(
-                        input_iri, QueryUtils.CONTROLLERIO["io"]).__str__().replace(self.ns, '')
-                    cop_node = self.graph.value(
-                        input_iri, QueryUtils.CONTROLLERIO["io-dimension"])
-                    cop = Collection(self.graph, cop_node)
-                    d['input-dimension'] = [int(d) for d in cop]
+                    d['controller'] = str(controller).replace(self.ns, '')
 
-                if (output_iri, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
-                    d['output'] = str(output_iri).replace(self.ns, '')
-                    cop_node = self.graph.value(
-                        output_iri, QueryUtils.CONTROLLERIO["io-dimension"])
-                    cop = Collection(self.graph, cop_node)
-                    d['output-dimension'] = [int(d) for d in cop]
+                    if (input_iri, RDF.type, QueryUtils.CONTROLLERIO["ControllerInput"]):
+                        d['input'] = self.graph.value(
+                            input_iri, QueryUtils.CONTROLLERIO["io"]).__str__().replace(self.ns, '')
+                        cop_node = self.graph.value(
+                            input_iri, QueryUtils.CONTROLLERIO["io-dimension"])
+                        cop = Collection(self.graph, cop_node)
+                        d['input-dimension'] = [int(d) for d in cop]
 
-                controller_mappings_data.append(d)
+                    if (output_iri, RDF.type, QueryUtils.CONTROLLERIO["ControllerOutput"]):
+                        d['output'] = str(output_iri).replace(self.ns, '')
+                        cop_node = self.graph.value(
+                            output_iri, QueryUtils.CONTROLLERIO["io-dimension"])
+                        cop = Collection(self.graph, cop_node)
+                        d['output-dimension'] = [int(d) for d in cop]
 
-        mappings_info['controller-mappings'] = controller_mappings_data
+                    controller_mappings_data.append(d)
+
+            mappings_info['controller-mappings'] = controller_mappings_data
+
+        elif "ExtWrench" in mappings_info['interface']:
+            pass
+        else:
+            raise Exception("Interface type is not supported")
 
         return mappings_info
 
@@ -744,6 +858,12 @@ class QueryUtils:
             alpha = alpha[~np.all(alpha == 0, axis=1)]
 
             return alpha.tolist()
+        
+        elif (coord, RDF.type, QueryUtils.COORD["ForceCoordinate"]) in self.graph:
+            return None
+
+        else:
+            raise Exception("Coordinate type is not supported")
 
     def construct_abc(self, alpha_in):
         """
@@ -752,7 +872,7 @@ class QueryUtils:
         alpha = []
         beta = []
         nc = 0
-
+        
         # if alpha is not a list of lists
         if isinstance(alpha_in[0], list):
             for a in alpha_in:
