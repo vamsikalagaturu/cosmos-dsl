@@ -216,6 +216,30 @@ class QueryUtils:
                     vel, QueryUtils.KINEMATICS["of-frame"])
                 wrt_frame = self.graph.value(
                     vel, QueryUtils.KINEMATICS["wrt-frame"])
+                
+                query = f"""
+                    SELECT DISTINCT ?of_coord ?wrt_coord
+                    WHERE {{
+                        ?of_coord a coord:FrameCoordinate ;
+                            a coord:FrameReference ;
+                            coord:of-frame ?of_frame .
+                        ?wrt_coord a coord:FrameCoordinate ;
+                            a coord:FrameReference ;
+                            coord:of-frame ?wrt_frame .
+                    }}
+                """
+
+                init_bindings = {'of_frame': of_frame, 'wrt_frame': wrt_frame}
+
+                qres = self.graph.query(query, initBindings=init_bindings)
+
+                qb = qres.bindings
+
+                assert len(qb) > 0, "Velocity corrds are not properly defined"
+
+                of_coord = qb[0]['of_coord']
+                wrt_coord = qb[0]['wrt_coord']
+
                 qk = self.graph.value(vel, QueryUtils.QUDT["hasQuantityKind"])
 
                 # check if of-frame and wrt-frame are different
@@ -223,7 +247,7 @@ class QueryUtils:
                     raise Exception("of-frame and wrt-frame cannot be the same")
 
                 query = f"""
-                    SELECT DISTINCT ?f3_coord ?vu ?v_x ?v_y ?v_z
+                    SELECT DISTINCT ?asb_coord ?vu ?v_x ?v_y ?v_z
                     WHERE {{
                         ?vel_coord a coord:VelocityCoordinate ;
                             a coord:VectorXYZ ;
@@ -236,29 +260,28 @@ class QueryUtils:
                         
                         ?f3 a frame:Frame .
 
-                        ?f3_coord a coord:FrameCoordinate ;
+                        ?asb_coord a coord:FrameCoordinate ;
                             a coord:FrameReference ;
                             coord:of-frame ?f3 .
                     }}
                 """
 
-                init_bindings = {'vel': vel}
+                init_bindings = {'vel': vel, 'vel_coord': coord}
 
                 qres = self.graph.query(query, initBindings=init_bindings)
 
                 vals = qres.bindings
 
-                assert len(vals) > 0, "Velocity type is not supported"
+                assert len(vals) > 0, f"Velocity coord {coord} is not properly defined"
 
-                vel_sp = vals[0]['vel_sp']
                 vu = vals[0]['vu']
-                f3_coord = vals[0]['f3_coord']
+                asb_coord = vals[0]['asb_coord']
 
                 coord_info = {
                     'type': 'VelocityCoordinate',
-                    'of_coord': str(f3_coord).replace(self.ns, ''),
-                    'wrt_coord': str(wrt_frame).replace(self.ns, ''),
-                    'asb_coord': str(of_frame).replace(self.ns, ''),
+                    'of_coord': str(of_coord).replace(self.ns, ''),
+                    'wrt_coord': str(wrt_coord).replace(self.ns, ''),
+                    'asb_coord': str(asb_coord).replace(self.ns, ''),
                     'vel_sp': [float(vals[0]['v_x']), float(vals[0]['v_y']), float(vals[0]['v_z'])],
                     'unit': str(vu).split('/')[-1],
                     'vel_type': vel_type
@@ -446,9 +469,12 @@ class QueryUtils:
 
         qres = self.graph.query(query, initBindings=init_bindings)
 
-        for row in qres:
-            mappings_info['interface'] = str(row[0]).replace(self.ns, '')
-            mappings_info['solver'] = str(row[1]).replace(self.ns, '')
+        qb = qres.bindings
+
+        assert len(qb) > 0, "Mappings is not properly defined"
+
+        mappings_info['interface'] = str(qb[0]['interface']).replace(self.ns, '')
+        mappings_info['solver'] = str(qb[0]['solver']).replace(self.ns, '')
 
         solver_inputs = self.graph.objects(
             mappings_iri, QueryUtils.MAPPINGS["solver-input"])
