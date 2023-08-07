@@ -7,6 +7,9 @@
   while (true)
   {
     if (_debug) logger->logInfo("Iteration: %d", i);
+
+    if (_env == ENV::ROB) km->get_robot_state(q, qd, joint_torques_m, f_tool_m);
+    
   {%- endmacro -%}
 
 
@@ -18,7 +21,18 @@
       break;
   }
 
-  plotter->plotXYZ(positions, target_link_coord_frame.p, "positions");
-  plotter->plotXYZ(velocities, KDL::Vector{0.01, 0.01, 0.01}, "velocities");
+  if (_visualize)
+  {
+    logger->logInfo("Visualizing the simulation");
+    RobotSimulation simulation;
+    simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
+  }
+
+  if (_plot)
+  {
+    logger->logInfo("Plotting the results");
+    plotter->plotXYZ(positions, target_link_coord_frame.p, "positions");
+    plotter->plotXYZ(velocities, KDL::Vector{0.01, 0.01, 0.01}, "velocities");
+  }
 
   {%- endmacro -%}

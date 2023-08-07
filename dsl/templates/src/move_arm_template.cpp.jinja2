@@ -18,7 +18,7 @@ int main()
   auto {{ motion_spec }} = [&]() {
 
   // initialize the chain
-  {{ macro_init.init_chain(task_spec["q_init"]) }}
+  {{ macro_init.init_robot(task_spec["q_init"]) }}
 
   // coords
   {{ macro_coord.spawn_coords(coords) }}

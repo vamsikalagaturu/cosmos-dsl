@@ -6,8 +6,6 @@
   KDL::JntArray beta_energy;
 
   // set the solver parameters
-  KDL::JntArray qd;                 // input joint velocities
-  KDL::JntArray qdd;                // output joint accelerations
   KDL::JntArray ff_tau;             // input feedforward torques
   KDL::JntArray constraint_tau;     // output constraint torques
   KDL::Wrenches f_ext(n_segments);  // external forces at each segment
@@ -56,9 +54,14 @@
   // initialize the control acceleration
   KDL::JntArray control_accelerations(6);
 
-  // store positions and velocities
+  // store positions and velocities for plotting
   std::vector<KDL::Vector> positions;
   std::vector<KDL::Vector> velocities;
+
+  // for visualization
+  std::vector<KDL::JntArray> q_vec;
+  std::vector<KDL::JntArray> qd_vec;
+  std::vector<KDL::JntArray> jnt_tau_vec;
 
   std::vector<KDL::Twist> twists(n_segments);
 
@@ -74,14 +77,31 @@
       logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
       return -1;
     }  
-    // update the joint positions and velocities by integrating the accelerations
-    solver_utils->updateQandQd(q, qd, &qdd, dt);  
+    // update the joint positions and velocities if in simulation
+    if (_env == ENV::SIM) solver_utils->updateQandQd(q, qd, &qdd, dt);  
+    
     // get the current link cartesian poses
     std::vector<KDL::Frame> frames(n_segments);
     vereshchagin_solver.getLinkCartesianPose(frames);  
     // get the current link cartesian velocities
     std::vector<KDL::Twist> twists(n_segments);
-    vereshchagin_solver.getLinkCartesianVelocity(twists);  
+    vereshchagin_solver.getLinkCartesianVelocity(twists);
+    
+    // visualization
+    if (_visualize && _env == ENV::SIM)
+    {
+      q_vec.push_back(q);
+      qd_vec.push_back(qd);
+      jnt_tau_vec.push_back(constraint_tau);
+    }
+
+    // send torques to the robot if in real robot mode
+    if (_env == ENV::ROB)
+    {
+      logger->logInfo("Sending torques to robot");
+      km->set_joint_torques(constraint_tau);
+    }
+    
     // print the joint positions, velocities, aceelerations and constraint torques
     if (_debug) {
       logger->logInfo("Joint accelerations: %s", qdd);

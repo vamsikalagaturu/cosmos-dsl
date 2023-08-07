@@ -1,5 +1,8 @@
   {%- macro init_config() -%}
   bool _debug = true;
+  bool _visualize = true;
+  bool _plot = true;
+  ENV _env = ENV::SIM;
 
   // get current file path
   std::filesystem::path path = __FILE__;
@@ -31,24 +34,46 @@
   std::string base_link = "base_link";
   std::string tool_link = "bracelet_link";
 
+  // initialize the kinova mediator to control the robot
+  std::shared_ptr<kinova_mediator> km = std::make_shared<kinova_mediator>();
+
   {%- endmacro -%}
 
 
 
-  {%- macro init_chain(q_init) -%}
+  {%- macro init_robot(q_init) -%}
 
   // define the robot chain
   KDL::Chain robot_chain;
 
-  // define the initial joint angles
-  std::vector initial_joint_angles = { {{ q_init | join(', ') }} };
+  // set the solver parameters
+  KDL::JntArray q;                // input joint positions
+  KDL::JntArray qd;               // input joint velocities
+  KDL::JntArray qdd;              // output joint accelerations
+  KDL::JntArray joint_torques_m;  // measured joint torques
+  KDL::Wrench f_tool_m;           // measured tool wrench
 
-  // define the joint angles
-  KDL::JntArray q;
+  std::vector<double> initial_joint_angles;
+
+  // define the initial joint angles
+  if (_env == ENV::SIM)
+  {
+    initial_joint_angles = { {{ q_init | join(', ') }} };
+  }
+  else if (_env == ENV::ROB)
+  {
+    logger->logWarning("Real robot mode");
+    km->initialize(0, 0, 0.0);
+    km->set_control_mode(2);  // 0 is position, 1 is velocity, 2 is torque
+    km->get_robot_state(q, qd, joint_torques_m, f_tool_m);
+  }
+  else
+    logger->logError("Invalid mode");
 
   // initialize the robot
-  int r = utils->initialize_robot(robot_urdf, robot_chain, base_link, tool_link,
-                                  initial_joint_angles, q);
+  int r = utils->initialize_robot_urdf(robot_urdf, robot_chain, base_link, tool_link, q,
+                                    initial_joint_angles, _env);
+  
   if (r != 0)
   {
     logger->logError("Failed to initialize robot");

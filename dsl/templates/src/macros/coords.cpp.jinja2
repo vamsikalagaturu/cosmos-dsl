@@ -25,6 +25,6 @@
   {%- elif "TwistCoordinate" in coords[coord]["type"] %}
   // TODO: for now, we assume initial twist is zero
   KDL::Twist {{coord}};
-  {%- endif %}
+  {% endif %}
   {%- endfor -%}
   {%- endmacro -%}
