@@ -2,6 +2,7 @@
 
 int main()
 {
+  {# imports #}
   {%- import "src/macros/initialization.cpp.jinja2" as macro_init -%}
   {%- import "src/macros/coords.cpp.jinja2" as macro_coord -%}
   {%- import "src/macros/monitors.cpp.jinja2" as macro_mons -%}
@@ -31,7 +32,7 @@ int main()
   {{ macro_contr.init_controllers(motion_spec_data["per_conditions"], controllers) }}
 
   // initialize solver params
-  {{ macro_solver_utils.init(motion_spec_data) }}
+  {{ macro_solver_utils.init(motion_spec_data, coords) }}
 
   // check if pre-conditions are met
   {{- macro_mons.pre_cond_checks(motion_spec_data["pre_conditions"], constraints, coords) }}

@@ -6,8 +6,8 @@
   KDL::Frame {{coord}}_frame;
   {%- if "VectorXYZ" in coords[coord]["type"] +%}
   {{coord}}_frame.p = { {{coords[coord]["x"]}}, {{coords[coord]["y"]}}, {{coords[coord]["z"]}} };
-  {%- if coords[coord]["asb"] != "base_link" and coords[coord]["asb"] == coords[coord]["of"] -%}
-  tf_utils->transformFrame({{coord}}_frame, &q, CoordinateSystem::EE, CoordinateSystem::BASE);
+  {%- if coords[coord]["asb"] != "base_link" and coords[coord]["asb"] == "bracelet_link" %}
+  tf_utils->transform({{coord}}_frame, &q, CoordinateSystem::EE, CoordinateSystem::BASE);
   {%+ endif -%}
   {%+ else %}
   if (utils->checkLinkInChain(robot_chain, {{coords[coord]["of"]}}))
