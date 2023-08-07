@@ -48,8 +48,8 @@ int main()
   KDL::JntArray q;
 
   // initialize the robot
-  int r = utils->initialize_robot(robot_urdf, robot_chain, base_link, tool_link,
-                                  initial_joint_angles, q);
+  int r = utils->initialize_robot_urdf(robot_urdf, robot_chain, base_link, tool_link,
+                                  q, initial_joint_angles);
   if (r != 0)
   {
     logger->logError("Failed to initialize robot");
