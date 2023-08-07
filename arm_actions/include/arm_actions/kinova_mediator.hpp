@@ -200,7 +200,7 @@ public:
   // Get current joint torques
   virtual void get_joint_torques(KDL::JntArray &joint_torques);
   // // Get measured / estimated external forces acting on the end-effector
-  // virtual void get_end_effector_wrench(KDL::Wrench &end_effector_wrench);
+  virtual void get_end_effector_wrench(KDL::Wrench &end_effector_wrench);
 
   // Increses index of the command's frame id (buffer)
   void increment_command_id();

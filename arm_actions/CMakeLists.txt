@@ -25,43 +25,42 @@ include_directories(${GLFW3_INCLUDE_DIRS})
 include_directories(include)
 
 # add pid_controller.cpp as a library
-add_library(pid_controller src/utils/pid_controller.cpp)
+add_library(pid_controller SHARED src/utils/pid_controller.cpp)
 
 # add logger.cpp as library
-add_library(logger src/utils/logger.cpp)
+add_library(logger SHARED src/utils/logger.cpp)
 target_link_libraries(logger ${orocos_kdl_LIBRARIES})
 
 # add utils.cpp as library
-add_library(utils src/utils/utils.cpp)
+add_library(utils SHARED src/utils/utils.cpp)
 target_link_libraries(utils ${orocos_kdl_LIBRARIES} kdl_parser logger)
 
 # add solver_utils.cpp as library
-add_library(solver_utils src/utils/solver_utils.cpp)
+add_library(solver_utils SHARED src/utils/solver_utils.cpp)
 target_link_libraries(solver_utils ${orocos_kdl_LIBRARIES} logger)
 
 # add math_utils.cpp as library
-add_library(math_utils src/utils/math_utils.cpp)
+add_library(math_utils SHARED src/utils/math_utils.cpp)
 target_link_libraries(math_utils ${orocos_kdl_LIBRARIES} logger orocos-kdl)
 
 # add tf_utils.cpp as library
-add_library(tf_utils src/utils/tf_utils.cpp)
+add_library(tf_utils SHARED src/utils/tf_utils.cpp)
 target_link_libraries(tf_utils ${orocos_kdl_LIBRARIES} logger orocos-kdl)
 
-add_library(monitor src/utils/monitors.cpp)
+add_library(monitor SHARED src/utils/monitors.cpp)
 target_link_libraries(monitor ${orocos_kdl_LIBRARIES} logger utils math_utils)
 
-add_library(gnu_plotter src/utils/gnu_plotter.cpp)
+add_library(gnu_plotter SHARED src/utils/gnu_plotter.cpp)
 target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams orocos-kdl ${orocos_kdl_LIBRARIES})
 
-add_library(kinova_mediator src/utils/kinova_mediator.cpp)
-target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} logger)
+add_library(kinova_mediator SHARED src/utils/kinova_mediator.cpp)
+target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} orocos-kdl kdl_parser logger /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a pthread)
 
 add_library(mujoco_env src/utils/mujoco_env.cpp)
 target_link_libraries(mujoco_env /home/batsy/.mujoco/mujoco-2.3.7/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
 
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
-# file(GLOB SOURCES "src/utils/*.cpp")
 
 # make all cpp files in src folder as executable
 foreach(source ${SOURCES})
@@ -70,8 +69,7 @@ foreach(source ${SOURCES})
     TARGET_LINK_LIBRARIES(${name} 
       orocos-kdl boost_filesystem boost_system boost_iostreams
       pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
-      /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a
-      mujoco_env)
+      mujoco_env kinova_mediator)
 endforeach(source ${SOURCES})
 
 # export urdf file to outputs folder

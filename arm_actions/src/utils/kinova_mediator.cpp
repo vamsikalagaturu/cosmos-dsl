@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// #include "includes.h"
 #include "arm_actions/kinova_mediator.hpp"
 
 #define IP_ADDRESS_1 "192.168.1.10"
@@ -87,6 +88,22 @@ void kinova_mediator::get_robot_state(KDL::JntArray &joint_positions,
 {
   get_joint_state(joint_positions, joint_velocities, joint_torques);
   print("got joint angles");
+  if (kinova_environment_ != kinova_environment::SIMULATION)
+  {
+    try
+    {
+      base_feedback_ = base_cyclic_->RefreshFeedback();
+    }
+    catch (Kinova::Api::KDetailedException &ex)
+    {
+      std::cout << "Kortex exception: " << ex.what() << std::endl;
+      std::cout << "Error sub-code: "
+                << Kinova::Api::SubErrorCodes_Name(
+                       Kinova::Api::SubErrorCodes((ex.getErrorInfo().getError().error_sub_code())))
+                << std::endl;
+    }
+  }
+  get_end_effector_wrench(end_effector_wrench);
 }
 
 // Update joint space state: measured positions, velocities and torques
@@ -128,19 +145,20 @@ float kinova_mediator::RAD_TO_DEG(float rad)
 void kinova_mediator::get_joint_positions(KDL::JntArray &joint_positions)
 {
   // Joint position given in deg
-  cout << "hello world" << endl;
   for (int i = 0; i < kinova_constants::NUMBER_OF_JOINTS; i++)
   {
-    auto var = base_feedback_.actuators(i).position();
-
-    cout << "joint position: " << var << endl;
+    joint_positions(i) = DEG_TO_RAD(base_feedback_.actuators(i).position());
   }
   // Kinova API provides only positive angle values
   // This operation is required to align the logic with our safety monitor
   // We need to convert some angles to negative values
-  // if (joint_positions(1) > DEG_TO_RAD(180.0)) joint_positions(1) -= DEG_TO_RAD(360.0);
-  // if (joint_positions(3) > DEG_TO_RAD(180.0)) joint_positions(3) -= DEG_TO_RAD(360.0);
-  // if (joint_positions(5) > DEG_TO_RAD(180.0)) joint_positions(5) -= DEG_TO_RAD(360.0);
+
+  if (joint_positions(1) > DEG_TO_RAD(180.0))
+    joint_positions(1) -= DEG_TO_RAD(360.0);
+  if (joint_positions(3) > DEG_TO_RAD(180.0))
+    joint_positions(3) -= DEG_TO_RAD(360.0);
+  if (joint_positions(5) > DEG_TO_RAD(180.0))
+    joint_positions(5) -= DEG_TO_RAD(360.0);
 }
 
 // Set Joint Positions
@@ -180,6 +198,7 @@ int kinova_mediator::set_joint_positions(const KDL::JntArray &joint_positions)
       return -1;
     }
   }
+
   return 0;
 }
 
@@ -238,7 +257,16 @@ void kinova_mediator::get_joint_torques(KDL::JntArray &joint_torques)
   // Joint torque given in Newton * meters
   for (int i = 0; i < kinova_constants::NUMBER_OF_JOINTS; i++)
     joint_torques(i) = base_feedback_.actuators(i).torque();
-    auto val = base_feedback_.base().tool_external_wrench_force_x();
+}
+
+void kinova_mediator::get_end_effector_wrench(KDL::Wrench &end_effector_wrench)
+{
+  end_effector_wrench(0) = base_feedback_.base().tool_external_wrench_force_x();
+  end_effector_wrench(1) = base_feedback_.base().tool_external_wrench_force_y();
+  end_effector_wrench(2) = base_feedback_.base().tool_external_wrench_force_z();
+  end_effector_wrench(3) = base_feedback_.base().tool_external_wrench_torque_x();
+  end_effector_wrench(4) = base_feedback_.base().tool_external_wrench_torque_y();
+  end_effector_wrench(5) = base_feedback_.base().tool_external_wrench_torque_z();
 }
 
 // Set Joint Torques
@@ -290,15 +318,23 @@ int kinova_mediator::set_control_mode(const int desired_control_mode)
   {
     try
     {
+      auto control_mode_message_ = Kinova::Api::ActuatorConfig::ControlModeInformation();
       switch (control_mode_)
       {
         case control_mode::TORQUE:
           // Set actuators in torque mode
           control_mode_message_.set_control_mode(Kinova::Api::ActuatorConfig::ControlMode::TORQUE);
+
           for (int actuator_id = 1; actuator_id < ACTUATOR_COUNT + 1; actuator_id++)
             actuator_config_->SetControlMode(control_mode_message_, actuator_id);
           return 0;
-
+          // actuator_config_->SetControlMode(control_mode_message_, 1);
+          // actuator_config_->SetControlMode(control_mode_message_, 7);
+          // actuator_config_->SetControlMode(control_mode_message_, 6);
+          // actuator_config_->SetControlMode(control_mode_message_, 3);
+          // actuator_config_->SetControlMode(control_mode_message_, 5);
+          // actuator_config_->SetControlMode(control_mode_message_, 4);
+          // return 0;
         case control_mode::VELOCITY:
           // Set actuators in velocity mode
           control_mode_message_.set_control_mode(
