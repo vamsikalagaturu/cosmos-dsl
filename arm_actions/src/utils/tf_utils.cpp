@@ -85,6 +85,39 @@ void TfUtils::transform(KDL::Twist &source_twist, KDL::JntArray *q,
   }
 }
 
+void TfUtils::transform(KDL::Wrench &source_wrench, KDL::JntArray *q,
+                    CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr)
+{
+  KDL::Frame target_frame;
+  switch (source_cs)
+  {
+    case CoordinateSystem::BASE:
+      switch (target_cs)
+      {
+        case CoordinateSystem::BASE:
+          break;
+        case CoordinateSystem::EE:
+          _logger->logInfo("Converting from base to ee frame");
+          _fksolver->JntToCart(*q, target_frame, segment_nr);
+          source_wrench = target_frame.Inverse() * source_wrench;
+          break;
+      }
+      break;
+    case CoordinateSystem::EE:
+      switch (target_cs)
+      {
+        case CoordinateSystem::BASE:
+          _logger->logInfo("Converting from ee to base frame");
+          _fksolver->JntToCart(*q, target_frame, segment_nr);
+          source_wrench = target_frame * source_wrench;
+          break;
+        case CoordinateSystem::EE:
+          break;
+      }
+      break;
+  }
+}
+
 void TfUtils::transform(KDL::Jacobian &source_jacobian, KDL::JntArray *q,
                        CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr)
 {

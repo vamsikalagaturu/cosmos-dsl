@@ -34,7 +34,7 @@ public:
   void setChain(KDL::Chain *chain);
 
   /**
-   * @brief Converts a KDL::Frame from EE frame to base frame.
+   * @brief Converts a KDL::Frame from one frame to another.
    * @param source_frame The KDL::Frame to convert.
    * @param q A pointer to a KDL::JntArray object representing the robot's joint positions.
    * @param source_cs enum for the source coordinate system
@@ -45,7 +45,7 @@ public:
                     CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
 
   /**
-   * @brief Converts a KDL::Twist from EE frame to base frame.
+   * @brief Converts a KDL::Twist from one frame to another.
    * @param source_twist The KDL::Twist to convert.
    * @param q A pointer to a KDL::JntArray object representing the robot's joint positions.
    * @param source_cs enum for the source coordinate system
@@ -56,7 +56,18 @@ public:
                     CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
 
   /**
-   * @brief Converts a KDL::Jacobian from EE frame to base frame.
+   * @brief Transforms a KDL::Wrench from one frame to another.
+   * @param source_wrench The KDL::Wrench to convert.
+   * @param q A pointer to a KDL::JntArray object representing the robot's joint positions.
+   * @param source_cs enum for the source coordinate system
+   * @param target_cs enum for the target coordinate system
+   * @param segment_nr The segment number of the desired link. If not specified, the last segment of the chain is used.
+   */
+  void transform(KDL::Wrench &source_wrench, KDL::JntArray *q,
+                    CoordinateSystem source_cs, CoordinateSystem target_cs, int segment_nr = -1);
+
+  /**
+   * @brief Converts a KDL::Jacobian from one frame to another.
    * @param source_jacobian The KDL::Jacobian to convert.
    * @param q A pointer to a KDL::JntArray object representing the robot's joint positions.
    * @param source_cs enum for the source coordinate system
@@ -79,6 +90,7 @@ public:
 
 private:
   std::shared_ptr<Logger> _logger;
+  KDL::Chain* _chain;
   KDL::ChainFkSolverPos_recursive* _fksolver;
 };
 
