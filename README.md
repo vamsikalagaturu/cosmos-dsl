@@ -5,6 +5,7 @@
 - jinja2
 - kdl_parser
 - orocos_kinematics_dynamics
+- glfw3
 
 ## Setup
 
@@ -35,34 +36,38 @@
     conda activate rnd_env
     ```
 
+### Step 3
+
+- Install dependencies
+
+    ```bash
+    cd ~/workspace/src
+
+    sudo apt-get install libglfw3 libglfw3-dev - gui dep
+    ```
+
+- Run this command to add the mujoco path to the `~/.bashrc` file
+    ```bash
+    echo -e 'export LD_LIBRARY_PATH=<PATH_TO_MUJOCO>mujoco/mujoco210/bin 
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia 
+    export PATH="$LD_LIBRARY_PATH:$PATH" 
+    export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libGLEW.so' >> ~/.bashrc
+    ```
+
 
 ## How to use
 
 ### Step 1
 
-- Run the `convert_and_build.sh` script
+- Run the `build.sh` script to build the packages
 
     ```bash
     cd ~/workspace/src/
 
-    ./convert_and_build.sh
+    ./build.sh
     ```
-- The script will convert the DSL to C++ code and build the respecive packages in the workspace.
-- The output executables are written to `~/workspace/outputs/` directory.
 
 ### Step 2
-    
-- Run the executables from the `~/workspace/outputs/` directory.
-
-    ```bash
-    cd ~/workspace/outputs/
-
-    ./arm_actions/<executable_name>
-    ```
-
-## Running separately
-
-### Step 1
 
 - Convert the DSL to C++ code
 
@@ -72,9 +77,14 @@
     python3 -m dsl/scripts/convert.py -d
     ```
 - The converted C++ code is written to `~/workspace/src/arm_actions/src/` directory.
-- The `-d` flag is used to print the debug information.
+- Flags:
+    ```bash
+    -d         Print debug information
+    -dg        Print rdf graph and the debug information
+    -nr        Do not render the template 
+    ```
 
-### Step 2
+### Step 3
 
 - Make and build the packages
   
@@ -82,4 +92,14 @@
     cd ~/workspace/src/
 
     ./build.sh
+    ```
+
+- The output executables are written to `~/workspace/outputs/` directory.
+ 
+- Run the executables:
+
+    ```bash
+    cd ~/workspace/outputs/
+
+    ./arm_actions/<executable_name>
     ```
