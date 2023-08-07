@@ -9,6 +9,7 @@ class QueryUtils:
 
     ROB = "http://example.com"
     KINEMATICS = rdflib.Namespace(ROB + "/kinematics#")
+    DYNAMICS = rdflib.Namespace(ROB + "/dynamics#")
     COORD = rdflib.Namespace(ROB + "/coordinate#")
     CONSTRAINT = rdflib.Namespace(ROB + "/constraint#")
     MAPPINGS = rdflib.Namespace(ROB + "/mappings#")
@@ -67,7 +68,7 @@ class QueryUtils:
 
         # check constraint type
         if (per_condition, RDF.type, QueryUtils.CONSTRAINT["ForceConstraint"]) in self.graph:
-            
+
             per_condition_info['type'] = 'ForceConstraint'
 
             query = f"""
@@ -269,7 +270,7 @@ class QueryUtils:
 
                 qb = qres.bindings
 
-                assert len(qb) > 0, "Velocity corrds are not properly defined"
+                assert len(qb[0]) > 0, "Velocity corrds are not properly defined"
 
                 of_coord = qb[0]['of_coord']
                 wrt_coord = qb[0]['wrt_coord']
@@ -406,7 +407,7 @@ class QueryUtils:
 
                     qb = qres.bindings
 
-                    assert len(qb) > 0, "Velocity type is not supported"
+                    assert len(qb[0]) > 0, "Velocity type is not supported"
 
                     # TODO: dir unit is not used for now. write in report
 
@@ -435,6 +436,8 @@ class QueryUtils:
 
         # check coord type is FrameCoordinate
         elif (coord, RDF.type, QueryUtils.COORD["FrameCoordinate"]) in self.graph:
+            c_type = ['FrameCoordinate']
+
             query = f"""
                 SELECT ?f1 ?f2 ?unit ?x ?y ?z
                 WHERE {{
@@ -468,75 +471,92 @@ class QueryUtils:
             assert len(
                 qb) > 0, f'FrameCoordinate {coord} is not properly defined'
 
-            coord_info = {'type': 'FrameCoordinate',
-                          'of': str(qb[0]['f1']).replace(self.ns, ''),
-                          'asb': str(qb[0]['f2']).replace(self.ns, '')
-                          if 'f2' in qb[0].keys() else None,
-                          'unit': str(qb[0]['unit']).split('/')[-1]}
+            coord_info = {
+                'of': str(qb[0]['f1']).replace(self.ns, ''),
+                'asb': str(qb[0]['f2']).replace(self.ns, '')
+                if 'f2' in qb[0].keys() else None,
+                'unit': str(qb[0]['unit']).split('/')[-1]}
 
             # check if qb[0]['x'] is in keys
             if 'x' in qb[0].keys():
+                c_type.append('VectorXYZ')
                 coord_info['x'] = float(qb[0]['x'])
                 coord_info['y'] = float(qb[0]['y'])
                 coord_info['z'] = float(qb[0]['z'])
 
-        # check coord type is ForceCoordinate
-        elif (coord, RDF.type, QueryUtils.COORD["ForceCoordinate"]) in self.graph:
-            query = f"""
-                SELECT ?ab_coord ?at_coord ?asb_coord ?unit ?fx ?fy ?fz ?qk
-                WHERE {{
-                    ?force_coord a coord:ForceCoordinate ;
-                        a coord:VectorXYZ ;
-                        coord:of-force ?of ;
-                        coord:as-seen-by ?asb ;
-                        qudt-schema:unit ?unit ;
-                        coord:x ?fx ;
-                        coord:y ?fy ;
-                        coord:z ?fz .
+            coord_info['type'] = c_type
 
-                    ?asb a frame:Frame .
+        # check coord type is WrenchCoordinate
+        elif (coord, RDF.type, QueryUtils.COORD["WrenchCoordinate"]) in self.graph:
 
-                    ?asb_coord a coord:FrameCoordinate ;
-                        a coord:FrameReference ;
-                        coord:of-frame ?asb .
+            of = self.graph.value(coord, QueryUtils.COORD["of-wrench"])
 
-                    ?of a dynamics:Force ;
-                        a dynamics:ContactForce ;
-                        dynamics:applied-by ?ab ;
-                        dynamics:applied-to ?at ;
-                        qudt-schema:hasQuantityKind ?qk .
+            if (of, RDF.type, QueryUtils.DYNAMICS["Force"]) in self.graph:
 
-                    FILTER (?ab != ?at && ?at != ?asb)
+                query = f"""
+                    SELECT ?ab_coord ?at_coord ?asb_coord ?unit ?fx ?fy ?fz ?qk
+                    WHERE {{
+                        ?force_coord a coord:WrenchCoordinate ;
+                            a coord:VectorXYZ ;
+                            coord:of-wrench ?of ;
+                            coord:as-seen-by ?asb ;
+                            qudt-schema:unit ?unit ;
+                            coord:x ?fx ;
+                            coord:y ?fy ;
+                            coord:z ?fz .
 
-                    ?ab a frame:Frame .
-                    ?at a frame:Frame .
-                    
-                    ?ab_coord a coord:FrameCoordinate ;
-                        a coord:FrameReference ;
-                        coord:of-frame ?ab .
-                }}
-            """
+                        ?asb a frame:Frame .
 
-            if init_bindings is None:
-                init_bindings = {'force_coord': coord}
+                        ?asb_coord a coord:FrameCoordinate ;
+                            a coord:FrameReference ;
+                            coord:of-frame ?asb .
 
-            qres = self.graph.query(query, initBindings=init_bindings)
+                        ?of a dynamics:Force ;
+                            a dynamics:ContactForce ;
+                            dynamics:applied-by ?ab ;
+                            dynamics:applied-to ?at ;
+                            qudt-schema:hasQuantityKind ?qk .
 
-            qb = qres.bindings
+                        FILTER (?ab != ?at && ?at != ?asb)
 
-            assert len(
-                qb) > 0, f'ForceCoordinate {coord} is not properly defined'
+                        ?ab a frame:Frame .
+                        ?at a frame:Frame .
+                        
+                        ?ab_coord a coord:FrameCoordinate ;
+                            a coord:FrameReference ;
+                            coord:of-frame ?ab .
+                    }}
+                """
 
-            coord_info = {
-                'type': 'ForceCoordinate',
-                'ab_coord': str(qb[0]['ab_coord']).replace(self.ns, ''),
-                'asb_coord': str(qb[0]['asb_coord']).replace(self.ns, ''),
-                'unit': str(qb[0]['unit']).split('/')[-1],
-                'fx': float(qb[0]['fx']),
-                'fy': float(qb[0]['fy']),
-                'fz': float(qb[0]['fz']),
-                'quant_kind': str(qb[0]['qk']).split('/')[-1]
-            }
+                if init_bindings is None:
+                    init_bindings = {'force_coord': coord, 'of': of}
+
+                qres = self.graph.query(query, initBindings=init_bindings)
+
+                qb = qres.bindings
+
+                assert len(
+                    qb) > 0, f'WrenchCoordinate {coord} is not properly defined'
+
+                coord_info = {
+                    'type': 'WrenchCoordinate',
+                    'ab_coord': str(qb[0]['ab_coord']).replace(self.ns, ''),
+                    'asb_coord': str(qb[0]['asb_coord']).replace(self.ns, ''),
+                    'unit': str(qb[0]['unit']).split('/')[-1],
+                    'fx': float(qb[0]['fx']),
+                    'fy': float(qb[0]['fy']),
+                    'fz': float(qb[0]['fz']),
+                    'quant_kind': str(qb[0]['qk']).split('/')[-1]
+                }
+
+            elif (of, RDF.type, QueryUtils.DYNAMICS["Torque"]) in self.graph:
+                raise Exception("Torque is not supported")
+
+            elif (of, RDF.type, QueryUtils.DYNAMICS["Wrench"]) in self.graph:
+                raise Exception("Wrench is not supported")
+
+            else:
+                raise Exception(f"Unknown Wrench type for {coord}")
 
         # check coord type is TorqueCoordinate
         elif (coord, RDF.type, QueryUtils.COORD["TorqueCoordinate"]) in self.graph:
@@ -570,7 +590,7 @@ class QueryUtils:
 
         qb = qres.bindings
 
-        assert len(qb) > 0, "Mappings is not properly defined"
+        assert len(qb[0]) > 0, "Mappings is not properly defined"
 
         mappings_info['interface'] = []
 
@@ -727,7 +747,7 @@ class QueryUtils:
 
                 qb = qres.bindings
 
-                assert len(qb) > 0, "Direction type is not supported"
+                assert len(qb[0]) > 0, "Direction type is not supported"
 
                 dir = {}
 
@@ -779,10 +799,10 @@ class QueryUtils:
                 WHERE {{
                     ?dist a kinematics:EuclideanDistance ;
                         a kinematics:FrameToFrameDistance ;
-                        a ?type_1 ;
-                        a ?type_2 .
-                    VALUES ?type_1 {{ kinematics:LinearDistance kinematics:AngularDistance }}
-                    VALUES ?type_2 {{ kinematics:1D kinematics:2D kinematics:3D }}
+                        a ?dist_type_1 ;
+                        a ?dist_type_2 .
+                    VALUES ?dist_type_1 {{ kinematics:LinearDistance kinematics:AngularDistance }}
+                    VALUES ?dist_type_2 {{ kinematics:1D kinematics:2D kinematics:3D }}
 
                 }}
             """
@@ -793,14 +813,14 @@ class QueryUtils:
 
             qb = qres.bindings
 
-            assert len(qb) > 0, "Distance type is not supported"
+            assert len(qb[0]) > 0, f"Distance {of_dist} is not properly defined"
 
             dt1 = str(qb[0]['dist_type_1']).split('#')[1]
             dt2 = str(qb[0]['dist_type_2']).split('#')[1]
 
             non_3d_coord_type = None
 
-            if dt2 == "3D":
+            if dt2 != "3D":
                 # get the type of coordinate
                 query = f"""
                     SELECT ?coord_type
@@ -820,8 +840,8 @@ class QueryUtils:
 
                 qb = qres.bindings
 
-                assert len(qb) > 0, "Coordinate type is not supported"
-
+                assert len(qb[0]) > 0, "Coordinate type is not supported"
+                
                 if qb[0]['coord_type'] is not None:
                     non_3d_coord_type = str(qb[0]['coord_type']).split('#')[1]
 
@@ -852,14 +872,14 @@ class QueryUtils:
                 elif dt1 == "AngularDistance":
                     np.fill_diagonal(alpha, [0, 0, 0, 1, 1, 1])
             else:
-                raise Exception("Distance type is not supported")
+                raise Exception(f"Distance type {dt2} is not supported")
 
             # remove zero rows
             alpha = alpha[~np.all(alpha == 0, axis=1)]
 
             return alpha.tolist()
-        
-        elif (coord, RDF.type, QueryUtils.COORD["ForceCoordinate"]) in self.graph:
+
+        elif (coord, RDF.type, QueryUtils.COORD["WrenchCoordinate"]) in self.graph:
             return None
 
         else:
@@ -872,9 +892,11 @@ class QueryUtils:
         alpha = []
         beta = []
         nc = 0
-        
+
         # if alpha is not a list of lists
-        if isinstance(alpha_in[0], list):
+        if len(alpha_in) == 0:
+            return alpha, beta, nc
+        elif isinstance(alpha_in[0], list):
             for a in alpha_in:
                 # if a is not in alpha, add it
                 if a not in alpha:
