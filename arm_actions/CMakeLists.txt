@@ -8,12 +8,16 @@ INCLUDE_DIRECTORIES(
   ${orocos_kdl_INCLUDE_DIRS}  
 )
 
+# get project root directory
+get_filename_component(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
+message(STATUS "Project root directory: ${PROJECT_ROOT_DIR}")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_NAME}/)
 
 # create logs folder in outputs folder if not exists
 file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/logs)
 
-set(MUJOCO_PATH "/home/batsy/.mujoco/mujoco-2.3.7")
+set(MUJOCO_PATH "${PROJECT_ROOT_DIR}/mujoco/mujoco-2.3.7")
 
 include_directories(${MUJOCO_PATH}/include)
 link_directories(${MUJOCO_PATH}/bin)
@@ -54,10 +58,11 @@ add_library(gnu_plotter SHARED src/utils/gnu_plotter.cpp)
 target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams orocos-kdl ${orocos_kdl_LIBRARIES})
 
 add_library(kinova_mediator SHARED src/utils/kinova_mediator.cpp)
-target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} orocos-kdl kdl_parser logger /home/batsy/rnd/src/kinova_api/lib/release/libKortexApiCpp.a pthread)
+target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} orocos-kdl kdl_parser logger 
+      ${PROJECT_ROOT_DIR}/kinova_api/lib/release/libKortexApiCpp.a pthread)
 
 add_library(mujoco_env src/utils/mujoco_env.cpp)
-target_link_libraries(mujoco_env /home/batsy/.mujoco/mujoco-2.3.7/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
+target_link_libraries(mujoco_env ${MUJOCO_PATH}/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
 
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 
