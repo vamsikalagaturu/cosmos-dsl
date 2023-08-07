@@ -43,7 +43,7 @@
     ```bash
     cd ~/workspace/src
 
-    sudo apt-get install libglfw3 libglfw3-dev - gui dep
+    sudo apt-get install libglfw3 libglfw3-dev
     ```
 
 - Run this command to add the mujoco path to the `~/.bashrc` file
