@@ -118,9 +118,9 @@ void Utils::printJntArr(const T& jntArr)
   std::cout << "]" << std::endl;
 }
 
-int Utils::initialize_robot(const std::string& urdf_path, KDL::Chain& robot_chain,
+int Utils::initialize_robot_urdf(const std::string& urdf_path, KDL::Chain& robot_chain,
                             const std::string& base_link, const std::string& tool_link,
-                            const std::vector<double>& initial_joint_angles, KDL::JntArray& q)
+                            KDL::JntArray& q, const std::vector<double>& initial_joint_angles, ENV env)
 {
   KDL::Tree robot_tree;
 
@@ -140,9 +140,13 @@ int Utils::initialize_robot(const std::string& urdf_path, KDL::Chain& robot_chai
 
   // set the initial joint angles
   q.resize(robot_chain.getNrOfJoints());
-  for (int i = 0; i < robot_chain.getNrOfJoints(); i++)
+
+  if (env == ENV::SIM)
   {
-    q(i) = initial_joint_angles[i];
+    for (int i = 0; i < robot_chain.getNrOfJoints(); i++)
+    {
+      q(i) = initial_joint_angles[i];
+    }
   }
 
   _logger->logInfo("Successfully initialized robot");

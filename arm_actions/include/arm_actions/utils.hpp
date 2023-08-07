@@ -14,6 +14,12 @@
 #include "logger.hpp"
 #include "tree.hpp"
 
+enum ENV
+{
+  SIM,
+  ROB
+};
+
 class Utils
 {
 public:
@@ -38,7 +44,7 @@ public:
    * @param chain The KDL::Chain object representing a subset of the robot's kinematic chain.
    * @param link_name The name of the link.
    * @return The id of the link.
-  */
+   */
   static int getLinkIdFromChain(KDL::Chain& chain, const std::string& link_name);
 
   /**
@@ -79,11 +85,14 @@ public:
    * @param initial_joint_angles A vector containing the initial joint angles.
    * @param q [out] The KDL joint array representing the robot's joint angles.
    * @param logger A pointer to a logger for logging errors and information.
+   * @param env a ENV enum value representing the environment the robot is in.
    * @return 0 on success, -1 on failure.
    */
-  int initialize_robot(const std::string& urdf_path, KDL::Chain& robot_chain,
+  int initialize_robot_urdf(const std::string& urdf_path, KDL::Chain& robot_chain,
                        const std::string& base_link, const std::string& tool_link,
-                       const std::vector<double>& initial_joint_angles, KDL::JntArray& q);
+                       KDL::JntArray& q,
+                       const std::vector<double>& initial_joint_angles = std::vector<double>(),
+                       ENV env = ENV::SIM);
 
   /**
    * @brief Computes the euclidean distance between two 3d points.
@@ -101,8 +110,7 @@ public:
    * @param p2 The second point (x2, y2, z2).
    * @return The error as a tuple (dx, dy, dz).
    */
-  std::vector<double> calc_error(const std::array<double, 3>& p1,
-                                                const std::array<double, 3>& p2); 
+  std::vector<double> calc_error(const std::array<double, 3>& p1, const std::array<double, 3>& p2);
 
   /**
    * @brief Calculates the error between two kdl vectors.
