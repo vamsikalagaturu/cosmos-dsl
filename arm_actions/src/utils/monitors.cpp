@@ -119,8 +119,26 @@ bool Monitor::checkAll(KDL::Frame current, KDL::Frame target)
 bool Monitor::checkAny(KDL::Frame current)
 {
   auto error = KDL::diff(current, *_target_frame);
+  if (_mt == MonitorType::PRE)
+  {
+    return _checkAny(error);
+  }
+  else
+  {
+    _current_twists.push(error);
 
-  return _checkAny(error);
+    if (_current_twists.isFull())
+    {
+      // take the average of the queue
+      auto _current_twists_average = _math_utils->computeAverage(&_current_twists);
+
+      return _checkAny(_current_twists_average);
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
 
 bool Monitor::checkAny(KDL::Frame current, KDL::Frame target)
