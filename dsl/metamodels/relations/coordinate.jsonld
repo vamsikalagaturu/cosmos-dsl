@@ -18,7 +18,7 @@
         "SpeedCoordinate": "coord:SpeedCoordinate",
         "VelocityCoordinate": "coord:VelocityCoordinate",
 
-        "ForceCoordinate": "coord:ForceCoordinate",
+        "WrenchCoordinate": "coord:WrenchCoordinate",
 
         "AxisX": "coord:AxisX",
         "AxisY": "coord:AxisY",
@@ -27,8 +27,6 @@
         "PlaneXY": "coord:PlaneXY",
         "PlaneXZ": "coord:PlaneXZ",
         "PlaneYZ": "coord:PlaneYZ",
-
-        
         
         "VectorXYZ": "coord:VectorXYZ",
 
@@ -72,8 +70,8 @@
             "@type": "@id"
         },
 
-        "of-force": {
-            "@id": "coord:of-force",
+        "of-wrench": {
+            "@id": "coord:of-wrench",
             "@type": "@id"
         },
 

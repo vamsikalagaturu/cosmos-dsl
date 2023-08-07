@@ -1,9 +1,10 @@
 {
     "@context": {
-        "dynamics": "http://example.com/dyanamics#",
+        "dynamics": "http://example.com/dynamics#",
 
         "Dynamics": "dynamics:Dynamics",
         
+        "Wrench": "dynamics:Wrench",
         "Force": "dynamics:Force",
         "ContactForce": "dynamics:ContactForce",
         "Torque": "dynamics:Torque",
