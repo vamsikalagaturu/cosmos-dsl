@@ -39,14 +39,20 @@
             "of-frame": "rob:target_link_ef",
             "as-seen-by": "rob:bracelet_link",
             "unit": "M",
-            "x": 0.0,
+            "x": 0.2,
             "y": 0.0,
-            "z": -0.2
+            "z": 0.0
         },
         {
-            "@id": "rob:bracelet_link_target_link_ef_dist_coord_post",
+            "@id": "rob:bracelet_link_target_link_ef_dist_coord",
             "@type": "DistanceCoordinate",
             "of-distance": "rob:bracelet_link_target_link_ef_dist",
+            "unit": "M"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_ef_xy_dist_coord",
+            "@type": ["DistanceCoordinate", "PlaneXY"],
+            "of-distance": "rob:bracelet_link_target_link_ef_xy_dist",
             "unit": "M"
         },
         {
@@ -113,8 +119,8 @@
         },
         {
             "@id": "rob:bracelet_link_force_coord",
-            "@type": ["ForceCoordinate", "VectorXYZ"],
-            "of-force": "rob:bracelet_link_force",
+            "@type": ["WrenchCoordinate", "VectorXYZ"],
+            "of-wrench": "rob:bracelet_link_force",
             "as-seen-by": "rob:bracelet_link",
             "unit": "N",
             "x": 0.0,

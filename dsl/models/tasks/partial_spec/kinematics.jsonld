@@ -22,6 +22,19 @@
             "quantity-kind": "Length"
         },
         {
+            "@id": "rob:bracelet_link_target_link_ef_xy_dist",
+            "@type": [
+                "EuclideanDistance",
+                "FrameToFrameDistance",
+                "2D", "Plane", "LinearDistance"
+            ],
+            "between-entities": [
+                "rob:bracelet_link",
+                "rob:target_link_ef"
+            ],
+            "quantity-kind": "Length"
+        },
+        {
             "@id": "rob:bracelet_link_lin_vel",
             "@type": [
                 "CartesianVelocity",

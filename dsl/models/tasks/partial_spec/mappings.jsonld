@@ -121,6 +121,45 @@
                 "@type": "ExtWrench"
             },
             "solver": "rob:vereshchagin_solver"
+        },
+        {
+            "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_input",
+            "@type": [
+                "ControllerIO",
+                "ControllerInput"
+            ],
+            "io": "rob:bracelet_link_coord",
+            "io-dimension": [1, 1, 0, 0, 0, 0]
+        },
+        {
+            "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output",
+            "@type": [
+                "ControllerIO",
+                "ControllerOutput"
+            ],
+            "io-dimension": [1, 1, 0, 0, 0, 0]
+        },
+        {
+            "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_mappings",
+            "@type": "ControllerMapping",
+            "controller": "rob:pid_bracelet_link_target_link_ef_xy_dist_controller",
+            "input": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_input",
+            "output": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_ef_xy_csm",
+            "@type": "ControllerSolver",
+            "interface": {
+                "@id": "rob:acc_energy",
+                "@type": "AccEnegery"
+            },
+            "controller-mappings": [
+                "rob:pid_bracelet_link_target_link_ef_xy_controller_mappings"
+            ],
+            "solver": "rob:vereshchagin_solver",
+            "solver-input": [
+                "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
+            ]
         }
     ]
 }

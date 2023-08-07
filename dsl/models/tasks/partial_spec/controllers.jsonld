@@ -8,13 +8,13 @@
     "@id": "rob:pid_controllers",
     "@graph": [
         {
-            "@id": "rob:pid_bracelet_link_dist_controller",
+            "@id": "rob:pid_bracelet_link_target_link_ef_xy_dist_controller",
             "@type": "PIDController",
             "p-gain": 20.0,
             "i-gain": 0.9,
             "d-gain": 0.0,
             "time-step": 0.1,
-            "constraint": "rob:bracelet_link_dist_constraint_per"
+            "constraint": "rob:bracelet_link_target_link_ef_xy_dist_constraint_per"
         },
         {
             "@id": "rob:pid_vel_x_controller",

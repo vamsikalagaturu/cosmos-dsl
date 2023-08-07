@@ -146,11 +146,25 @@
             "coord": "rob:bracelet_link_force_coord"
         },
         {
-            "@id": "rob:bracelet_link_target_link_ef_dist_constraint_post",
+            "@id": "rob:bracelet_link_target_link_ef_xy_dist_constraint_pre",
+            "@type": ["Constraint", "DistanceConstraint"],
+            "threshold": "rob:dist_threshold_pre",
+            "operator": "rob:gt",
+            "coord": "rob:bracelet_link_target_link_ef_xy_dist_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_ef_xy_dist_constraint_per",
+            "@type": ["Constraint", "DistanceConstraint"],
+            "threshold": "rob:dist_threshold_per",
+            "operator": "rob:eq",
+            "coord": "rob:bracelet_link_target_link_ef_xy_dist_coord"
+        },
+        {
+            "@id": "rob:bracelet_link_target_link_ef_xy_dist_constraint_post",
             "@type": ["Constraint", "DistanceConstraint"],
             "threshold": "rob:dist_threshold_post",
-            "operator": "rob:gt",
-            "coord": "rob:bracelet_link_target_link_ef_dist_coord_post"
+            "operator": "rob:lt",
+            "coord": "rob:bracelet_link_target_link_ef_xy_dist_coord"
         }
     ]
 }
