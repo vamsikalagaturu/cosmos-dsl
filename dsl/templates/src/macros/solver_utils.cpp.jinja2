@@ -1,4 +1,4 @@
-  {%- macro init(data) -%}
+  {%- macro init(data, coords) -%}
   // define unit constraint forces for EE
   KDL::Jacobian alpha_unit_forces;
 
@@ -6,11 +6,33 @@
   KDL::JntArray beta_energy;
 
   // set the solver parameters
-  KDL::JntArray qd;              // input joint velocities
-  KDL::JntArray qdd;             // output joint accelerations
-  KDL::JntArray ff_tau;          // input feedforward torques
-  KDL::JntArray constraint_tau;  // output constraint torques
-  KDL::Wrenches f_ext;           // external forces at each segment
+  KDL::JntArray qd;                 // input joint velocities
+  KDL::JntArray qdd;                // output joint accelerations
+  KDL::JntArray ff_tau;             // input feedforward torques
+  KDL::JntArray constraint_tau;     // output constraint torques
+  KDL::Wrenches f_ext(n_segments);  // external forces at each segment
+
+  {%- for coord in coords -%}
+  {%- if "WrenchCoordinate" in coords[coord]["type"] %}
+  // initialize the wrench coordinate
+  {%- if coords[coord]["quant_kind"] == "Force" %}
+  KDL::Wrench {{coord}}_wrench;
+  {{coord}}_wrench.force = KDL::Vector{ {{coords[coord]["fx"]}}, {{coords[coord]["fy"]}}, {{coords[coord]["fz"]}} };
+  {%- elif coords[coord]["quant_kind"] == "Torque" %}
+  KDL::Wrench {{coord}}_wrench;
+  {{coord}}_wrench.torque = KDL::Vector{ {{coords[coord]["tx"]}}, {{coords[coord]["ty"]}}, {{coords[coord]["tz"]}} };
+  {%- endif %}
+  {%- if coords[coord]["asb_coord"] != "base_link_coord" and coords[coord]["asb"] == coords[coord]["of"] %}
+  tf_utils->transform({{coord}}_wrench, &q, CoordinateSystem::EE, CoordinateSystem::BASE);
+  {%- endif %}
+  {%- if coords[coord]["asb_coord"] == "bracelet_link_coord" %}
+  f_ext[n_segments - 1] = {{coord}}_wrench;
+  {%- else %}
+  logger->logError("KDL: Vereshchagin solver ERROR: %s", "Invalid wrench coordinate");
+  return -1;
+  {%- endif %}
+  {%- endif %}
+  {%- endfor %}
 
   // initialize the solver weights
   int solver_nc = {{data['alpha_beta_nc']['nc']}};
@@ -132,7 +154,7 @@
       {%- elif coords[con_cons["coord"]]["type"] == "DistanceCoordinate" -%}
 
       // get the current tool cartesian position
-      KDL::Frame {{con_data["input"]}}_frame = frames[seg_n];
+      KDL::Frame {{con_data["input"]}}_frame = solver_utils->computeFKFrame(&robot_chain, q, seg_n+1);
 
       auto cid = std::vector<int>{ {{con_data["input-dimension"]|join(",")}} };
 
