@@ -87,7 +87,6 @@ void kinova_mediator::get_robot_state(KDL::JntArray &joint_positions,
                                       KDL::Wrench &end_effector_wrench)
 {
   get_joint_state(joint_positions, joint_velocities, joint_torques);
-  print("got joint angles");
   if (kinova_environment_ != kinova_environment::SIMULATION)
   {
     try

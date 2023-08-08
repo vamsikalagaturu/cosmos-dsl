@@ -119,8 +119,7 @@ void Utils::printJntArr(const T& jntArr)
 }
 
 int Utils::initialize_robot_urdf(const std::string& urdf_path, KDL::Chain& robot_chain,
-                            const std::string& base_link, const std::string& tool_link,
-                            KDL::JntArray& q, const std::vector<double>& initial_joint_angles, ENV env)
+                                 const std::string& base_link, const std::string& tool_link)
 {
   KDL::Tree robot_tree;
 
@@ -138,18 +137,24 @@ int Utils::initialize_robot_urdf(const std::string& urdf_path, KDL::Chain& robot
     return -1;
   }
 
-  // set the initial joint angles
-  q.resize(robot_chain.getNrOfJoints());
+  _logger->logInfo("Successfully initialized robot urdf");
+  return 0;
+}
 
+int Utils::init_q(KDL::Chain* robot_chain, KDL::JntArray& q,
+                  const std::vector<double>& initial_joint_angles, ENV env)
+{
   if (env == ENV::SIM)
   {
-    for (int i = 0; i < robot_chain.getNrOfJoints(); i++)
+    // set the initial joint angles
+    q.resize(robot_chain->getNrOfJoints());
+    for (int i = 0; i < robot_chain->getNrOfJoints(); i++)
     {
       q(i) = initial_joint_angles[i];
     }
   }
 
-  _logger->logInfo("Successfully initialized robot");
+  _logger->logInfo("Successfully initialized joint angles");
   return 0;
 }
 
@@ -164,17 +169,16 @@ double Utils::computeEuclideanDistance(const std::array<double, 3>& current,
 }
 
 std::vector<double> Utils::calc_error(const std::array<double, 3>& p1,
-                                                             const std::array<double, 3>& p2)
+                                      const std::array<double, 3>& p2)
 {
   double dx = p2[0] - p1[0];
   double dy = p2[1] - p1[1];
   double dz = p2[2] - p1[2];
 
-  return { dx, dy, dz };
+  return {dx, dy, dz};
 }
 
 KDL::Vector Utils::calc_error(const KDL::Vector& v1, const KDL::Vector& v2)
 {
   return v2 - v1;
 }
-
