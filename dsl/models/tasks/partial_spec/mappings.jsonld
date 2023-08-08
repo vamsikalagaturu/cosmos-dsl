@@ -55,7 +55,7 @@
                 "ControllerInput"
             ],
             "io": "rob:bracelet_link_coord",
-            "io-dimension": [1, 1, 1, 0, 0, 0]
+            "io-dimension": [1, 1, 1]
         },
         {
             "@id": "rob:pid_move_arm_down_lin_vel_controller_io_output",
@@ -63,7 +63,7 @@
                 "ControllerIO",
                 "ControllerOutput"
             ],
-            "io-dimension": [1, 1, 1, 0, 0, 0]
+            "io-dimension": [1, 1, 1]
         },
         {
             "@id": "rob:pid_move_arm_down_ang_vel_controller_io_input",
@@ -72,7 +72,7 @@
                 "ControllerInput"
             ],
             "io": "rob:bracelet_link_coord",
-            "io-dimension": [0, 0, 0, 1, 1, 1]
+            "io-dimension": [1, 1, 1]
         },
         {
             "@id": "rob:pid_move_arm_down_ang_vel_controller_io_output",
@@ -80,7 +80,7 @@
                 "ControllerIO",
                 "ControllerOutput"
             ],
-            "io-dimension": [0, 0, 0, 1, 1, 1]
+            "io-dimension": [1, 1, 1]
         },
         {
             "@id": "rob:pid_move_arm_down_lin_vel_controller_mappings",
