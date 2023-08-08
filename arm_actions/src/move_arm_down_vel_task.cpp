@@ -4,7 +4,7 @@ int main()
 {
   // initialize config
   bool _debug = true;
-  bool _visualize = true;
+  bool _visualize = false;
   bool _plot = true;
   ENV _env = ENV::SIM;
 
@@ -142,7 +142,7 @@ int main()
     KDL::Jacobian alpha_unit_forces;
 
     // beta - accel energy for EE
-    KDL::JntArray beta_energy; 
+    KDL::JntArray beta_energy;
 
     // set the solver parameters
     KDL::JntArray ff_tau(n_joints);          // input feedforward torques
@@ -284,7 +284,7 @@ int main()
         {
           if (cod[j] == 1)
           {
-            control_accelerations(j+3) = pid_move_arm_down_ang_vel_controller_io_output(j);
+            control_accelerations(j + 3) = pid_move_arm_down_ang_vel_controller_io_output(j);
           }
         }
       }
@@ -369,8 +369,8 @@ int main()
     if (_visualize)
     {
       logger->logInfo("Visualizing the simulation");
-      RobotSimulation simulation;
-      // simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
+      RobotSimulation robot_sim;
+      robot_sim.run(&initial_joint_angles, q_vec, qd_vec);
     }
 
     if (_plot)

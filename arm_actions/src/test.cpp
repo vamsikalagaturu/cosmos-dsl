@@ -2,7 +2,7 @@
 
 int main()
 {
-    kinova_mediator km;
+    RobotSimulation robot;
 
     return 0;
 }

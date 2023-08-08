@@ -328,7 +328,7 @@ int main()
     {
       logger->logInfo("Visualizing the simulation");
       RobotSimulation simulation;
-      simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
+      simulation.run(&initial_joint_angles, q_vec, qd_vec);
     }
 
     if (_plot)
