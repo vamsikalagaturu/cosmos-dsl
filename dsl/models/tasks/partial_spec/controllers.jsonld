@@ -31,7 +31,7 @@
             "p-gain": 20.0,
             "i-gain": 0.9,
             "d-gain": 0.0,
-            "time-step": 0.1,
+            "time-step": 0.001,
             "constraint": "rob:move_arm_down_bl_lin_vel_constraint_per"
         },
         {
@@ -40,7 +40,7 @@
             "p-gain": 20.0,
             "i-gain": 0.9,
             "d-gain": 0.0,
-            "time-step": 0.1,
+            "time-step": 0.001,
             "constraint": "rob:move_arm_down_bl_ang_vel_constraint_per"
         }
     ]
