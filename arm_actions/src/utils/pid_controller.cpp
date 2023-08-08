@@ -87,7 +87,7 @@ std::vector<double> PIDController::computeControlSignal_3d(
   return control_signal;
 }
 
-KDL::JntArray PIDController::computeControlSignal_3d(const KDL::Vector& current_value,
+KDL::Vector PIDController::computeControlSignal_3d(const KDL::Vector& current_value,
                                                      const KDL::Vector& target_value)
 {
   KDL::Vector error = calc_error(current_value, target_value);
@@ -104,7 +104,7 @@ KDL::JntArray PIDController::computeControlSignal_3d(const KDL::Vector& current_
 
   last_error = error;
 
-  KDL::JntArray control_signal(6);
+  KDL::Vector control_signal;
 
   for (int i = 0; i < 3; i++)
   {

@@ -63,9 +63,9 @@ public:
    * @brief Computes the control signal based on the current and target values.
    * @param current_value The current values of the system kdl vector.
    * @param target_value The desired target values kdl vector.
-   * @return The computed control signal as a kdl JntArray.
+   * @return The computed control signal as a kdl Vector.
    */
-  KDL::JntArray computeControlSignal_3d(const KDL::Vector& current_value,
+  KDL::Vector computeControlSignal_3d(const KDL::Vector& current_value,
                                         const KDL::Vector& target_value);
 
   /**

@@ -4,9 +4,9 @@ int main()
 {
   // initialize config
   bool _debug = true;
-  bool _visualize = false;
+  bool _visualize = true;
   bool _plot = true;
-  ENV _env = ENV::ROB;
+  ENV _env = ENV::SIM;
 
   // get current file path
   std::filesystem::path path = __FILE__;
@@ -142,12 +142,12 @@ int main()
     KDL::Jacobian alpha_unit_forces;
 
     // beta - accel energy for EE
-    KDL::JntArray beta_energy;
+    KDL::JntArray beta_energy; 
 
     // set the solver parameters
     KDL::JntArray ff_tau(n_joints);          // input feedforward torques
     KDL::JntArray constraint_tau(n_joints);  // output constraint torques
-    KDL::Wrenches f_ext(n_segments);  // external forces at each segment
+    KDL::Wrenches f_ext(n_segments);         // external forces at each segment
 
     // initialize the solver weights
     int solver_nc = 6;
@@ -207,7 +207,7 @@ int main()
     // start loop
     // counter
     int i = 0;
-    int break_iteration_ = 2000;
+    int break_iteration_ = 500;
 
     // run the system
     while (true)
@@ -227,7 +227,7 @@ int main()
         // get the current tool cartesian velocity
         KDL::Twist bracelet_link_coord_twist = twists[seg_n];
 
-        auto cid = std::vector<int>{1, 1, 1, 0, 0, 0};
+        auto cid = std::vector<int>{1, 1, 1};
 
         KDL::Twist control_twist;
 
@@ -244,7 +244,7 @@ int main()
         auto pid_move_arm_down_lin_vel_controller_io_output =
             pid_move_arm_down_lin_vel_controller.computeControlSignal_3d(
                 bracelet_link_coord_twist.vel, control_twist.vel);
-        auto cod = std::vector<int>{1, 1, 1, 0, 0, 0};
+        auto cod = std::vector<int>{1, 1, 1};
         for (int j = 0; j < cod.size(); j++)
         {
           if (cod[j] == 1)
@@ -261,7 +261,7 @@ int main()
         // get the current tool cartesian velocity
         KDL::Twist bracelet_link_coord_twist = twists[seg_n];
 
-        auto cid = std::vector<int>{0, 0, 0, 1, 1, 1};
+        auto cid = std::vector<int>{1, 1, 1};
 
         KDL::Twist control_twist;
 
@@ -284,7 +284,7 @@ int main()
         {
           if (cod[j] == 1)
           {
-            control_accelerations(j + 3) = pid_move_arm_down_ang_vel_controller_io_output(j);
+            control_accelerations(j+3) = pid_move_arm_down_ang_vel_controller_io_output(j);
           }
         }
       }
@@ -370,7 +370,7 @@ int main()
     {
       logger->logInfo("Visualizing the simulation");
       RobotSimulation simulation;
-      simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
+      // simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
     }
 
     if (_plot)
