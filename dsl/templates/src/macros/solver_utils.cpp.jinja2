@@ -6,9 +6,9 @@
   KDL::JntArray beta_energy;
 
   // set the solver parameters
-  KDL::JntArray ff_tau;             // input feedforward torques
-  KDL::JntArray constraint_tau;     // output constraint torques
-  KDL::Wrenches f_ext(n_segments);  // external forces at each segment
+  KDL::JntArray ff_tau(n_joints);          // input feedforward torques
+  KDL::JntArray constraint_tau(n_joints);  // output constraint torques
+  KDL::Wrenches f_ext(n_segments);         // external forces at each segment
 
   {%- for coord in coords -%}
   {%- if "WrenchCoordinate" in coords[coord]["type"] %}
@@ -63,6 +63,7 @@
   std::vector<KDL::JntArray> qd_vec;
   std::vector<KDL::JntArray> jnt_tau_vec;
 
+  std::vector<KDL::Frame> frames(n_segments);
   std::vector<KDL::Twist> twists(n_segments);
 
   {%- endmacro -%}
@@ -81,10 +82,8 @@
     if (_env == ENV::SIM) solver_utils->updateQandQd(q, qd, &qdd, dt);  
     
     // get the current link cartesian poses
-    std::vector<KDL::Frame> frames(n_segments);
     vereshchagin_solver.getLinkCartesianPose(frames);  
     // get the current link cartesian velocities
-    std::vector<KDL::Twist> twists(n_segments);
     vereshchagin_solver.getLinkCartesianVelocity(twists);
     
     // visualization
@@ -95,13 +94,6 @@
       jnt_tau_vec.push_back(constraint_tau);
     }
 
-    // send torques to the robot if in real robot mode
-    if (_env == ENV::ROB)
-    {
-      logger->logInfo("Sending torques to robot");
-      km->set_joint_torques(constraint_tau);
-    }
-    
     // print the joint positions, velocities, aceelerations and constraint torques
     if (_debug) {
       logger->logInfo("Joint accelerations: %s", qdd);
@@ -109,6 +101,14 @@
       logger->logInfo("Joint velocities: %s", qd);
       logger->logInfo("Joint positions: %s", q);
     }
+    
+    // send torques to the robot if in real robot mode
+    if (_env == ENV::ROB)
+    {
+      logger->logInfo("Sending torques to robot");
+      km->set_joint_torques(constraint_tau);
+    }
+    
     {%- endmacro -%}
 
     {# update beta and controllers #}

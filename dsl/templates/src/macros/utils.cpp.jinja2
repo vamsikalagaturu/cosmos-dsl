@@ -16,6 +16,8 @@
 
   {%- macro end_loop() -%}
        i++;
+
+       usleep(600);
     
     if (i == break_iteration_)
       break;
