@@ -14,7 +14,7 @@ Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string com
 
   _utils = std::make_shared<Utils>(logger);
 
-  _math_utils = std::make_shared<MathUtils>(0.0001);
+  _math_utils = std::make_shared<MathUtils>(0.005);
 };
 
 Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op,
@@ -29,7 +29,7 @@ Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string com
 
   _logger = logger;
 
-  _math_utils = std::make_shared<MathUtils>(0.0001);
+  _math_utils = std::make_shared<MathUtils>(0.005);
 };
 
 Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op,
@@ -45,7 +45,7 @@ Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string com
 
   _utils = std::make_shared<Utils>(logger);
 
-  _math_utils = std::make_shared<MathUtils>(0.0001);
+  _math_utils = std::make_shared<MathUtils>(0.005);
 };
 
 Monitor::~Monitor() {}

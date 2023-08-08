@@ -14,7 +14,7 @@
 class MathUtils
 {
 public:
-  MathUtils(double eq_tol = 0.0001);
+  MathUtils(double eq_tol = 0.001);
 
   ~MathUtils();
 

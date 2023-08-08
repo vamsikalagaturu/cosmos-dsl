@@ -213,7 +213,7 @@ void GNUPlotter::plotXYZ(const std::vector<KDL::Vector>& current_val,
   gp << "set origin 0,0\n";
   gp << "set size 1,0.33\n";
   gp << "set ylabel 'Z'\n";
-  gp << "set ytics " << "0.01" << "\n";
+  gp << "set ytics " << "0.02" << "\n";
   gp << "plot '-' with lines title 'Z values', '-' with lines title '" << title << "Z'\n";
   gp.send1d(z_values);
   gp.send1d(target_z);

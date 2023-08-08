@@ -77,22 +77,26 @@ public:
 
   /**
    * @brief Initializes the robot using a URDF file and sets the initial joint angles.
-   *
    * @param urdf_path The file path to the robot's URDF description.
    * @param robot_chain [out] The KDL chain representing the robot.
    * @param base_link The name of the robot's base link.
    * @param tool_link The name of the robot's tool link.
+   * @return 0 on success, -1 on failure.
+   */
+  int initialize_robot_urdf(
+      const std::string& urdf_path, KDL::Chain& robot_chain, const std::string& base_link,
+      const std::string& tool_link);
+
+  /**
+   * @brief Initializes the q with the initial joint angles.
    * @param initial_joint_angles A vector containing the initial joint angles.
    * @param q [out] The KDL joint array representing the robot's joint angles.
-   * @param logger A pointer to a logger for logging errors and information.
    * @param env a ENV enum value representing the environment the robot is in.
    * @return 0 on success, -1 on failure.
    */
-  int initialize_robot_urdf(const std::string& urdf_path, KDL::Chain& robot_chain,
-                       const std::string& base_link, const std::string& tool_link,
-                       KDL::JntArray& q,
-                       const std::vector<double>& initial_joint_angles = std::vector<double>(),
-                       ENV env = ENV::SIM);
+  int init_q(KDL::Chain* robot_chain, KDL::JntArray& q,
+             const std::vector<double>& initial_joint_angles = std::vector<double>(),
+             ENV env = ENV::SIM);
 
   /**
    * @brief Computes the euclidean distance between two 3d points.

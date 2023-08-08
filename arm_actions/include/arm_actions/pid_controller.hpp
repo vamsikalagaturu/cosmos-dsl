@@ -4,6 +4,7 @@
 #include <array>
 #include <tuple>
 #include <vector>
+#include <iostream>
 
 #include "frames.hpp"
 #include "jntarray.hpp"
