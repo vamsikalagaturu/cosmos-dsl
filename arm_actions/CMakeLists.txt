@@ -61,7 +61,7 @@ add_library(kinova_mediator SHARED src/utils/kinova_mediator.cpp)
 target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} orocos-kdl kdl_parser logger 
       ${PROJECT_ROOT_DIR}/kinova_api/lib/release/libKortexApiCpp.a pthread)
 
-add_library(mujoco_env src/utils/mujoco_env.cpp)
+add_library(mujoco_env SHARED src/utils/mujoco_env.cpp)
 target_link_libraries(mujoco_env ${MUJOCO_PATH}/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
 
 # add all cpp files in src folder

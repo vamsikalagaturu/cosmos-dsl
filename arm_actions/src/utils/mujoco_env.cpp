@@ -6,6 +6,7 @@ RobotSimulation* RobotSimulation::instance = nullptr;
 RobotSimulation::RobotSimulation()
     : button_left(false), button_middle(false), button_right(false), lastx(0), lasty(0)
 {
+  printf("Initializing robot simulation\n");
   // Get current file path
   path = __FILE__;
   // Get the robot urdf path
@@ -19,12 +20,12 @@ RobotSimulation::RobotSimulation()
 // Destructor
 RobotSimulation::~RobotSimulation()
 {
-  glfwTerminate();
-  mjv_freeScene(&scn);
-  mjr_freeContext(&con);
+  // glfwTerminate();
+  // mjv_freeScene(&scn);
+  // mjr_freeContext(&con);
 
-  delete data;
-  delete model;
+  // delete data;
+  // delete model;
 }
 
 // mouse button callback
@@ -75,8 +76,7 @@ void RobotSimulation::mouse_move(GLFWwindow* window, double xpos, double ypos)
 
 int RobotSimulation::run(std::vector<double> *initial_joint_angles,
                          std::vector<KDL::JntArray> joint_angles,
-                         std::vector<KDL::JntArray> joint_velocities,
-                         std::vector<KDL::JntArray> joint_taus)
+                         std::vector<KDL::JntArray> joint_velocities)
 {
   instance = this;
 
@@ -87,7 +87,6 @@ int RobotSimulation::run(std::vector<double> *initial_joint_angles,
   }
 
   // init GLFW, create window, make OpenGL context current, request v-sync
-  glfwInit();
   GLFWwindow* window = glfwCreateWindow(1200, 900, "Demo", NULL, NULL);
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
@@ -138,15 +137,12 @@ int RobotSimulation::run(std::vector<double> *initial_joint_angles,
     joint_angles.erase(joint_angles.begin());
     KDL::JntArray joint_velocity = joint_velocities.front();
     joint_velocities.erase(joint_velocities.begin());
-    KDL::JntArray joint_tau = joint_taus.front();
-    joint_taus.erase(joint_taus.begin());
 
     // make the robot stay still
     for (int i = 0; i < model->nq; i++)
     {
       data->qpos[i] = joint_angle(i);
       data->qvel[i] = joint_velocity(i);
-      // data->ctrl[i] = joint_tau(i);
     }
 
     // advance simulation
