@@ -17,7 +17,7 @@
   {%- macro end_loop() -%}
        i++;
 
-       usleep(600);
+    usleep(600);
     
     if (i == break_iteration_)
       break;
@@ -27,7 +27,7 @@
   {
     logger->logInfo("Visualizing the simulation");
     RobotSimulation simulation;
-    simulation.run(&initial_joint_angles, q_vec, qd_vec, jnt_tau_vec);
+    simulation.run(&initial_joint_angles, q_vec, qd_vec);
   }
 
   if (_plot)

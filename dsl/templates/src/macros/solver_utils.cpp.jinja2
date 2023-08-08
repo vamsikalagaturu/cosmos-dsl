@@ -195,7 +195,6 @@
           control_frame.p);
 
       {%- endif -%}
-      {%- endwith -%}
 
       {#+ output dimension #}
       auto cod = std::vector<int>{ {{con_data["output-dimension"]|join(",")}} };
@@ -206,11 +205,16 @@
       for (int j = 0; j < cod.size(); j++)
       {
         if (cod[j] == 1){
+          {%- if "AngularVelocity" in coords[con_cons["coord"]]["vel_type"] %}
+          control_accelerations(j+3) = {{con_data["output"]}}(j);
+          {%- else %}
           control_accelerations(j) = {{con_data["output"]}}(j);
+          {%- endif %}
         }
       }
       {%- endif %}
       {%- endfor %}
+      {%- endwith -%}
     }
 
     {% endfor -%}
