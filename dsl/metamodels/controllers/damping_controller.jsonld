@@ -1,0 +1,18 @@
+{
+  "@context": {
+    "dampingController": "http://example.com/damping_controller",
+
+    "DampingController": "dampingController:DampingController",
+
+    "damping-diagonal-matrix": {
+      "@id": "dampingController:damping-diagonal-matrix",
+      "@type": "@id",
+      "@container": "@list"
+    },
+
+    "constraint": {
+      "@id": "dampingController:constraint",
+      "@type": "@id"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "@context": {
+    "impedanceController": "http://example.com/impedance_controller#",
+
+    "ImpedanceController": "impedanceController:ImpedanceController",
+
+    "stiffness-controller": {
+      "@id": "impedanceController:stiffness-controller",
+      "@type": "@id"
+    },
+
+    "damping-controller": {
+      "@id": "impedanceController:damping-controller",
+      "@type": "@id"
+    }
+  }
+}

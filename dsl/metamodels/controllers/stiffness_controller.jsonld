@@ -1,0 +1,18 @@
+{
+  "@context": {
+    "stiffnessController": "http://example.com/stiffness_controller#",
+
+    "StiffnessController": "stiffnessController:StiffnessController",
+
+    "stiffness-diagonal-matrix": {
+      "@id": "stiffnessController:stiffness-diagonal-matrix",
+      "@type": "xsd:float",
+      "@container": "@list"
+    },
+
+    "constraint": {
+      "@id": "stiffnessController:constraint",
+      "@type": "@id"
+    }
+  }
+}
