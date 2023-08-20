@@ -1,45 +1,44 @@
 {
-    "@context": [
-        "../metamodels/entities/frame.jsonld",
-        "../metamodels/relations/coordinate.jsonld",
-        "https://comp-rob2b.github.io/metamodels/qudt.json",
-        {
-            "rob": "http://example.com/rob#"
-        }
-    ],
+  "@context": [
+    "../metamodels/relations/coordinate.jsonld",
+    "https://comp-rob2b.github.io/metamodels/qudt.json",
+    {
+      "rob": "http://example.com/rob#"
+    }
+  ],
 
-    "@id": "rob:pc_instance",
+  "@id": "rob:pc_instance",
 
-    "@graph": [
-        {
-            "@id": "rob:pos-p1-origin-coord",
-            "@type": ["PositionReference", "PositionCoordinate", "VectorXYZ"],
-            "of-position": "rob:pos-p1-origin",
-            "as-seen-by": "rob:f1",
-            "unit": "M",
-            "x": 0.1, 
-            "y": 0.2, 
-            "z": 0.1
-        },
-        {
-            "@id": "rob:pos-p2-origin-coord",
-            "@type": ["PositionReference", "PositionCoordinate", "VectorXYZ"],
-            "of-position": "rob:pos-p2-origin",
-            "as-seen-by": "rob:f1",
-            "unit": "M",
-            "x": 0.1, 
-            "y": 0.3, 
-            "z": 0.1
-        },
-        {
-            "@id": "rob:pos-p3-origin-coord",
-            "@type": ["PositionReference", "PositionCoordinate", "VectorXYZ"],
-            "of-position": "rob:pos-p3-origin",
-            "as-seen-by": "rob:f1",
-            "unit": "M",
-            "x": 0.1, 
-            "y": 0.4, 
-            "z": 0.1
-        }
-    ]
+  "@graph": [
+    {
+      "@id": "rob:pos-p1-origin-coord",
+      "@type": [ "PositionReference", "PositionCoordinate", "VectorXYZ" ],
+      "of-position": "rob:pos-p1-origin",
+      "as-seen-by": "rob:f1",
+      "unit": "M",
+      "x": 0.1,
+      "y": 0.2,
+      "z": 0.1
+    },
+    {
+      "@id": "rob:pos-p2-origin-coord",
+      "@type": [ "PositionReference", "PositionCoordinate", "VectorXYZ" ],
+      "of-position": "rob:pos-p2-origin",
+      "as-seen-by": "rob:f1",
+      "unit": "M",
+      "x": 0.1,
+      "y": 0.3,
+      "z": 0.1
+    },
+    {
+      "@id": "rob:pos-p3-origin-coord",
+      "@type": [ "PositionReference", "PositionCoordinate", "VectorXYZ" ],
+      "of-position": "rob:pos-p3-origin",
+      "as-seen-by": "rob:f1",
+      "unit": "M",
+      "x": 0.1,
+      "y": 0.4,
+      "z": 0.1
+    }
+  ]
 }

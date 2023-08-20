@@ -1,22 +1,22 @@
 {
-    "@context": {
-        "dynamics": "http://example.com/dynamics#",
+  "@context": {
+    "dynamics": "http://example.com/dynamics#",
 
-        "Dynamics": "dynamics:Dynamics",
-        
-        "Wrench": "dynamics:Wrench",
-        "Force": "dynamics:Force",
-        "ContactForce": "dynamics:ContactForce",
-        "Torque": "dynamics:Torque",
+    "Dynamics": "dynamics:Dynamics",
 
-        "applied-by": {
-            "@id": "dynamics:applied-by",
-            "@type": "@id"
-        },
-        
-        "applied-to": {
-            "@id": "dynamics:applied-to",
-            "@type": "@id"
-        }
+    "Wrench": "dynamics:Wrench",
+    "Force": "dynamics:Force",
+    "ContactForce": "dynamics:ContactForce",
+    "Torque": "dynamics:Torque",
+
+    "applied-by": {
+      "@id": "dynamics:applied-by",
+      "@type": "@id"
+    },
+
+    "applied-to": {
+      "@id": "dynamics:applied-to",
+      "@type": "@id"
     }
+  }
 }

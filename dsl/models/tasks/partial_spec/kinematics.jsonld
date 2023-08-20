@@ -1,82 +1,82 @@
 {
-    "@context": [
-        "../../../metamodels/mechanics/kinematics.jsonld",
-        "https://comp-rob2b.github.io/metamodels/qudt.json",
-        {
-            "rob": "http://example.com/rob#"
-        }
-    ],
-    "@id": "rob:kinematics_instance",
-    "@graph": [
-        {
-            "@id": "rob:bracelet_link_target_link_ef_dist",
-            "@type": [
-                "EuclideanDistance",
-                "FrameToFrameDistance",
-                "3D", "LinearDistance"
-            ],
-            "between-entities": [
-                "rob:bracelet_link",
-                "rob:target_link_ef"
-            ],
-            "quantity-kind": "Length"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_ef_xy_dist",
-            "@type": [
-                "EuclideanDistance",
-                "FrameToFrameDistance",
-                "2D", "Plane", "LinearDistance"
-            ],
-            "between-entities": [
-                "rob:bracelet_link",
-                "rob:target_link_ef"
-            ],
-            "quantity-kind": "Length"
-        },
-        {
-            "@id": "rob:bracelet_link_lin_vel",
-            "@type": [
-                "CartesianVelocity",
-                "LinearVelocity"
-            ],
-            "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:base_link",
-            "quantity-kind": "LinearVelocity"
-        },
-        {
-            "@id": "rob:bracelet_link_ang_vel",
-            "@type": [
-                "CartesianVelocity",
-                "AngularVelocity"
-            ],
-            "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:base_link",
-            "quantity-kind": "AngularVelocity"
-        },
-        {
-            "@id": "rob:bracelet_link_speed_x",
-            "@type": "Speed",
-            "of-frame": "rob:bracelet_link",
-            "wrt-frame": "rob:base_link",
-            "quantity-kind": "Speed"
-        },
-        {
-            "@id": "rob:bracelet_link_dir_x",
-            "@type": [ "3D", "Euclidean", "DirectionVector",
-                       "Vector", "BoundVector", "UnitLength" ],
-            "quantity-kind": "Length",
-            "start": "rob:bracelet_link"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_x",
-            "@type": [
-                "OneDimensionalVelocity",
-                "VelocityBoundUnitDirectionSpeed",
-                "LinearVelocity"
-            ],
-            "speed": "rob:bracelet_link_speed_x",
-            "direction": "rob:bracelet_link_dir_x"
-        }
-    ]
+  "@context": [
+    "../../../metamodels/mechanics/kinematics.jsonld",
+    "https://comp-rob2b.github.io/metamodels/qudt.json",
+    {
+      "rob": "http://example.com/rob#"
+    }
+  ],
+  "@id": "rob:kinematics_instance",
+  "@graph": [
+    {
+      "@id": "rob:bracelet_link_target_link_ef_dist",
+      "@type": [
+        "EuclideanDistance",
+        "FrameToFrameDistance",
+        "3D", "LinearDistance"
+      ],
+      "between-entities": [
+        "rob:bracelet_link",
+        "rob:target_link_ef"
+      ],
+      "quantity-kind": "Length"
+    },
+    {
+      "@id": "rob:bracelet_link_target_link_ef_xy_dist",
+      "@type": [
+        "EuclideanDistance",
+        "FrameToFrameDistance",
+        "2D", "Plane", "LinearDistance"
+      ],
+      "between-entities": [
+        "rob:bracelet_link",
+        "rob:target_link_ef"
+      ],
+      "quantity-kind": "Length"
+    },
+    {
+      "@id": "rob:bracelet_link_lin_vel",
+      "@type": [
+        "CartesianVelocity",
+        "LinearVelocity"
+      ],
+      "of-frame": "rob:bracelet_link",
+      "wrt-frame": "rob:base_link",
+      "quantity-kind": "LinearVelocity"
+    },
+    {
+      "@id": "rob:bracelet_link_ang_vel",
+      "@type": [
+        "CartesianVelocity",
+        "AngularVelocity"
+      ],
+      "of-frame": "rob:bracelet_link",
+      "wrt-frame": "rob:base_link",
+      "quantity-kind": "AngularVelocity"
+    },
+    {
+      "@id": "rob:bracelet_link_speed_x",
+      "@type": "Speed",
+      "of-frame": "rob:bracelet_link",
+      "wrt-frame": "rob:base_link",
+      "quantity-kind": "Speed"
+    },
+    {
+      "@id": "rob:bracelet_link_dir_x",
+      "@type": [ "3D", "Euclidean", "DirectionVector",
+        "Vector", "BoundVector", "UnitLength" ],
+      "quantity-kind": "Length",
+      "start": "rob:bracelet_link"
+    },
+    {
+      "@id": "rob:bracelet_link_vel_x",
+      "@type": [
+        "OneDimensionalVelocity",
+        "VelocityBoundUnitDirectionSpeed",
+        "LinearVelocity"
+      ],
+      "speed": "rob:bracelet_link_speed_x",
+      "direction": "rob:bracelet_link_dir_x"
+    }
+  ]
 }

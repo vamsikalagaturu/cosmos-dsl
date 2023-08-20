@@ -1,165 +1,165 @@
 {
-    "@context": [
-        "../../../metamodels/motion_specifications/controller_io.jsonld",
-        "../../../metamodels/motion_specifications/controller_mappings.jsonld",
-        "../../../metamodels/motion_specifications/mappings.jsonld",
-        {
-            "rob": "http://example.com/rob#"
-        }
-    ],
-    "@id": "rob:motion_specifications",
-    "@graph": [
-        {
-            "@id": "rob:pid_vel_x_controller_io_input",
-            "@type": [
-                "ControllerIO",
-                "ControllerInput"
-            ],
-            "io": "rob:bracelet_link_coord",
-            "io-dimension": [1, 0, 0, 0, 0, 0]
-        },
-        {
-            "@id": "rob:pid_vel_x_controller_io_output",
-            "@type": [
-                "ControllerIO",
-                "ControllerOutput"
-            ],
-            "io-dimension": [1, 0, 0, 0, 0, 0]
-        },
-        {
-            "@id": "rob:pid_vel_x_controller_mappings",
-            "@type": "ControllerMapping",
-            "controller": "rob:pid_vel_x_controller",
-            "input": "rob:pid_vel_x_controller_io_input",
-            "output": "rob:pid_vel_x_controller_io_output"
-        },
-        {
-            "@id": "rob:bracelet_link_vel_x_csm",
-            "@type": "ControllerSolver",
-            "interface": {
-                "@id": "rob:acc_energy",
-                "@type": "AccEnegery"
-            },
-            "controller-mappings": [
-                "rob:pid_vel_x_controller_mappings"
-            ],
-            "solver": "rob:vereshchagin_solver",
-            "solver-input": [
-                "rob:pid_vel_x_controller_io_output"
-            ]
-        },
-        {
-            "@id": "rob:pid_move_arm_down_lin_vel_controller_io_input",
-            "@type": [
-                "ControllerIO",
-                "ControllerInput"
-            ],
-            "io": "rob:bracelet_link_coord",
-            "io-dimension": [1, 1, 1]
-        },
-        {
-            "@id": "rob:pid_move_arm_down_lin_vel_controller_io_output",
-            "@type": [
-                "ControllerIO",
-                "ControllerOutput"
-            ],
-            "io-dimension": [1, 1, 1]
-        },
-        {
-            "@id": "rob:pid_move_arm_down_ang_vel_controller_io_input",
-            "@type": [
-                "ControllerIO",
-                "ControllerInput"
-            ],
-            "io": "rob:bracelet_link_coord",
-            "io-dimension": [1, 1, 1]
-        },
-        {
-            "@id": "rob:pid_move_arm_down_ang_vel_controller_io_output",
-            "@type": [
-                "ControllerIO",
-                "ControllerOutput"
-            ],
-            "io-dimension": [1, 1, 1]
-        },
-        {
-            "@id": "rob:pid_move_arm_down_lin_vel_controller_mappings",
-            "@type": "ControllerMapping",
-            "controller": "rob:pid_move_arm_down_lin_vel_controller",
-            "input": "rob:pid_move_arm_down_lin_vel_controller_io_input",
-            "output": "rob:pid_move_arm_down_lin_vel_controller_io_output"
-        },
-        {
-            "@id": "rob:pid_move_arm_down_ang_vel_controller_mappings",
-            "@type": "ControllerMapping",
-            "controller": "rob:pid_move_arm_down_ang_vel_controller",
-            "input": "rob:pid_move_arm_down_ang_vel_controller_io_input",
-            "output": "rob:pid_move_arm_down_ang_vel_controller_io_output"
-        },
-        {
-            "@id": "rob:move_arm_down_vel_csm",
-            "@type": "ControllerSolver",
-            "interface": {
-                "@id": "rob:acc_energy",
-                "@type": "AccEnegery"
-            },
-            "controller-mappings": [
-                "rob:pid_move_arm_down_lin_vel_controller_mappings",
-                "rob:pid_move_arm_down_ang_vel_controller_mappings"
-            ],
-            "solver": "rob:vereshchagin_solver",
-            "solver-input": [
-                "rob:pid_move_arm_down_lin_vel_controller_io_output",
-                "rob:pid_move_arm_down_ang_vel_controller_io_output"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_forward_force_csm",
-            "@type": "ControllerSolver",
-            "interface": {
-                "@id": "rob:move_arm_forward_force_interface",
-                "@type": "ExtWrench"
-            },
-            "solver": "rob:vereshchagin_solver"
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_input",
-            "@type": [
-                "ControllerIO",
-                "ControllerInput"
-            ],
-            "io": "rob:bracelet_link_coord",
-            "io-dimension": [1, 1, 0, 0, 0, 0]
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output",
-            "@type": [
-                "ControllerIO",
-                "ControllerOutput"
-            ],
-            "io-dimension": [1, 1, 0, 0, 0, 0]
-        },
-        {
-            "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_mappings",
-            "@type": "ControllerMapping",
-            "controller": "rob:pid_bracelet_link_target_link_ef_xy_dist_controller",
-            "input": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_input",
-            "output": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_ef_xy_csm",
-            "@type": "ControllerSolver",
-            "interface": {
-                "@id": "rob:acc_energy",
-                "@type": "AccEnegery"
-            },
-            "controller-mappings": [
-                "rob:pid_bracelet_link_target_link_ef_xy_controller_mappings"
-            ],
-            "solver": "rob:vereshchagin_solver",
-            "solver-input": [
-                "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
-            ]
-        }
-    ]
+  "@context": [
+    "../../../metamodels/motion_specifications/controller_io.jsonld",
+    "../../../metamodels/motion_specifications/controller_mappings.jsonld",
+    "../../../metamodels/motion_specifications/mappings.jsonld",
+    {
+      "rob": "http://example.com/rob#"
+    }
+  ],
+  "@id": "rob:motion_specifications",
+  "@graph": [
+    {
+      "@id": "rob:pid_vel_x_controller_io_input",
+      "@type": [
+        "ControllerIO",
+        "ControllerInput"
+      ],
+      "io": "rob:bracelet_link_coord",
+      "io-dimension": [ 1, 0, 0, 0, 0, 0 ]
+    },
+    {
+      "@id": "rob:pid_vel_x_controller_io_output",
+      "@type": [
+        "ControllerIO",
+        "ControllerOutput"
+      ],
+      "io-dimension": [ 1, 0, 0, 0, 0, 0 ]
+    },
+    {
+      "@id": "rob:pid_vel_x_controller_mappings",
+      "@type": "ControllerMapping",
+      "controller": "rob:pid_vel_x_controller",
+      "input": "rob:pid_vel_x_controller_io_input",
+      "output": "rob:pid_vel_x_controller_io_output"
+    },
+    {
+      "@id": "rob:bracelet_link_vel_x_csm",
+      "@type": "ControllerSolver",
+      "interface": {
+        "@id": "rob:acc_energy",
+        "@type": "AccEnegery"
+      },
+      "controller-mappings": [
+        "rob:pid_vel_x_controller_mappings"
+      ],
+      "solver": "rob:vereshchagin_solver",
+      "solver-input": [
+        "rob:pid_vel_x_controller_io_output"
+      ]
+    },
+    {
+      "@id": "rob:pid_move_arm_down_lin_vel_controller_io_input",
+      "@type": [
+        "ControllerIO",
+        "ControllerInput"
+      ],
+      "io": "rob:bracelet_link_coord",
+      "io-dimension": [ 1, 1, 1 ]
+    },
+    {
+      "@id": "rob:pid_move_arm_down_lin_vel_controller_io_output",
+      "@type": [
+        "ControllerIO",
+        "ControllerOutput"
+      ],
+      "io-dimension": [ 1, 1, 1 ]
+    },
+    {
+      "@id": "rob:pid_move_arm_down_ang_vel_controller_io_input",
+      "@type": [
+        "ControllerIO",
+        "ControllerInput"
+      ],
+      "io": "rob:bracelet_link_coord",
+      "io-dimension": [ 1, 1, 1 ]
+    },
+    {
+      "@id": "rob:pid_move_arm_down_ang_vel_controller_io_output",
+      "@type": [
+        "ControllerIO",
+        "ControllerOutput"
+      ],
+      "io-dimension": [ 1, 1, 1 ]
+    },
+    {
+      "@id": "rob:pid_move_arm_down_lin_vel_controller_mappings",
+      "@type": "ControllerMapping",
+      "controller": "rob:pid_move_arm_down_lin_vel_controller",
+      "input": "rob:pid_move_arm_down_lin_vel_controller_io_input",
+      "output": "rob:pid_move_arm_down_lin_vel_controller_io_output"
+    },
+    {
+      "@id": "rob:pid_move_arm_down_ang_vel_controller_mappings",
+      "@type": "ControllerMapping",
+      "controller": "rob:pid_move_arm_down_ang_vel_controller",
+      "input": "rob:pid_move_arm_down_ang_vel_controller_io_input",
+      "output": "rob:pid_move_arm_down_ang_vel_controller_io_output"
+    },
+    {
+      "@id": "rob:move_arm_down_vel_csm",
+      "@type": "ControllerSolver",
+      "interface": {
+        "@id": "rob:acc_energy",
+        "@type": "AccEnegery"
+      },
+      "controller-mappings": [
+        "rob:pid_move_arm_down_lin_vel_controller_mappings",
+        "rob:pid_move_arm_down_ang_vel_controller_mappings"
+      ],
+      "solver": "rob:vereshchagin_solver",
+      "solver-input": [
+        "rob:pid_move_arm_down_lin_vel_controller_io_output",
+        "rob:pid_move_arm_down_ang_vel_controller_io_output"
+      ]
+    },
+    {
+      "@id": "rob:move_arm_forward_force_csm",
+      "@type": "ControllerSolver",
+      "interface": {
+        "@id": "rob:move_arm_forward_force_interface",
+        "@type": "ExtWrench"
+      },
+      "solver": "rob:vereshchagin_solver"
+    },
+    {
+      "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_input",
+      "@type": [
+        "ControllerIO",
+        "ControllerInput"
+      ],
+      "io": "rob:bracelet_link_coord",
+      "io-dimension": [ 1, 1, 0, 0, 0, 0 ]
+    },
+    {
+      "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output",
+      "@type": [
+        "ControllerIO",
+        "ControllerOutput"
+      ],
+      "io-dimension": [ 1, 1, 0, 0, 0, 0 ]
+    },
+    {
+      "@id": "rob:pid_bracelet_link_target_link_ef_xy_controller_mappings",
+      "@type": "ControllerMapping",
+      "controller": "rob:pid_bracelet_link_target_link_ef_xy_dist_controller",
+      "input": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_input",
+      "output": "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
+    },
+    {
+      "@id": "rob:bracelet_link_target_link_ef_xy_csm",
+      "@type": "ControllerSolver",
+      "interface": {
+        "@id": "rob:acc_energy",
+        "@type": "AccEnegery"
+      },
+      "controller-mappings": [
+        "rob:pid_bracelet_link_target_link_ef_xy_controller_mappings"
+      ],
+      "solver": "rob:vereshchagin_solver",
+      "solver-input": [
+        "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
+      ]
+    }
+  ]
 }

@@ -1,31 +1,31 @@
 {
-    "@context": [
-        "../../../metamodels/entities/frame.jsonld",
-        {
-            "rob": "http://example.com/rob#"
-        }
-    ],
-    "@id": "rob:frame_instances",
-    "@graph": [
-        {
-            "@id": "rob:base_link",
-            "@type": "Frame"
-        },
-        {
-            "@id": "rob:bracelet_link",
-            "@type": "Frame"
-        },
-        {
-            "@id": "rob:target_link_bf",
-            "@type": "Frame"
-        },
-        {
-            "@id": "rob:target_link_ef",
-            "@type": "Frame"
-        },
-        {
-            "@id": "rob:table_link",
-            "@type": "Frame"
-        }
-    ]
+  "@context": [
+    "../../../metamodels/entities/frame.jsonld",
+    {
+      "rob": "http://example.com/rob#"
+    }
+  ],
+  "@id": "rob:frame_instances",
+  "@graph": [
+    {
+      "@id": "rob:base_link",
+      "@type": "Frame"
+    },
+    {
+      "@id": "rob:bracelet_link",
+      "@type": "Frame"
+    },
+    {
+      "@id": "rob:target_link_bf",
+      "@type": "Frame"
+    },
+    {
+      "@id": "rob:target_link_ef",
+      "@type": "Frame"
+    },
+    {
+      "@id": "rob:table_link",
+      "@type": "Frame"
+    }
+  ]
 }

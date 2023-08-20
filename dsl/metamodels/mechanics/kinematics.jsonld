@@ -1,79 +1,78 @@
 {
-    "@context": {
-        "kinematics": "http://example.com/kinematics#",
+  "@context": {
+    "kinematics": "http://example.com/kinematics#",
 
-        "EuclideanDistance": "kinematics:EuclideanDistance",
-        "PointToPointDistance": "kinematics:PointToPointDistance",
-        "FramePointToPointDistance": "kinematics:FrameToFrameDistance",
-        "FrameToFrameDistance": "kinematics:FrameToFrameDistance",
-        
-        "LinearDistance": "kinematics:LinearDistance",
-        "AngularDistance": "kinematics:AngularDistance",
+    "EuclideanDistance": "kinematics:EuclideanDistance",
+    "PointToPointDistance": "kinematics:PointToPointDistance",
+    "FramePointToPointDistance": "kinematics:FrameToFrameDistance",
+    "FrameToFrameDistance": "kinematics:FrameToFrameDistance",
 
-        "Speed": "kinematics:Speed",
-        "Direction": "kinematics:Direction",
+    "LinearDistance": "kinematics:LinearDistance",
+    "AngularDistance": "kinematics:AngularDistance",
 
-        "CartesianVelocity": "kinematics:CartesianVelocity",
-        "LinearVelocity": "kinematics:LinearVelocity",
-        "AngularVelocity": "kinematics:AngularVelocity",
+    "Speed": "kinematics:Speed",
+    "Direction": "kinematics:Direction",
 
-        "1D": "kinematics:1D",
-        "2D": "kinematics:2D",
-        "3D": "kinematics:3D",
+    "CartesianVelocity": "kinematics:CartesianVelocity",
+    "LinearVelocity": "kinematics:LinearVelocity",
+    "AngularVelocity": "kinematics:AngularVelocity",
 
-        "Axis": "kinematics:Axis",
-        "Plane": "kinematics:Plane",
+    "1D": "kinematics:1D",
+    "2D": "kinematics:2D",
+    "3D": "kinematics:3D",
 
-        "Euclidean": "kinematics:Euclidean",
-        "Vector": "kinematics:Vector",
-        "DirectionVector": "kinematics:DirectionVector",
-        "BoundVector": "kinematics:BoundVector",
-        "UnitLength": "kinematics:UnitLength",
+    "Axis": "kinematics:Axis",
+    "Plane": "kinematics:Plane",
 
-        "OneDimensionalVelocity": "kinematics:OneDimensionalVelocity",
-        "TwoDimensionalVelocity": "kinematics:TwoDimensionalVelocity",
-        "VelocityReferencePointDirectionSpeed": "kinematics:VelocityReferencePointDirectionSpeed",
-        "VelocityBoundUnitDirectionSpeed": "kinematics:VelocityBoundUnitDirectionSpeed",
+    "Euclidean": "kinematics:Euclidean",
+    "Vector": "kinematics:Vector",
+    "DirectionVector": "kinematics:DirectionVector",
+    "BoundVector": "kinematics:BoundVector",
+    "UnitLength": "kinematics:UnitLength",
 
-        "between-entities": {
-            "@id": "kinematics:between-entities",
-            "@container": "@set",
-            "@type": "@id"
-        },
+    "OneDimensionalVelocity": "kinematics:OneDimensionalVelocity",
+    "VelocityReferencePointDirectionSpeed": "kinematics:VelocityReferencePointDirectionSpeed",
+    "VelocityBoundUnitDirectionSpeed": "kinematics:VelocityBoundUnitDirectionSpeed",
 
-        "of-frame": {
-            "@id": "kinematics:of-frame",
-            "@type": "@id"
-        },
-        
-        "wrt-frame": {
-            "@id": "kinematics:wrt-frame",
-            "@type": "@id"
-        },
+    "between-entities": {
+      "@id": "kinematics:between-entities",
+      "@container": "@set",
+      "@type": "@id"
+    },
 
-        "start": {
-            "@id": "kinematics:start",
-            "@type": "@id"
-        },
+    "of-frame": {
+      "@id": "kinematics:of-frame",
+      "@type": "@id"
+    },
 
-        "speed": {
-            "@id": "kinematics:speed",
-            "@type": "@id"
-        },
+    "wrt-frame": {
+      "@id": "kinematics:wrt-frame",
+      "@type": "@id"
+    },
 
-        "direction": {
-            "@id": "kinematics:direction",
-            "@type": "@id"
-        },
+    "start": {
+      "@id": "kinematics:start",
+      "@type": "@id"
+    },
 
-        "velocity": {
-            "@id": "kinematics:velocity",
-            "@type": "@id"
-        },
+    "speed": {
+      "@id": "kinematics:speed",
+      "@type": "@id"
+    },
 
-        "reference": {
-            "@id": "kinematics:reference-frame",
-            "@type": "@id"
-        }
+    "direction": {
+      "@id": "kinematics:direction",
+      "@type": "@id"
+    },
+
+    "velocity": {
+      "@id": "kinematics:velocity",
+      "@type": "@id"
+    },
+
+    "reference": {
+      "@id": "kinematics:reference-frame",
+      "@type": "@id"
     }
+  }
 }

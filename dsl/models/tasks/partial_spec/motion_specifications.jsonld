@@ -1,57 +1,57 @@
 {
-    "@context": [
-        "../../../metamodels/motion_specifications/move_arm.jsonld",
-        {
-            "rob": "http://example.com/rob#"
-        }
-    ],
-    "@id": "rob:motion_specifications",
-    "@graph": [
-        {
-            "@id": "rob:move_arm_vel_x",
-            "@type": "MoveArm",
-            "mappings": "rob:bracelet_link_vel_x_csm",
-            "pre-conditions": [
-                "rob:bracelet_link_vel_x_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_vel_x_constraint_per"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_vel_x_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_down_vel",
-            "@type": "MoveArm",
-            "mappings": "rob:move_arm_down_vel_csm",
-            "pre-conditions": [
-                "rob:bracelet_link_lin_vel_constraint_pre",
-                "rob:bracelet_link_ang_vel_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:move_arm_down_bl_lin_vel_constraint_per",
-                "rob:move_arm_down_bl_ang_vel_constraint_per"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_lin_vel_constraint_post",
-                "rob:bracelet_link_ang_vel_constraint_post"
-            ]
-        },
-        {
-            "@id": "rob:move_arm_forward_no_z_cons",
-            "@type": "MoveArm",
-            "mappings": "rob:bracelet_link_target_link_ef_xy_csm",
-            "pre-conditions": [
-                "rob:bracelet_link_ang_vel_constraint_pre",
-                "rob:bracelet_link_target_link_ef_xy_dist_constraint_pre"
-            ],
-            "per-conditions": [
-                "rob:bracelet_link_target_link_ef_xy_dist_constraint_per"
-            ],
-            "post-conditions": [
-                "rob:bracelet_link_target_link_ef_xy_dist_constraint_post"
-            ]
-        }
-    ]
+  "@context": [
+    "../../../metamodels/motion_specifications/move_arm.jsonld",
+    {
+      "rob": "http://example.com/rob#"
+    }
+  ],
+  "@id": "rob:motion_specifications",
+  "@graph": [
+    {
+      "@id": "rob:move_arm_vel_x",
+      "@type": "MoveArm",
+      "mappings": "rob:bracelet_link_vel_x_csm",
+      "pre-conditions": [
+        "rob:bracelet_link_vel_x_constraint_pre"
+      ],
+      "per-conditions": [
+        "rob:bracelet_link_vel_x_constraint_per"
+      ],
+      "post-conditions": [
+        "rob:bracelet_link_vel_x_constraint_post"
+      ]
+    },
+    {
+      "@id": "rob:move_arm_down_vel",
+      "@type": "MoveArm",
+      "mappings": "rob:move_arm_down_vel_csm",
+      "pre-conditions": [
+        "rob:bracelet_link_lin_vel_constraint_pre",
+        "rob:bracelet_link_ang_vel_constraint_pre"
+      ],
+      "per-conditions": [
+        "rob:move_arm_down_bl_lin_vel_constraint_per",
+        "rob:move_arm_down_bl_ang_vel_constraint_per"
+      ],
+      "post-conditions": [
+        "rob:bracelet_link_lin_vel_constraint_post",
+        "rob:bracelet_link_ang_vel_constraint_post"
+      ]
+    },
+    {
+      "@id": "rob:move_arm_forward_no_z_cons",
+      "@type": "MoveArm",
+      "mappings": "rob:bracelet_link_target_link_ef_xy_csm",
+      "pre-conditions": [
+        "rob:bracelet_link_ang_vel_constraint_pre",
+        "rob:bracelet_link_target_link_ef_xy_dist_constraint_pre"
+      ],
+      "per-conditions": [
+        "rob:bracelet_link_target_link_ef_xy_dist_constraint_per"
+      ],
+      "post-conditions": [
+        "rob:bracelet_link_target_link_ef_xy_dist_constraint_post"
+      ]
+    }
+  ]
 }

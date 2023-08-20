@@ -1,22 +1,22 @@
 {
-    "@context": {
-        "controllerMapping": "http://example.com/controller_mapping#",
+  "@context": {
+    "controllerMapping": "http://example.com/controller_mapping#",
 
-        "ControllerMapping": "mapping:ControllerMapping",
+    "ControllerMapping": "mapping:ControllerMapping",
 
-        "controller": {
-            "@id": "controllerMapping:controller",
-            "@type": "@id"
-        },
+    "controller": {
+      "@id": "controllerMapping:controller",
+      "@type": "@id"
+    },
 
-        "input": {
-            "@id": "controllerMapping:input",
-            "@type": "@id"
-        },
+    "input": {
+      "@id": "controllerMapping:input",
+      "@type": "@id"
+    },
 
-        "output": {
-            "@id": "controllerMapping:output",
-            "@type": "@id"
-        }
+    "output": {
+      "@id": "controllerMapping:output",
+      "@type": "@id"
     }
+  }
 }

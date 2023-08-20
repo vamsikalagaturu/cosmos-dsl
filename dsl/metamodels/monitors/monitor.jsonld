@@ -1,12 +1,12 @@
 {
-    "@context": {
-        "monitor": "http://example.com/monitor#",
+  "@context": {
+    "monitor": "http://example.com/monitor#",
 
-        "Monitor": "monitor:Monitor",
+    "Monitor": "monitor:Monitor",
 
-        "constraint": {
-            "@id": "monitor:constraint",
-            "@type": "@id"
-        }
+    "constraint": {
+      "@id": "monitor:constraint",
+      "@type": "@id"
     }
-} 
+  }
+}

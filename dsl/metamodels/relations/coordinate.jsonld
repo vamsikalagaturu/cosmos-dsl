@@ -1,107 +1,104 @@
 {
-    "@context": {
-        "coord": "http://example.com/coordinate#",
-        
-        "PositionReference": "coord:PositionReference",
-        "OrientationReference": "coord:OrientationReference",
-        "PoseReference": "coord:PoseReference",
-        "FrameReference": "coord:FrameReference",
+  "@context": {
+    "coord": "http://example.com/coordinate#",
 
-        "PositionCoordinate": "coord:PositionCoordinate",
-        "OrientationCoordinate": "coord:OrientationCoordinate",
-        "PoseCoordinate": "coord:PoseCoordinate",
-        "FrameCoordinate": "coord:FrameCoordinate",
+    "PositionReference": "coord:PositionReference",
+    "OrientationReference": "coord:OrientationReference",
+    "PoseReference": "coord:PoseReference",
+    "FrameReference": "coord:FrameReference",
 
-        "DistanceCoordinate": "coord:DistanceCoordinate",
+    "PositionCoordinate": "coord:PositionCoordinate",
+    "OrientationCoordinate": "coord:OrientationCoordinate",
+    "PoseCoordinate": "coord:PoseCoordinate",
+    "FrameCoordinate": "coord:FrameCoordinate",
 
-        "VectorCoordinate": "coord:VectorCoordinate",
-        "SpeedCoordinate": "coord:SpeedCoordinate",
-        "VelocityCoordinate": "coord:VelocityCoordinate",
+    "DistanceCoordinate": "coord:DistanceCoordinate",
 
-        "WrenchCoordinate": "coord:WrenchCoordinate",
+    "VectorCoordinate": "coord:VectorCoordinate",
+    "SpeedCoordinate": "coord:SpeedCoordinate",
+    "VelocityCoordinate": "coord:VelocityCoordinate",
 
-        "AxisX": "coord:AxisX",
-        "AxisY": "coord:AxisY",
-        "AxisZ": "coord:AxisZ",
+    "WrenchCoordinate": "coord:WrenchCoordinate",
 
-        "PlaneXY": "coord:PlaneXY",
-        "PlaneXZ": "coord:PlaneXZ",
-        "PlaneYZ": "coord:PlaneYZ",
-        
-        "VectorXYZ": "coord:VectorXYZ",
+    "AxisX": "coord:AxisX",
+    "AxisY": "coord:AxisY",
+    "AxisZ": "coord:AxisZ",
 
-        "of-position": {
-            "@id": "coord:of-position",
-            "@type": "@id"
-        },
-        
-        "of-orientation": {
-            "@id": "coord:of-orientation",
-            "@type": "@id"
-        },
+    "PlaneXY": "coord:PlaneXY",
+    "PlaneXZ": "coord:PlaneXZ",
+    "PlaneYZ": "coord:PlaneYZ",
 
-        "of-pose": {
-            "@id": "coord:of-pose",
-            "@type": "@id"
-        },
+    "VectorXYZ": "coord:VectorXYZ",
 
-        "of-frame": {
-            "@id": "coord:of-frame",
-            "@type": "@id"
-        },
+    "of-position": {
+      "@id": "coord:of-position",
+      "@type": "@id"
+    },
 
-        "of-distance": {
-            "@id": "coord:of-distance",
-            "@type": "@id"
-        },
+    "of-orientation": {
+      "@id": "coord:of-orientation",
+      "@type": "@id"
+    },
 
-        "of-speed": {
-            "@id": "coord:of-speed",
-            "@type": "@id"
-        },
+    "of-pose": {
+      "@id": "coord:of-pose",
+      "@type": "@id"
+    },
 
-        "of-direction": {
-            "@id": "coord:of-direction",
-            "@type": "@id"
-        },
+    "of-frame": {
+      "@id": "coord:of-frame",
+      "@type": "@id"
+    },
 
-        "of-velocity": {
-            "@id": "coord:of-velocity",
-            "@type": "@id"
-        },
+    "of-distance": {
+      "@id": "coord:of-distance",
+      "@type": "@id"
+    },
 
-        "of-wrench": {
-            "@id": "coord:of-wrench",
-            "@type": "@id"
-        },
+    "of-speed": {
+      "@id": "coord:of-speed",
+      "@type": "@id"
+    },
 
-        "as-seen-by": {
-            "@id": "coord:as-seen-by",
-            "@type": "@id"
-        },
+    "of-direction": {
+      "@id": "coord:of-direction",
+      "@type": "@id"
+    },
 
-        "unit": {
-            "@id": "coord:unit",
-            "@type": "xsd:string"
-        },
+    "of-velocity": {
+      "@id": "coord:of-velocity",
+      "@type": "@id"
+    },
 
-        "orientation": {
-            "@id": "coord:orientation",
-            "@type": "@id"
-        },
+    "of-wrench": {
+      "@id": "coord:of-wrench",
+      "@type": "@id"
+    },
 
-        "x": {
-            "@id": "coord:x",
-            "@type": "xsd:double"
-        },
-        "y": {
-            "@id": "coord:y",
-            "@type": "xsd:double"
-        },
-        "z": {
-            "@id": "coord:z",
-            "@type": "xsd:double"
-        }
-        
+    "as-seen-by": {
+      "@id": "coord:as-seen-by",
+      "@type": "@id"
+    },
+
+    "orientation": {
+      "@id": "coord:orientation",
+      "@type": "@id"
+    },
+
+    "x": {
+      "@id": "coord:x",
+      "@type": "xsd:double"
+    },
+
+    "y": {
+      "@id": "coord:y",
+      "@type": "xsd:double"
+    },
+    
+    "z": {
+      "@id": "coord:z",
+      "@type": "xsd:double"
     }
+
+  }
 }

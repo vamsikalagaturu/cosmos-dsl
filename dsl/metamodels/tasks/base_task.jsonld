@@ -1,19 +1,19 @@
 {
-    "@context": {
-        "baseTask": "http://example.com/base_task#",
+  "@context": {
+    "baseTask": "http://example.com/base_task#",
 
-        "BaseTask": "baseTask:BaseTask",
+    "BaseTask": "baseTask:BaseTask",
 
-        "q-init": {
-            "@id": "baseTask:q-init",
-            "@type": "xsd:int",
-            "@container": "@list"
-        },
+    "q-init": {
+      "@id": "baseTask:q-init",
+      "@type": "xsd:int",
+      "@container": "@list"
+    },
 
-        "motion-specifications": {
-            "@id": "baseTask:motion-specifications",
-            "@type": "@id",
-            "@container": "@set"
-        }
+    "motion-specifications": {
+      "@id": "baseTask:motion-specifications",
+      "@type": "@id",
+      "@container": "@set"
     }
+  }
 }

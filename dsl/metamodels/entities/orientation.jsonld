@@ -1,10 +1,8 @@
 {
     "@context": {
         "orientation": "http://example.com/orientation#",
-        
         "@id": "orientation:Orientation",
         "@type": "@id",
-
         "rpy": {
             "@id": "orientation:rpy",
             "@type": "orientation:RPY",
@@ -21,7 +19,6 @@
                 "@type": "xsd:float"
             }
         },
-
         "quaternion": {
             "@id": "orientation:quaternion",
             "@type": "orientation:Quaternion",
@@ -42,7 +39,6 @@
                 "@type": "xsd:float"
             }
         },
-        
         "euler": {
             "@id": "orientation:euler",
             "@type": "orientation:Euler",

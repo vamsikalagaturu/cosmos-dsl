@@ -1,131 +1,131 @@
 {
-    "@context": [
-        "../../../metamodels/relations/coordinate.jsonld",
-        "https://comp-rob2b.github.io/metamodels/qudt.json",
-        {
-            "rob": "http://example.com/rob#"
-        }
-    ],
+  "@context": [
+    "../../../metamodels/relations/coordinate.jsonld",
+    "https://comp-rob2b.github.io/metamodels/qudt.json",
+    {
+      "rob": "http://example.com/rob#"
+    }
+  ],
 
-    "@id": "rob:coordinates",
+  "@id": "rob:coordinates",
 
-    "@graph": [
-        {
-            "@id": "rob:base_link_coord",
-            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
-            "of-frame": "rob:base_link",
-            "unit": "M"
-        },
-        {
-            "@id": "rob:bracelet_link_coord",
-            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
-            "of-frame": "rob:bracelet_link",
-            "as-seen-by": "rob:base_link",
-            "unit": "M"
-        },
-        {
-            "@id": "rob:target_link_coord_bf",
-            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
-            "of-frame": "rob:target_link_bf",
-            "as-seen-by": "rob:base_link",
-            "unit": "M",
-            "x": -0.30436,
-            "y": -0.0148534,
-            "z": 0.54964
-        },
-        {
-            "@id": "rob:target_link_ef_coord",
-            "@type": ["FrameReference", "FrameCoordinate", "VectorXYZ"],
-            "of-frame": "rob:target_link_ef",
-            "as-seen-by": "rob:bracelet_link",
-            "unit": "M",
-            "x": 0.2,
-            "y": 0.0,
-            "z": 0.0
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_ef_dist_coord",
-            "@type": "DistanceCoordinate",
-            "of-distance": "rob:bracelet_link_target_link_ef_dist",
-            "unit": "M"
-        },
-        {
-            "@id": "rob:bracelet_link_target_link_ef_xy_dist_coord",
-            "@type": ["DistanceCoordinate", "PlaneXY"],
-            "of-distance": "rob:bracelet_link_target_link_ef_xy_dist",
-            "unit": "M"
-        },
-        {
-            "@id": "rob:bracelet_link_lin_vel_coord_pre",
-            "@type": ["VelocityCoordinate", "VectorXYZ"],
-            "of-velocity": "rob:bracelet_link_lin_vel",
-            "as-seen-by": "rob:base_link",
-            "unit": "M-PER-SEC",
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        {
-            "@id": "rob:bracelet_link_ang_vel_coord_pre",
-            "@type": ["VelocityCoordinate", "VectorXYZ"],
-            "of-velocity": "rob:bracelet_link_ang_vel",
-            "as-seen-by": "rob:base_link",
-            "unit": "RAD-PER-SEC",
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        {
-            "@id": "rob:move_arm_down_bl_lin_vel_coord_per",
-            "@type": ["VelocityCoordinate", "VectorXYZ"],
-            "of-velocity": "rob:bracelet_link_lin_vel",
-            "as-seen-by": "rob:base_link",
-            "unit": "M-PER-SEC",
-            "x": 0.0,
-            "y": 0.0,
-            "z": -0.05
-        },
-        {
-            "@id": "rob:move_arm_down_bl_ang_vel_coord_per",
-            "@type": ["VelocityCoordinate", "VectorXYZ"],
-            "of-velocity": "rob:bracelet_link_ang_vel",
-            "as-seen-by": "rob:base_link",
-            "unit": "RAD-PER-SEC",
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        {
-            "@id": "rob:bracelet_link_dir_x_coord",
-            "@type": [ "VectorCoordinate", "VectorXYZ" ],
-            "of-direction": "rob:bracelet_link_dir_x",
-            "as-seen-by": "rob:bracelet_link",
-            "unit": "M",
-            "x": 1.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        {
-            "@id": "rob:bracelet_link_speed_x_coord",
-            "@type": "SpeedCoordinate",
-            "of-speed": "rob:bracelet_link_speed_x",
-            "unit": "M-PER-SEC",
-            "value": 0.1
-        },        
-        {
-            "@id": "rob:bracelet_link_vel_x_coord",
-            "@type": "VelocityCoordinate",
-            "of-velocity": "rob:bracelet_link_vel_x"
-        },
-        {
-            "@id": "rob:bracelet_link_force_coord",
-            "@type": ["WrenchCoordinate", "VectorXYZ"],
-            "of-wrench": "rob:bracelet_link_force",
-            "as-seen-by": "rob:bracelet_link",
-            "unit": "N",
-            "x": 0.0,
-            "y": 0.0,
-            "z": -10.0
-        }
-    ]
+  "@graph": [
+    {
+      "@id": "rob:base_link_coord",
+      "@type": [ "FrameReference", "FrameCoordinate", "VectorXYZ" ],
+      "of-frame": "rob:base_link",
+      "unit": "M"
+    },
+    {
+      "@id": "rob:bracelet_link_coord",
+      "@type": [ "FrameReference", "FrameCoordinate", "VectorXYZ" ],
+      "of-frame": "rob:bracelet_link",
+      "as-seen-by": "rob:base_link",
+      "unit": "M"
+    },
+    {
+      "@id": "rob:target_link_coord_bf",
+      "@type": [ "FrameReference", "FrameCoordinate", "VectorXYZ" ],
+      "of-frame": "rob:target_link_bf",
+      "as-seen-by": "rob:base_link",
+      "unit": "M",
+      "x": -0.30436,
+      "y": -0.0148534,
+      "z": 0.54964
+    },
+    {
+      "@id": "rob:target_link_ef_coord",
+      "@type": [ "FrameReference", "FrameCoordinate", "VectorXYZ" ],
+      "of-frame": "rob:target_link_ef",
+      "as-seen-by": "rob:bracelet_link",
+      "unit": "M",
+      "x": 0.2,
+      "y": 0.0,
+      "z": 0.0
+    },
+    {
+      "@id": "rob:bracelet_link_target_link_ef_dist_coord",
+      "@type": "DistanceCoordinate",
+      "of-distance": "rob:bracelet_link_target_link_ef_dist",
+      "unit": "M"
+    },
+    {
+      "@id": "rob:bracelet_link_target_link_ef_xy_dist_coord",
+      "@type": [ "DistanceCoordinate", "PlaneXY" ],
+      "of-distance": "rob:bracelet_link_target_link_ef_xy_dist",
+      "unit": "M"
+    },
+    {
+      "@id": "rob:bracelet_link_lin_vel_coord_pre",
+      "@type": [ "VelocityCoordinate", "VectorXYZ" ],
+      "of-velocity": "rob:bracelet_link_lin_vel",
+      "as-seen-by": "rob:base_link",
+      "unit": "M-PER-SEC",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    {
+      "@id": "rob:bracelet_link_ang_vel_coord_pre",
+      "@type": [ "VelocityCoordinate", "VectorXYZ" ],
+      "of-velocity": "rob:bracelet_link_ang_vel",
+      "as-seen-by": "rob:base_link",
+      "unit": "RAD-PER-SEC",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    {
+      "@id": "rob:move_arm_down_bl_lin_vel_coord_per",
+      "@type": [ "VelocityCoordinate", "VectorXYZ" ],
+      "of-velocity": "rob:bracelet_link_lin_vel",
+      "as-seen-by": "rob:base_link",
+      "unit": "M-PER-SEC",
+      "x": 0.0,
+      "y": 0.0,
+      "z": -0.05
+    },
+    {
+      "@id": "rob:move_arm_down_bl_ang_vel_coord_per",
+      "@type": [ "VelocityCoordinate", "VectorXYZ" ],
+      "of-velocity": "rob:bracelet_link_ang_vel",
+      "as-seen-by": "rob:base_link",
+      "unit": "RAD-PER-SEC",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    {
+      "@id": "rob:bracelet_link_dir_x_coord",
+      "@type": [ "VectorCoordinate", "VectorXYZ" ],
+      "of-direction": "rob:bracelet_link_dir_x",
+      "as-seen-by": "rob:bracelet_link",
+      "unit": "M",
+      "x": 1.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    {
+      "@id": "rob:bracelet_link_speed_x_coord",
+      "@type": "SpeedCoordinate",
+      "of-speed": "rob:bracelet_link_speed_x",
+      "unit": "M-PER-SEC",
+      "value": 0.1
+    },
+    {
+      "@id": "rob:bracelet_link_vel_x_coord",
+      "@type": "VelocityCoordinate",
+      "of-velocity": "rob:bracelet_link_vel_x"
+    },
+    {
+      "@id": "rob:bracelet_link_force_coord",
+      "@type": [ "WrenchCoordinate", "VectorXYZ" ],
+      "of-wrench": "rob:bracelet_link_force",
+      "as-seen-by": "rob:bracelet_link",
+      "unit": "N",
+      "x": 0.0,
+      "y": 0.0,
+      "z": -10.0
+    }
+  ]
 }

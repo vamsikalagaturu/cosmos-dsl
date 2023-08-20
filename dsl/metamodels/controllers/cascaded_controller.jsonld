@@ -1,18 +1,18 @@
 {
-    "@context": {
-        "cascadedController": "http://example.com/cascaded_controller#",
+  "@context": {
+    "cascadedController": "http://example.com/cascaded_controller#",
 
-        "CascadedController": "cascadedController:CascadedController",
-        "PositionVelocityController": "cascadedController:PositionVelocityController",
+    "CascadedController": "cascadedController:CascadedController",
+    "PositionVelocityController": "cascadedController:PositionVelocityController",
 
-        "position-controller": {
-            "@id": "cascadedController:position-controller",
-            "@type": "@id"
-        },
+    "position-controller": {
+      "@id": "cascadedController:position-controller",
+      "@type": "@id"
+    },
 
-        "velocity-controller": {
-            "@id": "cascadedController:velocity-controller",
-            "@type": "@id"
-        }
+    "velocity-controller": {
+      "@id": "cascadedController:velocity-controller",
+      "@type": "@id"
     }
+  }
 }

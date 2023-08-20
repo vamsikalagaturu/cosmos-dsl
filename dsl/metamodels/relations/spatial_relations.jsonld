@@ -1,18 +1,19 @@
 {
-    "@context": {
-        "spatrel": "http://example.com/spatial_relations#",
-        
-        "Position": "spatrel:Position",
-        "Orientation": "spatrel:Orientation",
-        "Pose": "spatrel:Pose",
-        
-        "of": {
-            "@id": "spatrel:of",
-            "@type": "@id"
-        },
-        "wrt": {
-            "@id": "spatrel:wrt",
-            "@type": "@id"
-        }
+  "@context": {
+    "spatrel": "http://example.com/spatial_relations#",
+
+    "Position": "spatrel:Position",
+    "Orientation": "spatrel:Orientation",
+    "Pose": "spatrel:Pose",
+
+    "of": {
+      "@id": "spatrel:of",
+      "@type": "@id"
+    },
+
+    "wrt": {
+      "@id": "spatrel:wrt",
+      "@type": "@id"
     }
+  }
 }

@@ -1,32 +1,32 @@
 {
-    "@context": {
-        "mapping": "http://example.com/mappings#",
+  "@context": {
+    "mapping": "http://example.com/mappings#",
 
-        "ControllerSolver": "mapping:ControllerSolver",
-        
-        "AccEnegery": "mapping:AccEnegery",
-        "ExtWrench": "mapping:ExtWrench",
+    "ControllerSolver": "mapping:ControllerSolver",
 
-        "interface": {
-            "@id": "mapping:interface",
-            "@type": "@id"
-        },
+    "AccEnegery": "mapping:AccEnegery",
+    "ExtWrench": "mapping:ExtWrench",
 
-        "solver": {
-            "@id": "mapping:solver",
-            "@type": "@id"
-        },
+    "interface": {
+      "@id": "mapping:interface",
+      "@type": "@id"
+    },
 
-        "solver-input": {
-            "@id": "mapping:solver-input",
-            "@type": "@id",
-            "@container": "@set"
-        },
+    "solver": {
+      "@id": "mapping:solver",
+      "@type": "@id"
+    },
 
-        "controller-mappings": {
-            "@id": "mapping:controller-mappings",
-            "@type": "@id",
-            "@container": "@set"
-        }
+    "solver-input": {
+      "@id": "mapping:solver-input",
+      "@type": "@id",
+      "@container": "@set"
+    },
+
+    "controller-mappings": {
+      "@id": "mapping:controller-mappings",
+      "@type": "@id",
+      "@container": "@set"
     }
+  }
 }

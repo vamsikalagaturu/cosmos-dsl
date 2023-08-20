@@ -1,32 +1,32 @@
 {
-    "@context": {
-        "pidController": "http://example.com/pid_controller#",
+  "@context": {
+    "pidController": "http://example.com/pid_controller#",
 
-        "PIDController": "pidController:PIDController",
+    "PIDController": "pidController:PIDController",
 
-        "p-gain": {
-            "@id": "pidController:p-gain",
-            "@type": "xsd:float"
-        },
+    "p-gain": {
+      "@id": "pidController:p-gain",
+      "@type": "xsd:float"
+    },
 
-        "i-gain": {
-            "@id": "pidController:i-gain",
-            "@type": "xsd:float"
-        },
+    "i-gain": {
+      "@id": "pidController:i-gain",
+      "@type": "xsd:float"
+    },
 
-        "d-gain": {
-            "@id": "pidController:d-gain",
-            "@type": "xsd:float"
-        },
+    "d-gain": {
+      "@id": "pidController:d-gain",
+      "@type": "xsd:float"
+    },
 
-        "time-step": {
-            "@id": "pidController:time-step",
-            "@type": "xsd:float"
-        },
+    "time-step": {
+      "@id": "pidController:time-step",
+      "@type": "xsd:float"
+    },
 
-        "constraint": {
-            "@id": "pidController:constraint",
-            "@type": "@id"
-        }
+    "constraint": {
+      "@id": "pidController:constraint",
+      "@type": "@id"
     }
+  }
 }

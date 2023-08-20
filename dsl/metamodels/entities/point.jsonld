@@ -1,6 +1,6 @@
 {
-    "@context": {
-        "point": "http://example.com/point#",
-        "Point": "point:Point"
-    }
+  "@context": {
+    "point": "http://example.com/point#",
+    "Point": "point:Point"
+  }
 }

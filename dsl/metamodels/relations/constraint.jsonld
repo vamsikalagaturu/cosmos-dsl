@@ -1,31 +1,33 @@
 {
-    "@context": {
-        "constraint-ns": "http://example.com/constraint#",
+  "@context": {
+    "constraint-ns": "http://example.com/constraint#",
 
-        "Constraint": "constraint-ns:Constraint",
-        "DistanceConstraint": "constraint-ns:DistanceConstraint",
-        "VelocityConstraint": "constraint-ns:VelocityConstraint",
-        "ForceConstraint": "constraint-ns:ForceConstraint",
+    "Constraint": "constraint-ns:Constraint",
+    "DistanceConstraint": "constraint-ns:DistanceConstraint",
+    "VelocityConstraint": "constraint-ns:VelocityConstraint",
+    "ForceConstraint": "constraint-ns:ForceConstraint",
 
-        "LessThan": "constraint-ns:LessThan",
-        "LessThanOrEqual": "constraint-ns:LessThanOrEqual",
-        "Equal": "constraint-ns:Equal",
-        "GreaterThanOrEqual": "constraint-ns:GreaterThanOrEqual",
-        "GreaterThan": "constraint-ns:GreaterThan",
-        "NotEqual": "constraint-ns:NotEqual",
-        "InInterval": "constraint-ns:InInterval",
+    "LessThan": "constraint-ns:LessThan",
+    "LessThanOrEqual": "constraint-ns:LessThanOrEqual",
+    "Equal": "constraint-ns:Equal",
+    "GreaterThanOrEqual": "constraint-ns:GreaterThanOrEqual",
+    "GreaterThan": "constraint-ns:GreaterThan",
+    "NotEqual": "constraint-ns:NotEqual",
+    "InInterval": "constraint-ns:InInterval",
 
-        "threshold": {
-            "@id": "constraint-ns:threshold",
-            "@type": "@id"
-        },
-        "operator": {
-            "@id": "constraint-ns:operator",
-            "@type": "@id"
-        },
-        "coord": {
-            "@id": "constraint-ns:coord",
-            "@type": "@id"
-        }
+    "threshold": {
+      "@id": "constraint-ns:threshold",
+      "@type": "@id"
+    },
+
+    "operator": {
+      "@id": "constraint-ns:operator",
+      "@type": "@id"
+    },
+
+    "coord": {
+      "@id": "constraint-ns:coord",
+      "@type": "@id"
     }
-} 
+  }
+}
