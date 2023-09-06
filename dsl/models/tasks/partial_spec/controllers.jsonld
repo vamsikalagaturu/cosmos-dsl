@@ -42,6 +42,26 @@
       "d-gain": 0.0,
       "time-step": 1,
       "constraint": "rob:move_arm_down_bl_ang_vel_constraint_per"
+    },
+    {
+      "@id": "rob:move_arm_stiffness_controller",
+      "@type": "StiffnessController",
+      "stiffness-diagonal-matrix": [100.0, 100.0, 100.0],
+      "time-step": 1,
+      "constraint": "rob:bracelet_link_target_link_dist_constraint_per"
+    },
+    {
+      "@id": "rob:move_arm_damping_controller",
+      "@type": "DampingController",
+      "damping-diagonal-matrix": [10.0, 10.0, 10.0],
+      "time-step": 1,
+      "constraint": "rob:move_arm_down_bl_lin_vel_constraint_per"
+    },
+    {
+      "@id": "rob:move_arm_impedance_controller",
+      "@type": "ImpedanceController",
+      "stiffness-controller": "rob:move_arm_stiffness_controller",
+      "damping-controller": "rob:move_arm_damping_controller"
     }
   ]
 }

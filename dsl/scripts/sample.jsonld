@@ -1,0 +1,83 @@
+{
+  "@context": [
+    {
+      "human": "http://example.com/human#",
+      "Human": "human:Human",
+
+      "name": {
+        "@id": "human:name",
+        "@type": "xsd:string"
+      }
+    },
+    {
+      "kryptonian": "http://example.com/kryptonian#",
+      "Kryptonian": "kryptonian:Kryptonian",
+
+      "name": {
+        "@id": "kryptonian:name",
+        "@type": "xsd:string"
+      }
+    },
+    {
+      "jl": "http://example.com/jl#",
+      "JL": "jl:JL",
+
+      "members": {
+        "@id": "jl:member",
+        "@type": "@id",
+        "@container": "@set"
+      }
+    },
+    {
+      "planet": "http://example.com/planet#",
+      "Planet": "planet:Planet",
+
+      "name": {
+        "@id": "planet:name",
+        "@type": "xsd:string"
+      },
+
+      "inhabitants": {
+        "@id": "planet:inhabitant",
+        "@type": "@id",
+        "@container": "@set"
+      }
+    }
+  ],
+  "@graph": [
+    {
+      "@id": "human:bruce_wayne",
+      "@type": "Human",
+      "name": "Bruce Wayne"
+    },
+    {
+      "@id": "kryptonian:kal-el",
+      "@type": "Kryptonian",
+      "name": "Kal-El"
+    },
+    {
+      "@id": "planet:earth",
+      "@type": "Planet",
+      "name": "Earth",
+      "inhabitants": [
+        "human:bruce_wayne"
+      ]
+    },
+  {
+    "@id": "planet:krypton",
+    "@type": "Planet",
+    "name": "Krypton",
+    "inhabitants": [
+      "kryptonian:kal-el"
+    ]
+  },
+    {
+      "@id": "jl:league",
+      "@type": "JL",
+      "members": [
+        "human:bruce_wayne",
+        "kryptonian:kal-el"
+      ]
+    }
+  ]
+}

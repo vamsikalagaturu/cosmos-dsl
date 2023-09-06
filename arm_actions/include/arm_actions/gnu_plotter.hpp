@@ -45,6 +45,18 @@ public:
   void saveDataToCSV(const std::vector<KDL::Vector>& current_val,
                      const KDL::Vector& target_val, std::string logname);
 
+  void saveDataToCSV(const std::vector<KDL::JntArray>& q,
+                     const std::vector<KDL::JntArray>& qdot,
+                     const std::vector<KDL::JntArray>& qddot,
+                     const std::vector<KDL::JntArray>& constraint_tau,
+                     const std::vector<KDL::Twist>& current_vel, 
+                     const std::vector<KDL::Twist>& target_vel,
+                     const std::vector<KDL::Vector>& current_pos, 
+                     const std::vector<KDL::Vector>& target_pos,
+                     const std::vector<KDL::JntArray>& control_signal,
+                     std::string logname);
+
+
 private:
   // plot data
   bool plot_data_;

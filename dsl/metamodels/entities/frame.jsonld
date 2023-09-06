@@ -1,6 +1,13 @@
 {
   "@context": {
     "frame": "http://example.com/frame#",
-    "Frame": "frame:Frame"
+    "Frame": "frame:Frame",
+
+    "OriginPointFrame": "frame:OriginPointFrame",
+
+    "origin-point": {
+      "@id": "frame:origin-point",
+      "@type": "@id"
+    }
   }
 }

@@ -160,6 +160,31 @@
       "solver-input": [
         "rob:pid_bracelet_link_target_link_ef_xy_controller_io_output"
       ]
+    },
+    {
+      "@id": "rob:move_arm_impedance_controller_mappings",
+      "@type": "ControllerMapping",
+      "controller": "rob:move_arm_impedance_controller",
+      "input": "rob:bracelet_link_coord",
+      "output": {
+        "@id": "rob:move_arm_impedance_controller_output",
+        "@type": "ControllerMappingOutput"
+      }
+    },
+    {
+      "@id": "rob:move_arm_compliantly_csm",
+      "@type": "ControllerSolver",
+      "interface": {
+        "@id": "rob:ext_wrench",
+        "@type": "ExtWrench"
+      },
+      "controller-mappings": [
+        "rob:move_arm_impedance_controller_mappings"
+      ],
+      "solver": "rob:vereshchagin_solver",
+      "solver-input": [
+        "rob:move_arm_impedance_controller_output"
+      ]
     }
   ]
 }

@@ -1,5 +1,7 @@
 #include "arm_actions/gnu_plotter.hpp"
 
+#include "kinfam_io.hpp"
+
 GNUPlotter::GNUPlotter(std::string logs_dir, bool plot_data, bool save_data)
     : logs_dir_(logs_dir), save_data_(save_data)
 {
@@ -162,8 +164,7 @@ void GNUPlotter::saveDataToCSV(const std::vector<KDL::Vector>& current_val,
 }
 
 void GNUPlotter::plotXYZ(const std::vector<KDL::Vector>& current_val,
-                         const KDL::Vector& target_val, std::string title,
-                         double ytick)
+                         const KDL::Vector& target_val, std::string title, double ytick)
 {
   std::vector<double> x_values, y_values, z_values;
   std::vector<double> target_x, target_y, target_z;
@@ -213,10 +214,59 @@ void GNUPlotter::plotXYZ(const std::vector<KDL::Vector>& current_val,
   gp << "set origin 0,0\n";
   gp << "set size 1,0.33\n";
   gp << "set ylabel 'Z'\n";
-  gp << "set ytics " << "0.02" << "\n";
+  gp << "set ytics "
+     << "0.02"
+     << "\n";
   gp << "plot '-' with lines title 'Z values', '-' with lines title '" << title << "Z'\n";
   gp.send1d(z_values);
   gp.send1d(target_z);
 
   gp << "unset multiplot\n";
+}
+
+void GNUPlotter::saveDataToCSV(
+    const std::vector<KDL::JntArray>& q, const std::vector<KDL::JntArray>& qdot,
+    const std::vector<KDL::JntArray>& qddot, const std::vector<KDL::JntArray>& constraint_tau,
+    const std::vector<KDL::Twist>& current_vel, const std::vector<KDL::Twist>& target_vel,
+    const std::vector<KDL::Vector>& current_pos, const std::vector<KDL::Vector>& target_pos,
+    const std::vector<KDL::JntArray>& control_signal, std::string logname)
+{
+  // get the filefilename
+  std::string filename = getNewFileName(logname);
+
+  // create the file
+  std::ofstream file(filename);
+
+  file << "Index,q1,q2,q3,q4,q5,q6,q7,qdot1,qdot2,qdot3,qdot4,qdot5,qdot6,qdot7,qddot1,qddot2,"
+          "qddot3,qddot4,qddot5,qddot6,qddot7,constraint_tau1,constraint_tau2,constraint_tau3,"
+          "constraint_tau4,constraint_tau5,constraint_tau6,constraint_tau7,current_vel_lin_x,"
+          "current_vel_lin_y,current_vel_lin_z,current_vel_ang_x,current_vel_ang_y,"
+          "current_vel_ang_z,target_vel_lin_x,target_vel_lin_y,target_vel_lin_z,target_vel_ang_x,"
+          "target_vel_ang_y,target_vel_ang_z,current_pos_x,current_pos_y,current_pos_z,"
+          "target_pos_x,target_pos_y,target_pos_z,control_signal1,control_signal2,control_signal3,"
+          "control_signal4,control_signal5,control_signal6\n";
+
+  for (size_t i = 0; i < q.size(); i++)
+  {
+    file << i << "," << q[i](0) << "," << q[i](1) << "," << q[i](2) << "," << q[i](3) << ","
+         << q[i](4) << "," << q[i](5) << "," << q[i](6) << "," << qdot[i](0) << "," << qdot[i](1)
+         << "," << qdot[i](2) << "," << qdot[i](3) << "," << qdot[i](4) << "," << qdot[i](5)
+         << "," << qdot[i](6) << "," << qddot[i](0) << "," << qddot[i](1) << "," << qddot[i](2)
+         << "," << qddot[i](3) << "," << qddot[i](4) << "," << qddot[i](5) << "," << qddot[i](6)
+         << "," << constraint_tau[i](0) << "," << constraint_tau[i](1) << ","
+         << constraint_tau[i](2) << "," << constraint_tau[i](3) << "," << constraint_tau[i](4)
+         << "," << constraint_tau[i](5) << "," << constraint_tau[i](6) << ","
+         << current_vel[i].vel.x() << "," << current_vel[i].vel.y() << ","
+         << current_vel[i].vel.z() << "," << current_vel[i].rot.x() << ","
+         << current_vel[i].rot.y() << "," << current_vel[i].rot.z() << "," << target_vel[i].vel.x()
+         << "," << target_vel[i].vel.y() << "," << target_vel[i].vel.z() << ","
+         << target_vel[i].rot.x() << "," << target_vel[i].rot.y() << "," << target_vel[i].rot.z()
+         << "," << current_pos[i].x() << "," << current_pos[i].y() << "," << current_pos[i].z()
+         << "," << target_pos[i].x() << "," << target_pos[i].y() << "," << target_pos[i].z()
+         << "," << control_signal[i](0) << "," << control_signal[i](1) << ","
+         << control_signal[i](2) << "," << control_signal[i](3) << "," << control_signal[i](4)
+         << "," << control_signal[i](5) << "\n";
+  }
+
+  file.close();
 }

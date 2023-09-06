@@ -23,10 +23,12 @@ class Convert:
         self.no_render = no_render
         self.debug_graph = debug_graph
 
-        self.utils = Utils()
+        root_path = os.path.join(os.path.dirname(__file__), '..')
+        ws_path = os.path.join(os.path.dirname(__file__), '../../..')
+
+        self.utils = Utils(ws_path)
 
         # relative paths to models
-        root_path = os.path.join(os.path.dirname(__file__), '..')
         self.models = f'{root_path}/models/tasks/partial_spec/'
 
         self.templates_env = Environment(
@@ -39,7 +41,7 @@ class Convert:
                 self.model_names.append(file)
 
     def parse_models(self, model_names: list) -> rdflib.ConjunctiveGraph:
-        # Create an RDF graph and parse the monitor instance file
+        # Create an RDF graph
         g = rdflib.ConjunctiveGraph()
         for model_name in model_names:
             g.parse(self.models + model_name, format='json-ld')
@@ -155,7 +157,7 @@ class Convert:
         big_data['controllers'] = {}
         big_data['tasks'] = {}
 
-        # get monitors
+        # get task specs
         for task_spec in g.subjects(RDF.type, BASETASK["BaseTask"]):
             data = {}
 

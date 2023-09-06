@@ -9,6 +9,19 @@
   "@id": "rob:kinematics_instance",
   "@graph": [
     {
+      "@id": "rob:bracelet_link_target_link_dist",
+      "@type": [
+        "EuclideanDistance",
+        "FrameToFrameDistance",
+        "3D", "LinearDistance"
+      ],
+      "between-entities": [
+        "rob:bracelet_link",
+        "rob:target_link_ef"
+      ],
+      "quantity-kind": "Length"
+    },
+    {
       "@id": "rob:bracelet_link_target_link_ef_dist",
       "@type": [
         "EuclideanDistance",
@@ -63,7 +76,7 @@
     },
     {
       "@id": "rob:bracelet_link_dir_x",
-      "@type": [ "3D", "Euclidean", "DirectionVector",
+      "@type": [ "1D", "Euclidean", "DirectionVector",
         "Vector", "BoundVector", "UnitLength" ],
       "quantity-kind": "Length",
       "start": "rob:bracelet_link"

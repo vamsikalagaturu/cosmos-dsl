@@ -70,7 +70,7 @@
       "unit": "M"
     },
     {
-      "@id": "rob:bracelet_link_force_threshold",
+      "@id": "rob:bracelet_link_force_z_threshold",
       "@type": "Threshold",
       "threshold-value": 0.1,
       "unit": "N"
@@ -139,11 +139,18 @@
       "coord": "rob:move_arm_down_bl_ang_vel_coord_per"
     },
     {
-      "@id": "rob:bracelet_link_force_constraint_per",
+      "@id": "rob:bracelet_link_force_z_constraint_per",
       "@type": [ "Constraint", "ForceConstraint" ],
-      "threshold": "rob:bracelet_link_force_threshold",
+      "threshold": "rob:bracelet_link_force_z_threshold",
       "operator": "rob:eq",
-      "coord": "rob:bracelet_link_force_coord"
+      "coord": "rob:bracelet_link_force_z_coord"
+    },
+    {
+      "@id": "rob:bracelet_link_target_link_dist_constraint_post",
+      "@type": [ "Constraint", "DistanceConstraint" ],
+      "threshold": "rob:dist_threshold_pre",
+      "operator": "rob:lt",
+      "coord": "rob:bracelet_link_target_link_dist_coord"
     },
     {
       "@id": "rob:bracelet_link_target_link_ef_xy_dist_constraint_pre",

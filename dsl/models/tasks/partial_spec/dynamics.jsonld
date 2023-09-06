@@ -9,10 +9,10 @@
   "@id": "rob:dynamics_instance",
   "@graph": [
     {
-      "@id": "rob:bracelet_link_force",
+      "@id": "rob:bracelet_link_z_force",
       "@type": [ "Force", "ContactForce" ],
       "applied-by": "rob:bracelet_link",
-      "applied-to": "rob:table_link",
+      "applied-to": "rob:contour_link",
       "quantity-kind": "Force"
     }
   ]
