@@ -1,3 +1,10 @@
+"""
+Author: Vamsi Kalagaturu
+
+Description:
+This script contans queries to get information from the RDF graph.
+"""
+
 import time
 from rdflib import RDF, Graph, URIRef
 from rdflib.collection import Collection
@@ -270,7 +277,8 @@ class QueryUtils:
 
                 qb = qres.bindings
 
-                assert len(qb[0]) > 0, "Velocity corrds are not properly defined"
+                assert len(
+                    qb[0]) > 0, "Velocity corrds are not properly defined"
 
                 of_coord = qb[0]['of_coord']
                 wrt_coord = qb[0]['wrt_coord']
@@ -841,7 +849,7 @@ class QueryUtils:
                 qb = qres.bindings
 
                 assert len(qb[0]) > 0, "Coordinate type is not supported"
-                
+
                 if qb[0]['coord_type'] is not None:
                     non_3d_coord_type = str(qb[0]['coord_type']).split('#')[1]
 

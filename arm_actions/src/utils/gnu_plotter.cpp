@@ -1,6 +1,31 @@
-#include "arm_actions/gnu_plotter.hpp"
+/**
+ * Author: Vamsi Kalagaturu
+ * Contributors: Ravisankar Selvaraju, Wing Ki Lau
+ * 
+ * Description: Library to plot KDL data variables using gnuplot
+ *
+ * Copyright (c) [2023]
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+*/
 
-#include "kinfam_io.hpp"
+#include "arm_actions/gnu_plotter.hpp"
 
 GNUPlotter::GNUPlotter(std::string logs_dir, bool plot_data, bool save_data)
     : logs_dir_(logs_dir), save_data_(save_data)
@@ -250,22 +275,22 @@ void GNUPlotter::saveDataToCSV(
   {
     file << i << "," << q[i](0) << "," << q[i](1) << "," << q[i](2) << "," << q[i](3) << ","
          << q[i](4) << "," << q[i](5) << "," << q[i](6) << "," << qdot[i](0) << "," << qdot[i](1)
-         << "," << qdot[i](2) << "," << qdot[i](3) << "," << qdot[i](4) << "," << qdot[i](5)
-         << "," << qdot[i](6) << "," << qddot[i](0) << "," << qddot[i](1) << "," << qddot[i](2)
-         << "," << qddot[i](3) << "," << qddot[i](4) << "," << qddot[i](5) << "," << qddot[i](6)
-         << "," << constraint_tau[i](0) << "," << constraint_tau[i](1) << ","
-         << constraint_tau[i](2) << "," << constraint_tau[i](3) << "," << constraint_tau[i](4)
-         << "," << constraint_tau[i](5) << "," << constraint_tau[i](6) << ","
-         << current_vel[i].vel.x() << "," << current_vel[i].vel.y() << ","
-         << current_vel[i].vel.z() << "," << current_vel[i].rot.x() << ","
-         << current_vel[i].rot.y() << "," << current_vel[i].rot.z() << "," << target_vel[i].vel.x()
-         << "," << target_vel[i].vel.y() << "," << target_vel[i].vel.z() << ","
-         << target_vel[i].rot.x() << "," << target_vel[i].rot.y() << "," << target_vel[i].rot.z()
-         << "," << current_pos[i].x() << "," << current_pos[i].y() << "," << current_pos[i].z()
-         << "," << target_pos[i].x() << "," << target_pos[i].y() << "," << target_pos[i].z()
-         << "," << control_signal[i](0) << "," << control_signal[i](1) << ","
-         << control_signal[i](2) << "," << control_signal[i](3) << "," << control_signal[i](4)
-         << "," << control_signal[i](5) << "\n";
+         << "," << qdot[i](2) << "," << qdot[i](3) << "," << qdot[i](4) << "," << qdot[i](5) << ","
+         << qdot[i](6) << "," << qddot[i](0) << "," << qddot[i](1) << "," << qddot[i](2) << ","
+         << qddot[i](3) << "," << qddot[i](4) << "," << qddot[i](5) << "," << qddot[i](6) << ","
+         << constraint_tau[i](0) << "," << constraint_tau[i](1) << "," << constraint_tau[i](2)
+         << "," << constraint_tau[i](3) << "," << constraint_tau[i](4) << ","
+         << constraint_tau[i](5) << "," << constraint_tau[i](6) << "," << current_vel[i].vel.x()
+         << "," << current_vel[i].vel.y() << "," << current_vel[i].vel.z() << ","
+         << current_vel[i].rot.x() << "," << current_vel[i].rot.y() << ","
+         << current_vel[i].rot.z() << "," << target_vel[i].vel.x() << "," << target_vel[i].vel.y()
+         << "," << target_vel[i].vel.z() << "," << target_vel[i].rot.x() << ","
+         << target_vel[i].rot.y() << "," << target_vel[i].rot.z() << "," << current_pos[i].x()
+         << "," << current_pos[i].y() << "," << current_pos[i].z() << "," << target_pos[i].x()
+         << "," << target_pos[i].y() << "," << target_pos[i].z() << "," << control_signal[i](0)
+         << "," << control_signal[i](1) << "," << control_signal[i](2) << ","
+         << control_signal[i](3) << "," << control_signal[i](4) << "," << control_signal[i](5)
+         << "\n";
   }
 
   file.close();

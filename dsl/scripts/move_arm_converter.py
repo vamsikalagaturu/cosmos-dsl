@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+Author: Vamsi Kalagaturu
+
+Description:
+This script converts the motion specifications to C++ code.
+"""
+
 import os
 import sys
 import argparse
@@ -75,7 +82,7 @@ class Convert:
                     "coords": data["coords"],
                     "constraints": data["constraints"],
                     "controllers": data["controllers"],
-                    "ns": ns
+                    "task_name": task
                 })
 
                 self.utils.write_to_file(result, task_name=task)

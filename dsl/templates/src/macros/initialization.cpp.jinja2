@@ -7,9 +7,12 @@
   // get current file path
   std::filesystem::path path = __FILE__;
 
-  std::string log_path = path.parent_path().parent_path().parent_path().string() + "/logs/runs/";
+  // get the current working directory
+  std::filesystem::path cwd = std::filesystem::current_path();
 
-  std::string data_path = path.parent_path().parent_path().parent_path().string() + "/logs/data/";
+  std::string log_path = cwd.parent_path().string() + "/logs/runs/";
+
+  std::string data_path = cwd.parent_path().string() + "/logs/data/";
 
   // initialize logger
   std::shared_ptr<Logger> logger = std::make_shared<Logger>(true, false, log_path);
