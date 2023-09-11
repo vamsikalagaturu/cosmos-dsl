@@ -1,4 +1,4 @@
-## Repository consisiting DSL for motion specifications using Vereshchagin solver
+## Composable Motion Specifications DSL using Popov-Vereshchagin Hybrid Dynamics solver
 
 ## Dependencies:
 - rdflib
