@@ -36,7 +36,7 @@ cmake --build .
 
 echo "Build complete."
 
-echo "Output executables are in the outputs/ directory."
+echo "Output executables are in the "$parent_dir/outputs/" directory."
 
 # Install the project
 # cmake --install ../build --prefix ../install

@@ -59,6 +59,14 @@
 
 ### Step 1
 
+- Install the `modelling_tools` package
+    
+    ```bash
+    cd ~/workspace/src/modelling_tools/
+
+    pip3 install -e .
+    ```
+
 - Convert the DSL to C++ code
 
     ```bash

@@ -33,7 +33,7 @@
   if (_plot)
   {
     logger->logInfo("Plotting the results");
-    plotter->plotXYZ(positions, target_link_coord_frame.p, "positions");
+    plotter->plotXYZ(positions, KDL::Vector{0.0, 0.0, 0.0}, "positions");
     plotter->plotXYZ(velocities, KDL::Vector{0.01, 0.01, 0.01}, "velocities");
   }
 
