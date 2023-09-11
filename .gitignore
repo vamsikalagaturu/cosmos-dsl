@@ -2,4 +2,8 @@
 
 __pycache__/
 
-build/
+*.egg-info/
+
+# ignore mujoco and kinova api
+mujoco/
+kinova_api/

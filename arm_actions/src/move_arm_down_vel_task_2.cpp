@@ -222,7 +222,7 @@ int main()
   // start loop
   // counter
   int i = 0;
-  int break_iteration_ = 2500;
+  int break_iteration_ = 500;
 
   // run the system
   while (true)
