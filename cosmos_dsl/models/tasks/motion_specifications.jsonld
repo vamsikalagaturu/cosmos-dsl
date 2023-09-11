@@ -1,6 +1,6 @@
 {
   "@context": [
-    "../../../metamodels/motion_specifications/move_arm.jsonld",
+    "../../metamodels/motion_specifications/move_arm.jsonld",
     {
       "rob": "http://example.com/rob#"
     }

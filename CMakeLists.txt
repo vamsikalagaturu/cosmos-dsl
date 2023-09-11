@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(MS_VS_DSL)
+project(COSMOS_DSL)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -14,7 +14,10 @@ Set(FETCHCONTENT_QUIET FALSE)
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mujoco/mujoco-2.3.7/lib/libmujoco.so)
     message(WARNING "mujoco api not found.")
     message("Downloading file...")
-    File(DOWNLOAD https://github.com/google-deepmind/mujoco/releases/download/2.3.7/mujoco-2.3.7-linux-x86_64.tar.gz ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-2.3.7.tar.gz SHOW_PROGRESS STATUS DOWNLOAD_RESULT)
+    File(DOWNLOAD 
+        https://github.com/google-deepmind/mujoco/releases/download/2.3.7/mujoco-2.3.7-linux-x86_64.tar.gz 
+        ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-2.3.7.tar.gz 
+        SHOW_PROGRESS STATUS DOWNLOAD_RESULT)
     list(GET DOWNLOAD_RESULT 0 DOWNLOAD_RESULT_CODE)
     if(NOT DOWNLOAD_RESULT_CODE EQUAL 0)
         message(FATAL_ERROR "Failed downloading! Error: ${DOWNLOAD_RESULT}.")
@@ -34,7 +37,10 @@ endif()
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/kinova_api/lib/release/libKortexApiCpp.a)
     message(WARNING "kinova_api not found.")
     message("Downloading file...")
-    File(DOWNLOAD https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/2.6.0/linux_x86-64_x86_gcc.zip ${CMAKE_CURRENT_SOURCE_DIR}/kinova_api.zip SHOW_PROGRESS STATUS DOWNLOAD_RESULT)
+    File(DOWNLOAD 
+        https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/2.6.0/linux_x86-64_x86_gcc.zip 
+        ${CMAKE_CURRENT_SOURCE_DIR}/kinova_api.zip 
+        SHOW_PROGRESS STATUS DOWNLOAD_RESULT)
     list(GET DOWNLOAD_RESULT 0 DOWNLOAD_RESULT_CODE)
     if(NOT DOWNLOAD_RESULT_CODE EQUAL 0)
         message(FATAL_ERROR "Failed downloading! Error: ${DOWNLOAD_RESULT}.")

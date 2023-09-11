@@ -1,6 +1,6 @@
 {
   "@context": [
-    "../../../metamodels/mechanics/kinematics.jsonld",
+    "../../metamodels/mechanics/kinematics.jsonld",
     "https://comp-rob2b.github.io/metamodels/qudt.json",
     {
       "rob": "http://example.com/rob#"

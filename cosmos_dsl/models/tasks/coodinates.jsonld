@@ -1,6 +1,6 @@
 {
   "@context": [
-    "../../../metamodels/relations/coordinate.jsonld",
+    "../../metamodels/relations/coordinate.jsonld",
     "https://comp-rob2b.github.io/metamodels/qudt.json",
     {
       "rob": "http://example.com/rob#"

@@ -1,6 +1,6 @@
 {
   "@context": [
-    "../../../metamodels/controllers/pid_controller.jsonld",
+    "../../metamodels/controllers/pid_controller.jsonld",
     {
       "rob": "http://example.com/rob#"
     }

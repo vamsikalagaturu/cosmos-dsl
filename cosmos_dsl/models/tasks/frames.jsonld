@@ -1,6 +1,6 @@
 {
   "@context": [
-    "../../../metamodels/entities/frame.jsonld",
+    "../../metamodels/entities/frame.jsonld",
     {
       "rob": "http://example.com/rob#"
     }

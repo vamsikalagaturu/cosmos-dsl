@@ -23,22 +23,22 @@
     
 - It is recommended to use a virtual environment or you can skip to step 3
 - You can install miniconda from [here](https://docs.conda.io/en/latest/miniconda.html).
-- Create a virtual environment from the `rnd_env.yml` file.
+- Create a virtual environment from the `cosmos_env.yml` file.
     
     ```bash
     cd ~/workspace/src
 
-    conda env create -f rnd_env.yml -n rnd_env
+    conda env create -f cosmos_env.yml -n <name>
     ```
 - Activate the environment
 
     ```bash
-    conda activate rnd_env
+    conda activate <name>
     ```
 
 ### Step 3
 
-- Install dependencies
+- Install dependencies for mujoco
 
     ```bash
     cd ~/workspace/src
@@ -74,7 +74,7 @@
     ```bash
     cd ~/workspace/src/
 
-    python3 -m dsl/scripts/convert.py -d
+    python3 modelling_tools/modelling_tools/move_arm_converter.py -d
     ```
 - The converted C++ code is written to `~/workspace/src/arm_actions/src/` directory.
 - Flags:

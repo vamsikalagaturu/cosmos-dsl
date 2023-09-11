@@ -1,7 +1,7 @@
 {
   "@context": [
-    "../../../metamodels/relations/constraint.jsonld",
-    "../../../metamodels/monitors/threshold.jsonld",
+    "../../metamodels/relations/constraint.jsonld",
+    "../../metamodels/monitors/threshold.jsonld",
     "https://comp-rob2b.github.io/metamodels/qudt.json",
     {
       "rob": "http://example.com/rob#"

@@ -47,6 +47,8 @@ class Utils:
         with open(fname, 'w+') as f:
             f.write(result)
 
+        print(f"File written to: {fname}")
+
 
 if __name__ == "__main__":
     utils = Utils()

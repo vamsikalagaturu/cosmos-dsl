@@ -1,8 +1,8 @@
 {
   "@context": [
-    "../../../metamodels/motion_specifications/controller_io.jsonld",
-    "../../../metamodels/motion_specifications/controller_mappings.jsonld",
-    "../../../metamodels/motion_specifications/mappings.jsonld",
+    "../../metamodels/motion_specifications/controller_io.jsonld",
+    "../../metamodels/motion_specifications/controller_mappings.jsonld",
+    "../../metamodels/motion_specifications/mappings.jsonld",
     {
       "rob": "http://example.com/rob#"
     }

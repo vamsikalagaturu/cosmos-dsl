@@ -1,6 +1,6 @@
 {
   "@context": [
-    "../../../metamodels/monitors/monitor.jsonld",
+    "../../metamodels/monitors/monitor.jsonld",
     "https://comp-rob2b.github.io/metamodels/qudt.json",
     {
       "rob": "http://example.com/rob#"

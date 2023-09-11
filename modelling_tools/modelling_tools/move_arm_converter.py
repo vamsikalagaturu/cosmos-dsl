@@ -6,7 +6,6 @@ This script converts the motion specifications to C++ code.
 """
 
 import os
-import sys
 import argparse
 import json
 import rdflib
@@ -15,8 +14,8 @@ from rdflib.collection import Collection
 
 from jinja2 import Environment, FileSystemLoader
 
-from utils.utils import Utils
-from utils.query_utils import QueryUtils
+from modelling_tools.utils.utils import Utils
+from modelling_tools.utils.query_utils import QueryUtils
 
 
 class Convert:
@@ -27,16 +26,16 @@ class Convert:
 
         # get the package root path
 
-        root_path = os.path.join(os.path.dirname(__file__), '../../dsl/')
+        root_path = os.path.join(os.path.dirname(__file__), '../../')
         ws_path = os.path.join(os.path.dirname(__file__), '../../..')
 
         self.utils = Utils(ws_path)
 
         # relative paths to models
-        self.models = f'{root_path}/models/tasks/'
+        self.models = f'{root_path}/cosmos_dsl/models/tasks/'
 
         self.templates_env = Environment(
-            loader=FileSystemLoader(f'{root_path}/templates'))
+            loader=FileSystemLoader(f'{root_path}/modelling_tools/templates'))
 
         # read the model names from the models folder
         self.model_names = []
@@ -54,6 +53,7 @@ class Convert:
 
     def main(self):
 
+        print("Parsing models...")
         g = self.parse_models(convert.model_names)
 
         if self.debug_graph:
@@ -71,8 +71,7 @@ class Convert:
             template = self.templates_env.get_template(
                 'src/move_arm_template.cpp.jinja2')
 
-            ns = "http://example.com/rob#"
-
+            print("Rendering templates...")
             for task in data["tasks"]:
                 result = template.render({
                     "task_spec": data["tasks"][task],
