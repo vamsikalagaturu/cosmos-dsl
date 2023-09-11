@@ -59,22 +59,12 @@
 
 ### Step 1
 
-- Run the `build.sh` script to build the packages
-
-    ```bash
-    cd ~/workspace/src/
-
-    ./build.sh
-    ```
-
-### Step 2
-
 - Convert the DSL to C++ code
 
     ```bash
-    cd ~/workspace/src/
+    cd ~/workspace/src/modelling_tools/
 
-    python3 modelling_tools/modelling_tools/move_arm_converter.py -d
+    python3 modelling_tools/move_arm_converter.py -d
     ```
 - The converted C++ code is written to `~/workspace/src/arm_actions/src/` directory.
 - Flags:
@@ -84,7 +74,7 @@
     -nr        Do not render the template 
     ```
 
-### Step 3
+### Step 2
 
 - Make and build the packages
   

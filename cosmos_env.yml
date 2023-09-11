@@ -1,4 +1,4 @@
-name: dsl
+name: cosmos-dsl
 channels:
   - defaults
 dependencies:
