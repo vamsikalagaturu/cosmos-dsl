@@ -16,7 +16,7 @@
     ```bash
     mkdir -p ~/workspace/src && cd ~/workspace/src
 
-    git clone --recurse-submodules -j8 https://github.com/vamsikalagaturu/ms-vs-dsl.git .
+    git clone --recurse-submodules -j8 https://github.com/vamsikalagaturu/cosmos-dsl.git .
     ```
 
 ### Step 2
