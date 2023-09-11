@@ -1,11 +1,12 @@
 #include "arm_actions/arm_actions.hpp"
+#include <chrono>
 
 int main()
 {
   // initialize config
-  bool _debug = true;
-  bool _visualize = false;
-  bool _plot = false;
+  bool _debug = false;
+  bool _visualize = true;
+  bool _plot = true;
   bool _save_data = true;
   ENV _env = ENV::SIM;
 
@@ -94,7 +95,7 @@ int main()
   else if (_env == ENV::ROB)
   {
     logger->logWarning("Real robot mode");
-    km->initialize(0, 0, 0.0);
+    km->initialize(0, 1, 0.0);
     km->set_control_mode(2);  // 0 is position, 1 is velocity, 2 is torque
     km->get_robot_state(q, qd, joint_torques_m, f_tool_m);
   }
@@ -221,12 +222,14 @@ int main()
   // start loop
   // counter
   int i = 0;
-  int break_iteration_ = 500;
+  int break_iteration_ = 2500;
 
   // run the system
   while (true)
   {
     if (_debug) logger->logInfo("Iteration: %d", i);
+
+    logger->logInfo("Iteration: %d", i);
 
     if (_env == ENV::ROB) km->get_robot_state(q, qd, joint_torques_m, f_tool_m);
 
@@ -303,14 +306,14 @@ int main()
       beta_energy(j) = solver_beta_weights[j] + control_accelerations(j);
     }
 
-    if (_debug) logger->logInfo("Beta energy: %s", beta_energy);
+    // if (_debug) logger->logInfo("Beta energy: %s", beta_energy);
 
     // compute the inverse dynamics
     int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext,
                                             ff_tau, constraint_tau);
     if (sr < 0)
     {
-      logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
+      // logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
       return -1;
     }  
     
@@ -348,7 +351,7 @@ int main()
     // send torques to the robot if in real robot mode
     if (_env == ENV::ROB)
     {
-      logger->logInfo("Sending torques to robot");
+      // logger->logInfo("Sending torques to robot");
       km->set_joint_torques(constraint_tau);
     }
 
@@ -363,7 +366,7 @@ int main()
     if (post_monitor_1.checkAll(bracelet_link_coord_twist_1))
     {
       logger->logInfo("Post-condition 1 met");
-      // break;
+      // break;current_vel_lin_z
     }
 
     std::cout << std::endl;
@@ -371,10 +374,11 @@ int main()
     // end loop
     i++;
 
-    usleep(600);
-    
     if (i == break_iteration_)
       break;
+
+    // usleep(300);
+    
   }
 
   if (_save_data)
@@ -382,7 +386,7 @@ int main()
     logger->logInfo("Saving the data");
 
     plotter->saveDataToCSV(q_vec, qd_vec, qdd_vec, jnt_tau_vec, current_vel_vec, target_vel_vec,
-                           current_pos_vec, target_pos_vec, control_signal_vec, "move_arm_down_vel");
+                           current_pos_vec, target_pos_vec, control_signal_vec, "move_arm_down_vel_sim");
   }
 
   if (_visualize)

@@ -7,7 +7,7 @@ int main()
   bool _visualize = false;
   bool _plot = false;
   bool _save_data = true;
-  ENV _env = ENV::SIM;
+  ENV _env = ENV::ROB;
 
   // get current file path
   std::filesystem::path path = __FILE__;
@@ -94,7 +94,7 @@ int main()
   else if (_env == ENV::ROB)
   {
     logger->logWarning("Real robot mode");
-    km->initialize(0, 0, 0.0);
+    km->initialize(0, 1, 0.0);
     km->set_control_mode(2);  // 0 is position, 1 is velocity, 2 is torque
     km->get_robot_state(q, qd, joint_torques_m, f_tool_m);
   }
@@ -119,9 +119,11 @@ int main()
   KDL::Twist bracelet_link_coord_twist;
   std::string target_link_ef = "target_link_ef";
   KDL::Frame target_link_ef_coord_frame;
-  target_link_ef_coord_frame.p = { 0.2, 0.0, 0.0 };
+  target_link_ef_coord_frame.p = { 0.05, 0.0, 0.0 };
   tf_utils->transform(target_link_ef_coord_frame, &q, CoordinateSystem::EE, CoordinateSystem::BASE);
-  
+
+  logger->logInfo("bracelet_link_coord_frame: %s", bracelet_link_coord_frame.p);
+  logger->logInfo("target_link_ef_coord_frame: %s", target_link_ef_coord_frame.p);
   
   // initialize the monitors
   // Pre-conditions
@@ -136,8 +138,8 @@ int main()
 
   // Post-conditions
   
-  Monitor post_monitor_1(Monitor::MonitorType::POST, logger, "lt", "M", 0.0025
-                          ,&target_link_ef_coord_frame);
+  Monitor post_monitor_1(Monitor::MonitorType::POST, logger, "gt", "M", 0.0025
+                          ,KDL::Twist( {target_link_ef_coord_frame.p.x(), INFINITY, INFINITY}, { INFINITY, INFINITY, INFINITY } ));
                           
   
   
@@ -214,7 +216,7 @@ int main()
   // start loop
   // counter
   int i = 0;
-  int break_iteration_ = 500;
+  int break_iteration_ = 3000;
 
   // run the system
   while (true)
@@ -261,14 +263,14 @@ int main()
       beta_energy(j) = solver_beta_weights[j] + control_accelerations(j);
     }
 
-    if (_debug) logger->logInfo("Beta energy: %s", beta_energy);
+    // if (_debug) logger->logInfo("Beta energy: %s", beta_energy);
 
     // compute the inverse dynamics
     int sr = vereshchagin_solver.CartToJnt(q, qd, qdd, alpha_unit_forces, beta_energy, f_ext,
                                             ff_tau, constraint_tau);
     if (sr < 0)
     {
-      logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
+      // logger->logError("KDL: Vereshchagin solver ERROR: %d", sr);
       return -1;
     }  
     
@@ -286,27 +288,36 @@ int main()
       jnt_tau_vec.push_back(constraint_tau);
       int seg_n_1 = utils->getLinkIdFromChain(robot_chain, bracelet_link);
       current_vel_vec.push_back(twists[seg_n_1]);
-      target_vel_vec.push_back(KDL::Twist( { 0.0, 0.0, -0.05 }, {INFINITY, INFINITY, INFINITY} ));
+      target_vel_vec.push_back(KDL::Twist( { 0.0, 0.0, 0.0 }, {0.0, 0.0, 0.0} ));
       current_pos_vec.push_back(frames[seg_n_1].p);
-      target_pos_vec.push_back(KDL::Vector{0.0, 0.0, 0.0});
-      control_signal_vec.push_back(beta_energy);
+      target_pos_vec.push_back(target_link_ef_coord_frame.p);
+      KDL::JntArray beta_signal;
+      beta_signal.resize(6);
+
+      for (int bs=0; bs<beta_energy.rows(); bs++)
+      {
+        beta_signal(bs) = beta_energy(bs);
+      }
+
+      control_signal_vec.push_back(beta_signal);
+      
     }
 
     // update the joint positions and velocities if in simulation
-    if (_env == ENV::SIM) solver_utils->updateQandQd(q, qd, &qdd, dt);
+    if (_env == ENV::SIM) solver_utils->updateQandQd(q, qd, &qdd, dt);  
 
     // print the joint positions, velocities, aceelerations and constraint torques
-    if (_debug) {
-      logger->logInfo("Joint accelerations: %s", qdd);
-      logger->logInfo("Joint torques: %s", constraint_tau);
-      logger->logInfo("Joint velocities: %s", qd);
-      logger->logInfo("Joint positions: %s", q);
-    }
+    // if (_debug) {
+    //   logger->logInfo("Joint accelerations: %s", qdd);
+    //   logger->logInfo("Joint torques: %s", constraint_tau);
+    //   logger->logInfo("Joint velocities: %s", qd);
+    //   logger->logInfo("Joint positions: %s", q);
+    // }
     
     // send torques to the robot if in real robot mode
     if (_env == ENV::ROB)
     {
-      logger->logInfo("Sending torques to robot");
+      // logger->logInfo("Sending torques to robot");
       km->set_joint_torques(constraint_tau);
     }
 
@@ -315,7 +326,8 @@ int main()
     
     KDL::Frame bracelet_link_coord_frame_1 = frames[seg_n_1];
     positions.push_back(bracelet_link_coord_frame_1.p);
-    if (_debug) logger->logInfo("bracelet_link_coord_frame_1: %s", bracelet_link_coord_frame_1.p);
+    // if (_debug) logger->logInfo("bracelet_link_coord_frame_1: %s", bracelet_link_coord_frame_1.p);
+    // if (_debug) logger->logInfo("target: %s", target_link_ef_coord_frame.p);
     
     if (post_monitor_1.checkAll(bracelet_link_coord_frame_1))
     {
@@ -323,12 +335,12 @@ int main()
       break;
     }
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
     // end loop
     i++;
 
-    usleep(600);
+    // usleep(600);
     
     if (i == break_iteration_)
       break;
@@ -339,7 +351,7 @@ int main()
     logger->logInfo("Saving the data");
 
     plotter->saveDataToCSV(q_vec, qd_vec, qdd_vec, jnt_tau_vec, current_vel_vec, target_vel_vec,
-                           current_pos_vec, target_pos_vec, control_signal_vec, "move_arm_down_vel");
+                           current_pos_vec, target_pos_vec, control_signal_vec, "move_arm_forward_force");
   }
 
   if (_visualize)
@@ -352,7 +364,7 @@ int main()
   if (_plot)
   {
     logger->logInfo("Plotting the results");
-    plotter->plotXYZ(positions, target_link_ef_coord_frame.p, "positions");
+    // plotter->plotXYZ(positions, target_link_coord_frame.p, "positions");
     plotter->plotXYZ(velocities, KDL::Vector{0.01, 0.01, 0.01}, "velocities");
   }
 

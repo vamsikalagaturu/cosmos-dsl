@@ -1,4 +1,5 @@
 #include "arm_actions/monitors.hpp"
+#include "kinfam_io.hpp"
 
 Monitor::Monitor(MonitorType mt, std::shared_ptr<Logger> logger, std::string comp_op,
                  double thresh_val, std::string thresh_unit, std::array<double, 3> *target)
@@ -84,30 +85,7 @@ bool Monitor::checkAny(std::array<double, 3> current_position,
 
 // KDL::Frames
 
-bool Monitor::checkAll(KDL::Frame current)
-{
-  auto error = KDL::diff(current, *_target_frame);
-  if (_mt == MonitorType::PRE)
-  {
-    return _checkAll(error);
-  }
-  else
-  {
-    _current_twists.push(error);
 
-    if (_current_twists.isFull())
-    {
-      // take the average of the queue
-      auto _current_twists_average = _math_utils->computeAverage(&_current_twists);
-
-      return _checkAll(_current_twists_average);
-    }
-    else
-    {
-      return false;
-    }
-  }
-}
 
 bool Monitor::checkAll(KDL::Frame current, KDL::Frame target)
 {
@@ -146,6 +124,32 @@ bool Monitor::checkAny(KDL::Frame current, KDL::Frame target)
   auto error = KDL::diff(current, target);
 
   return _checkAny(error);
+}
+
+bool Monitor::checkAll(KDL::Frame current)
+{
+  // auto error = KDL::diff(current, *_target_frame);
+  if (_mt == MonitorType::PRE)
+  {
+    return true;
+  }
+  else
+  {
+    KDL::Twist current_twist;
+    current_twist.vel = current.p;
+    _current_twists.push(current_twist);
+    if (_current_twists.isFull())
+    {
+      // take the average of the queue
+      auto _current_twists_average = _math_utils->computeAverage(&_current_twists);
+
+      return _checkAll(_current_twists_average, _target_twist);
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
 
 bool Monitor::checkAll(KDL::Twist current)

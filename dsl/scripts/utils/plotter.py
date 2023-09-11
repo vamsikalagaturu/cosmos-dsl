@@ -1,517 +1,224 @@
 import os
 import sys
-
-import random
-from matplotlib.patches import Ellipse
-import numpy as np
-
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from units import unit
+import numpy as np
+import seaborn as sns
+import pandas as pd
 
 
 class Plotter:
 
     def __init__(self) -> None:
         # set the output path to be the root of the project
-        self.root_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))), 'outputs')
+        self.root_path = '/home/batsy/rnd/outputs/logs/data/'
 
-        self.out_path = os.path.join(self.root_path, 'plots')
+        self.out_path = os.path.join(self.root_path, '../../plots')
 
         # create the output directory if it does not exist
         os.makedirs(self.out_path, exist_ok=True)
 
-        self.meter = unit('m')
-        self.second = unit('s')
+        # load the data
+        self.load_data()
 
-        # all plots are in meters
+    def load_data(self):
+        arm_down_vel_folders = [i for i in range(0, 14, 3)]
+        arm_fwd_folders = [i for i in range(1, 14, 3)]
+        arm_fwd_force_folders = [i for i in range(2, 14, 3)]
 
-    def plot_point(self, label, point:np.ndarray, d2: bool = False):
-        # initialize the plot 2D or 3D with size 10x10
-        if d2:
-            plt.figure(figsize=(10, 10))
-            ax = plt.axes()
-        else:
-            plt.figure(figsize=(10, 10))
-            # set the 3D projection
-            ax = plt.axes(projection='3d')
+        self.arm_down_vel_data = []
+        self.arm_fwd_data = []
+        self.arm_fwd_force_data = []
+
+        self.tasks = []
+
+        for folder in arm_down_vel_folders:
+            # get .csv file in the folder
+            csv_file = [f for f in os.listdir(os.path.join(self.root_path, str(folder))) if f.endswith('.csv')][0]
+            # load the data
+            data = pd.read_csv(os.path.join(self.root_path, str(folder), csv_file))
+            # append to the list
+            self.arm_down_vel_data.append(data)
+
+        for folder in arm_fwd_folders:
+            # get .csv file in the folder
+            csv_file = [f for f in os.listdir(os.path.join(self.root_path, str(folder))) if f.endswith('.csv')][0]
+            # load the data
+            data = pd.read_csv(os.path.join(self.root_path, str(folder), csv_file))
+            # append to the list
+            self.arm_fwd_data.append(data)
+
+        for folder in arm_fwd_force_folders:
+            # get .csv file in the folder
+            csv_file = [f for f in os.listdir(os.path.join(self.root_path, str(folder))) if f.endswith('.csv')][0]
+            # load the data
+            data = pd.read_csv(os.path.join(self.root_path, str(folder), csv_file))
+            # append to the list
+            self.arm_fwd_force_data.append(data)
         
-        if d2:
-            x = random.uniform(0, 5)
-            y = random.uniform(0, 5)
+        self.tasks.append(self.arm_down_vel_data)
+        self.tasks.append(self.arm_fwd_data)
+        self.tasks.append(self.arm_fwd_force_data)
 
-            point = np.array([x, y])
+    def plot(self):
+        # plot the linear vel of z from 5 different runs in the same plot using seaborn
+        # create a dataframe
+        df = pd.DataFrame()
+        for i in range(len(self.arm_down_vel_data)):
+            df['run_' + str(i)] = self.arm_down_vel_data[i]['current_vel_lin_z']
 
-        # plot the point 2D or 3D
-        if d2:
-            ax.scatter(point[0], point[1], label=label)
-        else:
-            ax.scatter(point[0], point[1], point[2], label=label, marker='o', s=100)
-            ax.text(point[0]+0.002, point[1]+0.002, point[2]+0.002, label, size=15, zorder=2, color='k')
+        # plot the data
+        sns.set_theme(style="darkgrid")
+        
+        # plot the average of the runs
+        ax = sns.lineplot(data=df.mean(axis=1), label='Average')
+        # plot the standard deviation of the runs
+        ax.fill_between(df.index, df.mean(axis=1) - df.std(axis=1), df.mean(axis=1) + df.std(axis=1), alpha=0.2)
+        # plot the individual runs
+        # for i in range(len(self.arm_down_vel_data)):
+        #     sns.lineplot(data=df['run_' + str(i)], ax=ax, label='run_' + str(i))
 
-        # set the title of the plot
-        plt.title('Point Plot')
-        # set the x-axis label
-        ax.set_xlabel('X')
-        # set the y-axis label
-        ax.set_ylabel('Y')
-        # add grid
-        plt.grid()
-        # fit the plot to the window
+        # set the labels
+        ax.set(xlabel='Time (s)', ylabel='Linear Velocity (m/s)', title='Linear Velocity of Z')
+        # show the plot
+        plt.show()
+
+    def plot_velocity(self, ax, data, tdf, ylabel, title, target:bool = False, vertical_lines:bool = False):
+        df = pd.DataFrame(data)
+        avg = df.mean(axis=1)
+        std = df.std(axis=1)
+        
+        sns.lineplot(data=avg, label='Average', ax=ax)
+        ax.fill_between(df.index, avg - std, avg + std, alpha=0.2)
+        if target:
+            sns.lineplot(data=tdf.mean(axis=1), label='Target', ax=ax)
+        ax.set(xlabel='Iterations', ylabel=ylabel, title=title)
+        if vertical_lines:
+            # plot vertical area between 2510 and 2560 using sns color palette
+            ax.axvspan(2510, 2560, alpha=0.2, color=sns.color_palette()[2], label='Contact Detection')
+            ax.legend()
+
+
+    def plot_velocities(self, task:int = 0, target:bool = False, fig_title:str = ''):
+        data = self.tasks[task]
+        sns.set_theme(style="darkgrid")
+        fig, axs = plt.subplots(3, 2, figsize=(10, 10))
+
+        components = ['x', 'y', 'z']
+        velocities = ['lin', 'ang']
+
+        for comp in components:
+            for vel in velocities:
+                current_data_key = f'current_vel_{vel}_{comp}'
+                target_data_key = f'target_vel_{vel}_{comp}'
+
+                title_key = 'Linear' if vel == 'lin' else 'Angular'
+                units = 'm/s' if vel == 'lin' else 'rad/s'
+
+                title = f'{title_key} Velocity of {comp.upper()}'
+
+                df = pd.DataFrame()
+                tdf = pd.DataFrame()
+                for i in range(1, len(data)):
+                    df['run_' + str(i)] = data[i][current_data_key]
+                    tdf['run_' + str(i)] = data[i][target_data_key]
+                    # replace inf with 0
+                    tdf = tdf.replace([np.inf, -np.inf], 0)
+
+                vf = False
+                if comp == 'z' and vel == 'lin' and task == 0:
+                    vf = True
+
+                self.plot_velocity(axs[components.index(comp)][velocities.index(vel)], df, tdf, f'{title_key} Velocity ({units})', title, target, vf)
+
         plt.tight_layout()
-
-        # if 3D plot the z-axis label
-        if not d2:
-            ax.set_zlabel('Z')
-
-        # set the legend
-        plt.legend()
-
+        # set the title
+        fig.suptitle(fig_title)
+        plt.subplots_adjust(top=0.9)
+        # save the plot
+        plt.savefig(os.path.join(self.out_path, f'task_{task}_velocities.png'))
         plt.show()
 
-    def plot_frame(self):
+    def plot_taus(self, task:int = 0, fig_title:str = ''):
+        data = self.tasks[task]
+        # plot constraint taus
+        sns.set_theme(style="darkgrid")
+        labels = [f'constraint_tau{i}' for i in range(1,8)]
 
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
+        # size of the plot
+        plt.figure(figsize=(10, 10))
 
-        theta = 0
+        # plot in single plot
+        for i in range(len(labels)):
+            df = pd.DataFrame()
+            for j in range(1,len(data)):
+                df['run_' + str(j)] = data[j][labels[i]]
 
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
-
-        # Define arrow lengths
-        arrow_length = 10
-
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=0.5, head_length=0.7, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=0.5, head_length=0.7, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-
-        # Set plot limits
-        plt.xlim(-1, origin[0] + arrow_length + 2)
-        plt.ylim(-1, origin[1] + arrow_length + 2)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
-        plt.show()
-
-    def plot_frame_point(self):
-
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
-
-        theta = 0
-
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
-
-        # Define arrow lengths
-        arrow_length = 3
-
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
-
-        # calculate the head width and length based on the arrow length
-        head_width = arrow_length / 15
-        head_length = arrow_length / 10
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-        # annotate the origin
-        plt.annotate('O', (0, 0), (0 - 0.2, 0 - 0.2), size=15, zorder=2, color='k')
-
-        # plot the point
-        plt.plot(1.5, 1.5, 'bo', label='Point')
-        # annotate the point
-        plt.annotate('P', (1.5, 1.5), (1.5 + 0.1, 1.5 + 0.1), size=15, zorder=2, color='k')
-
-        # draw dashed lines from the point to the x-axis and y-axis
-        plt.plot([1.5, 1.5], [0, 1.5], 'g--')
-        plt.plot([0, 1.5], [1.5, 1.5], 'r--')
-
-        # Set plot limits
-        plt.xlim(-1, origin[0] + arrow_length + 1)
-        plt.ylim(-1, origin[1] + arrow_length + 1)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
-        plt.show()
-
-    def plot_vector(self):
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
+            ax = sns.lineplot(data=df.mean(axis=1), label=f'constraint_torque_{i}')
+            ax.fill_between(df.index, df.mean(axis=1) - df.std(axis=1), df.mean(axis=1) + df.std(axis=1), alpha=0.2)
+            ax.set(xlabel='Iterations', ylabel='Constraint Torque', title=labels[i])
         
-        theta = 0
-
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
-
-        # Define arrow lengths
-        arrow_length = 3
-
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
-
-        # calculate the head width and length based on the arrow length
-        head_width = arrow_length / 15
-        head_length = arrow_length / 10
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-        # annotate the origin
-        plt.annotate('O', (0, 0), (0 - 0.2, 0 - 0.2), size=15, zorder=2, color='k')
-
-        # plot the point
-        plt.plot(1.5, 1.5, 'bo', label='Point')
-        # annotate the point
-        plt.annotate('P', (1.5, 1.5), (1.5 + 0.1, 1.5 + 0.1), size=15, zorder=2, color='k')
-
-        # Define the vector
-        vector_point = np.array([1.5, 1.5])
-
-        # Plot the vector using annotate
-        vector_props = dict(facecolor='black', shrink=0.0, width=1, headwidth=10)
-        plt.annotate('', xy=vector_point, xytext=origin, arrowprops=vector_props)
-
-        # Set plot limits
-        plt.xlim(-1, origin[0] + arrow_length + 1)
-        plt.ylim(-1, origin[1] + arrow_length + 1)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame with Vector')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
+        # set the title
+        plt.title(fig_title)
+        plt.tight_layout()
+        # save the plot
+        plt.savefig(os.path.join(self.out_path, f'task_{task}_constraint_taus.png'))
         plt.show()
 
-    def plot_rigid_body(self):
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
+    def plot_contrl_signals(self, task:int = 0, fig_title:str = ''):
+        data = self.tasks[task]
+        # plot constraint taus
+        sns.set_theme(style="darkgrid")
+        labels = [f'control_signal{i}' for i in range(1,7)]
+
+        # size of the plot
+        plt.figure(figsize=(10, 10))
+
+        # plot in single plot
+        for i in range(len(labels)):
+            df = pd.DataFrame()
+            for j in range(len(data)):
+                df['run_' + str(j)] = data[j][labels[i]]
+
+            ax = sns.lineplot(data=df.mean(axis=1), label=f'control_signal_{i}')
+            ax.fill_between(df.index, df.mean(axis=1) - df.std(axis=1), df.mean(axis=1) + df.std(axis=1), alpha=0.2)
+            ax.set(xlabel='Iterations', ylabel='Control Signal', title=labels[i])
         
-        theta = 0
-
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
-
-        # Define arrow lengths
-        arrow_length = 3
-
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
-
-        # calculate the head width and length based on the arrow length
-        head_width = arrow_length / 15
-        head_length = arrow_length / 10
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-        # annotate the origin
-        plt.annotate('O', (0, 0), (0 - 0.2, 0 - 0.2), size=15, zorder=2, color='k')
-
-        # Define link lengths and joint angles
-        link_lengths = [1, 1, 1]  # Lengths of the three links
-        joint_angles = [np.pi / 4, np.pi / 3, np.pi / 6]  # Joint angles for each link
-
-        # Initialize starting point
-        current_x, current_y = 0.5, 0.5
-
-        # Loop through each link
-        for length, angle in zip(link_lengths, joint_angles):
-            # Calculate the new end point of the link
-            new_x = current_x + length * np.cos(angle)
-            new_y = current_y + length * np.sin(angle)
-            
-            # Calculate the mid-point of the link for ellipse center
-            mid_x = (current_x + new_x) / 2
-            mid_y = (current_y + new_y) / 2
-            
-            # Calculate ellipse width and height based on link length
-            ellipse_width = length * 1
-            ellipse_height = 0.3
-            
-            # Calculate the angle of rotation for the ellipse
-            ellipse_angle = np.degrees(angle)
-            
-            # Create and add the ellipse patch to the plot
-            ellipse = Ellipse((mid_x, mid_y), width=ellipse_width, height=ellipse_height, angle=ellipse_angle,
-                            edgecolor='black', facecolor='none')
-            
-            plt.gca().add_patch(ellipse)
-
-            # plot the center of the ellipse
-            plt.plot(mid_x, mid_y, 'ro')
-            
-            # Update the current position
-            current_x, current_y = new_x, new_y
-
-
-        # Set plot limits
-        plt.xlim(-1, 4)
-        plt.ylim(-1, 4)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame with Vector')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
+        # set the title
+        plt.title(fig_title)
+        plt.tight_layout()
+        # save the plot
+        plt.savefig(os.path.join(self.out_path, f'task_{task}_control_signals.png'))
         plt.show()
 
-    def plot_point_to_point_distance(self):
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
-        
-        theta = 0
+    def plot_positions(self, task:int = 0, fig_title:str = ''):
+        data = self.tasks[task]
+        sns.set_theme(style="darkgrid")
 
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
+        current_data_keys = ['current_pos_x', 'current_pos_y', 'current_pos_z']
+        target_data_keys = ['target_pos_x', 'target_pos_y', 'target_pos_z']
 
-        # Define arrow lengths
-        arrow_length = 3
+        fig, axs = plt.subplots(3, 1, figsize=(10, 10))
+        for i in range(1):
+            cdf = data[i][current_data_keys]
+            tdf = data[i][target_data_keys]
 
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
+            # plot current and target positions
+            for j in range(len(current_data_keys)):
+                ax = sns.lineplot(data=cdf[current_data_keys[j]], label=current_data_keys[j], ax=axs[j])
+                ax = sns.lineplot(data=tdf[target_data_keys[j]], label=target_data_keys[j], ax=axs[j])
+                ax.set(xlabel='Iterations', ylabel='Position (m)', title=f'Position of {current_data_keys[j].split("_")[2].upper()}')
 
-        # calculate the head width and length based on the arrow length
-        head_width = arrow_length / 15
-        head_length = arrow_length / 10
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-        # annotate the origin
-        plt.annotate('O', (0, 0), (0 - 0.2, 0 - 0.2), size=15, zorder=2, color='k')
-
-        # plot the point
-        plt.plot(1, 1, 'bo', label='Point')
-        # annotate the point
-        plt.annotate('A', (1, 1), (1 - 0.2, 1 - 0.2), size=15, zorder=2, color='k')
-
-        # plot the point
-        plt.plot(2, 2, 'bo', label='Point')
-        # annotate the point
-        plt.annotate('B', (2, 2), (2 + 0.1, 2 + 0.1), size=15, zorder=2, color='k')
-
-        # plot line between the points
-        plt.plot([1, 2], [1, 2], 'r--')
-
-        # Set plot limits
-        plt.xlim(-1, origin[0] + arrow_length + 1)
-        plt.ylim(-1, origin[1] + arrow_length + 1)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame with Vector')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
+        # set the title
+        fig.suptitle(fig_title)
+        plt.tight_layout()
+        # save the plot
+        plt.savefig(os.path.join(self.out_path, f'task_{task}_positions.png'))
         plt.show()
 
-    def plot_point_to_line_distance(self):
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
-        
-        theta = 0
-
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
-
-        # Define arrow lengths
-        arrow_length = 3
-
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
-
-        # calculate the head width and length based on the arrow length
-        head_width = arrow_length / 15
-        head_length = arrow_length / 10
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-        # annotate the origin
-        plt.annotate('O', (0, 0), (0 - 0.2, 0 - 0.2), size=15, zorder=2, color='k')
-
-        # plot the line
-        plt.plot([1, 2], [1, 2], 'r')
-
-        # plot line start point and end point
-        plt.plot(1, 1, 'ro', label='Point')
-        plt.plot(2, 2, 'ro', label='Point')
-
-        # plot the point
-        plt.plot(2, 1, 'bo', label='Point')
-        # annotate the point
-        plt.annotate('P', (2, 1), (2 + 0.1, 1 + 0.1), size=15, zorder=2, color='k')
-
-        # plot the perpendicular line from the point to the center of the line
-        plt.plot([2, 1.5], [1, 1.5], 'g--')
-
-        # Set plot limits
-        plt.xlim(-1, origin[0] + arrow_length + 1)
-        plt.ylim(-1, origin[1] + arrow_length + 1)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame with Vector')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
-        plt.show()
-
-    def plot_line_to_line_distance(self):
-        # Define the origin and orientation of the frame
-        origin = np.array([0, 0])  # Change this to your desired origin
-        
-        theta = 0
-
-        # calculate the x-axis and y-axis
-        x_axis = np.array([np.cos(theta), np.sin(theta)])
-        y_axis = np.array([-np.sin(theta), np.cos(theta)])
-
-        # Define arrow lengths
-        arrow_length = 3
-
-        # Calculate arrow endpoints
-        x_arrow_end = origin + arrow_length * x_axis
-        y_arrow_end = origin + arrow_length * y_axis
-
-        # calculate the head width and length based on the arrow length
-        head_width = arrow_length / 15
-        head_length = arrow_length / 10
-
-        # Create the plot
-        plt.figure(figsize=(8, 6))
-
-        # Plot the arrows
-        plt.arrow(origin[0], origin[1], x_arrow_end[0] - origin[0], x_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='r', ec='r', label='X-Axis')
-        plt.arrow(origin[0], origin[1], y_arrow_end[0] - origin[0], y_arrow_end[1] - origin[1],
-                head_width=head_width, head_length=head_length, fc='g', ec='g', label='Y-Axis')
-
-        # Plot the origin point
-        plt.plot(origin[0], origin[1], 'go', label='Origin')
-        # annotate the origin
-        plt.annotate('O', (0, 0), (0 - 0.2, 0 - 0.2), size=15, zorder=2, color='k')
-
-        # plot two parallel lines
-        plt.plot([0.5, 1.0], [0.5, 2.5], 'r')
-        plt.plot([2.0, 2.0], [0.5, 2.0], 'r')
-
-        # plot a shortest perpendicular line between the two lines
-        plt.plot([0.87, 2.0], [2.0, 2.0], 'c--')
-
-        # Set plot limits
-        plt.xlim(-1, origin[0] + arrow_length + 1)
-        plt.ylim(-1, origin[1] + arrow_length + 1)
-
-        # Add labels and legend
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('XY Frame with Vector')
-        plt.legend()
-
-        # Show the plot
-        plt.grid()
-        plt.show()
-
-
-    def test(self):
-        pass
-                
 
 if __name__ == '__main__':
     plotter = Plotter()
-    # plotter.plot_point('P', np.array([0., 0., 1.3]), d2=True)
-    # plotter.plot_frame_point()
-    # plotter.plot_vector()
-    # plotter.plot_rigid_body()
-    # plotter.plot_point_to_point_distance()
-    # plotter.plot_point_to_line_distance()
-    plotter.plot_line_to_line_distance()
+    # plotter.plot_velocities(task=2, target=False, fig_title='Partial Constraint Specifications (Linear XY) (Force 20N in -X) \n Average End-Effector Velocity (5 Runs)')
+    # plotter.plot_taus(task=2, fig_title='Partial Constraint Specifications (Linear XY) (Force 20N in -X) \n Average Constraint Torques (5 Runs)')
+    # plotter.plot_contrl_signals(task=1, fig_title='Partial Constraint Specifications (Linear XY) - Average Beta Energy (5 Runs)')
+    plotter.plot_positions(task=1, fig_title='Partial Constraint Specifications (Linear XY) \n End-Effector Position')

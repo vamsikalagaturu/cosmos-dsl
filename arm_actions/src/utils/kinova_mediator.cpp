@@ -605,7 +605,7 @@ void kinova_mediator::initialize(const int robot_environment, const int id, cons
     // Set session data connection information
     auto create_session_info = Kinova::Api::Session::CreateSessionInfo();
     create_session_info.set_username("admin");
-    create_session_info.set_password("admin");
+    create_session_info.set_password("kinova2_area4251");
     create_session_info.set_session_inactivity_timeout(200);     // (milliseconds)
     create_session_info.set_connection_inactivity_timeout(200);  // (milliseconds)
 
