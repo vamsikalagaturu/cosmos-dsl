@@ -1,5 +1,8 @@
 ## COSMOS-DSL: COmpoSable MOtion Specifications DSL using Popov-Vereshchagin Hybrid Dynamics solver
 
+## OS
+- The code is tested on Ubuntu 20 and 22 versions.
+
 ## Dependencies:
 - rdflib
 - jinja2
