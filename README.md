@@ -3,6 +3,7 @@
 ## Dependencies:
 - rdflib
 - jinja2
+- urdfdom
 - kdl_parser
 - orocos_kinematics_dynamics
 - gnuplot
@@ -39,15 +40,15 @@
 
 ### Step 3
 
-- Install gnuplot and dependencies for mujoco
+- Install the dependencies: kdl_parser, urdfdom, gnuplot, glfw3
 
     ```bash
-    sudo apt-get install libglfw3 libglfw3-dev libgnuplot-iostream-dev
+    sudo apt-get install libkdl-parser-dev liburdfdom-dev libglfw3 libglfw3-dev libgnuplot-iostream-dev
     ```
 
 - Run this command to add the mujoco path to the `~/.bashrc` file - modify the `<user-name>` accordingly.
     ```bash
-    echo -e 'export LD_LIBRARY_PATH=/home/<user-name>/.mujoco/mujoco210/bin
+    echo -e 'export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco210/bin
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia 
     export PATH="$LD_LIBRARY_PATH:$PATH" 
     export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libGLEW.so' >> ~/.bashrc

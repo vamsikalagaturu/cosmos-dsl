@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(arm_actions)
 
 find_package(orocos_kdl REQUIRED)
+find_package(kdl_parser REQUIRED)
 
 INCLUDE_DIRECTORIES(
   ${orocos_kdl_INCLUDE_DIRS}  

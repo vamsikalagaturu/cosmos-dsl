@@ -1,12 +1,3 @@
 [submodule "orocos_kinematics_dynamics"]
 	path = orocos_kinematics_dynamics
 	url = git@github.com:vamsikalagaturu/orocos_kinematics_dynamics.git
-[submodule "kdl_parser"]
-	path = kdl_parser
-	url = git@github.com:vamsikalagaturu/kdl_parser.git
-[submodule "urdfdom"]
-	path = urdfdom
-	url = git@github.com:vamsikalagaturu/urdfdom.git
-[submodule "urdfdom_headers"]
-	path = urdfdom_headers
-	url = git@github.com:vamsikalagaturu/urdfdom_headers.git
