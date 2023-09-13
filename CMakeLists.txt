@@ -61,6 +61,10 @@ add_subdirectory(orocos_kinematics_dynamics/orocos_kdl)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/orocos_kinematics_dynamics/orocos_kdl/src/)
 
+add_subdirectory(urdfdom)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/urdfdorm/urdfdom_parser/include/)
+
 add_subdirectory(kdl_parser/kdl_parser)
 
 add_compile_definitions(_OS_UNIX)
