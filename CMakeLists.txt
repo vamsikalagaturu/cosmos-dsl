@@ -61,6 +61,14 @@ add_subdirectory(orocos_kinematics_dynamics/orocos_kdl)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/orocos_kinematics_dynamics/orocos_kdl/src/)
 
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/urdfdom_headers/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/urdfdom_headers/include/urdf_exception
+    ${CMAKE_CURRENT_SOURCE_DIR}/urdfdom_headers/include/urdf_model
+    ${CMAKE_CURRENT_SOURCE_DIR}/urdfdom_headers/include/urdf_model_state
+    ${CMAKE_CURRENT_SOURCE_DIR}/urdfdom_headers/include/urdf_sensor
+    ${CMAKE_CURRENT_SOURCE_DIR}/urdfdom_headers/include/urdf_world)
+
 add_subdirectory(urdfdom)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/urdfdorm/urdfdom_parser/include/)

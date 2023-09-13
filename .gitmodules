@@ -7,3 +7,6 @@
 [submodule "urdfdom"]
 	path = urdfdom
 	url = git@github.com:vamsikalagaturu/urdfdom.git
+[submodule "urdfdom_headers"]
+	path = urdfdom_headers
+	url = git@github.com:vamsikalagaturu/urdfdom_headers.git
