@@ -40,13 +40,13 @@
 
 ### Step 3
 
-- Install the dependencies: kdl_parser, urdfdom, gnuplot, glfw3
+- Install the dependencies: kdl_parser, urdfdom, gnuplot, glfw3, yaml-cpp
 
     ```bash
-    sudo apt-get install libkdl-parser-dev liburdfdom-dev libglfw3 libglfw3-dev libgnuplot-iostream-dev
+    sudo apt-get install libkdl-parser-dev liburdfdom-dev libyaml-cpp-dev libglfw3 libglfw3-dev libgnuplot-iostream-dev
     ```
 
-- Run this command to add the mujoco path to the `~/.bashrc` file - modify the `<user-name>` accordingly.
+- Run this command to add the mujoco path to the `~/.bashrc` file.
     ```bash
     echo -e 'export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco210/bin
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia 
