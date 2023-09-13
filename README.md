@@ -108,3 +108,8 @@
 
     ./arm_actions/<executable_name>
     ```
+
+## Same demo of end-effector moving down with constant velocity
+
+<!-- insert gif -->
+![EE Move Down](docs/images/mujoco_demo.gif)
