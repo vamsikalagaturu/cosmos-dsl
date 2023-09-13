@@ -1,4 +1,4 @@
-## Composable Motion Specifications DSL using Popov-Vereshchagin Hybrid Dynamics solver
+## COSMOS-DSL: COmpoSable MOtion Specifications DSL using Popov-Vereshchagin Hybrid Dynamics solver
 
 ## Dependencies:
 - rdflib
