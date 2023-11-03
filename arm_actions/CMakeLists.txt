@@ -37,8 +37,8 @@ add_library(logger SHARED src/utils/logger.cpp)
 target_link_libraries(logger ${orocos_kdl_LIBRARIES})
 
 # add utils.cpp as library
-add_library(utils SHARED src/utils/utils.cpp)
-target_link_libraries(utils ${orocos_kdl_LIBRARIES} kdl_parser logger)
+add_library(mutils SHARED src/utils/utils.cpp)
+target_link_libraries(mutils ${orocos_kdl_LIBRARIES} kdl_parser logger)
 
 # add solver_utils.cpp as library
 add_library(solver_utils SHARED src/utils/solver_utils.cpp)
@@ -53,7 +53,7 @@ add_library(tf_utils SHARED src/utils/tf_utils.cpp)
 target_link_libraries(tf_utils ${orocos_kdl_LIBRARIES} logger orocos-kdl)
 
 add_library(monitor SHARED src/utils/monitors.cpp)
-target_link_libraries(monitor ${orocos_kdl_LIBRARIES} logger utils math_utils)
+target_link_libraries(monitor ${orocos_kdl_LIBRARIES} logger mutils math_utils)
 
 add_library(gnu_plotter SHARED src/utils/gnu_plotter.cpp)
 target_link_libraries(gnu_plotter boost_filesystem boost_system boost_iostreams orocos-kdl ${orocos_kdl_LIBRARIES})
@@ -74,7 +74,7 @@ foreach(source ${SOURCES})
     add_executable(${name} ${source})
     TARGET_LINK_LIBRARIES(${name} 
       orocos-kdl boost_filesystem boost_system boost_iostreams
-      pid_controller logger utils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
+      pid_controller logger mutils solver_utils gnu_plotter yaml-cpp monitor math_utils tf_utils
       mujoco_env kinova_mediator)
 endforeach(source ${SOURCES})
 
