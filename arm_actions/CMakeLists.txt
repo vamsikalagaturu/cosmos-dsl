@@ -18,7 +18,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/${PROJECT_
 # create logs folder in outputs folder if not exists
 file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/../outputs/logs)
 
-set(MUJOCO_PATH "${PROJECT_ROOT_DIR}/mujoco/mujoco-2.3.7")
+set(MUJOCO_PATH "${PROJECT_ROOT_DIR}/mujoco/mujoco-${MUJOCO_VERSION}")
 
 include_directories(${MUJOCO_PATH}/include)
 link_directories(${MUJOCO_PATH}/bin)
@@ -63,7 +63,7 @@ target_link_libraries(kinova_mediator ${orocos_kdl_LIBRARIES} orocos-kdl kdl_par
       ${PROJECT_ROOT_DIR}/kinova_api/lib/release/libKortexApiCpp.a pthread)
 
 add_library(mujoco_env SHARED src/utils/mujoco_env.cpp)
-target_link_libraries(mujoco_env ${MUJOCO_PATH}/lib/libmujoco.so glfw GL ${orocos_kdl_LIBRARIES} logger)
+target_link_libraries(mujoco_env ${MUJOCO_PATH}/lib/libmujoco.so.${MUJOCO_VERSION} glfw GL ${orocos_kdl_LIBRARIES} logger)
 
 # add all cpp files in src folder
 file(GLOB SOURCES "src/*.cpp") 

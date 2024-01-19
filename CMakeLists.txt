@@ -4,19 +4,25 @@ project(COSMOS_DSL)
 
 set(CMAKE_CXX_STANDARD 17)
 
+include(CTest)
+enable_testing()
+
 include(FetchContent)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../install)
 
 Set(FETCHCONTENT_QUIET FALSE)
 
-# check if mujoco/mujoco-2.3.7 exists
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mujoco/mujoco-2.3.7/lib/libmujoco.so)
+# set mujoco version
+set(MUJOCO_VERSION 3.1.1)
+
+# check if mujoco api exists
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mujoco/mujoco-${MUJOCO_VERSION}/lib/libmujoco.so.${MUJOCO_VERSION})
     message(WARNING "mujoco api not found.")
     message("Downloading file...")
     File(DOWNLOAD 
-        https://github.com/google-deepmind/mujoco/releases/download/2.3.7/mujoco-2.3.7-linux-x86_64.tar.gz 
-        ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-2.3.7.tar.gz 
+        https://github.com/google-deepmind/mujoco/releases/download/${MUJOCO_VERSION}/mujoco-${MUJOCO_VERSION}-linux-x86_64.tar.gz 
+        ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-${MUJOCO_VERSION}.tar.gz 
         SHOW_PROGRESS STATUS DOWNLOAD_RESULT)
     list(GET DOWNLOAD_RESULT 0 DOWNLOAD_RESULT_CODE)
     if(NOT DOWNLOAD_RESULT_CODE EQUAL 0)
@@ -25,10 +31,10 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mujoco/mujoco-2.3.7/lib/libmujoco.so)
     message("Creating directory...")
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mujoco)
     message("Extracting file...")
-    execute_process(COMMAND tar -xzf ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-2.3.7.tar.gz -C ${CMAKE_CURRENT_SOURCE_DIR}/mujoco OUTPUT_QUIET)
+    execute_process(COMMAND tar -xzf ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-${MUJOCO_VERSION}.tar.gz -C ${CMAKE_CURRENT_SOURCE_DIR}/mujoco OUTPUT_QUIET)
     message("Removing file...")
-    file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-2.3.7.tar.gz)
-    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mujoco/mujoco-2.3.7/lib/libmujoco.so)
+    file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/mujoco-${MUJOCO_VERSION}.tar.gz)
+    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mujoco/mujoco-${MUJOCO_VERSION}/lib/libmujoco.so)
         message(FATAL_ERROR "Something went wrong with the download and extraction of mujoco api.")
     endif()
 endif()
